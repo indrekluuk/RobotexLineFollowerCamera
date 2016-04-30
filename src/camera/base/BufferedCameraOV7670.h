@@ -8,6 +8,26 @@
 #include "CameraOV7670.h"
 
 
+
+// Pixel receiving order from camera: Pixel_1_H, Pixel_1_L, Pixel_2_H, Pixel_2_L ...
+// First byte from camera is half a pixel (lower byte of a pixel).
+// Shift line data data by 1 byte to correct it.
+// This means that first pixel in each line is actually broken.
+template <uint16_t size>
+union OV7670PixelBuffer {
+  struct {
+    uint8_t writeBufferPadding;
+    uint8_t writeBuffer[size];
+  };
+  struct {
+    uint8_t readBuffer[size];
+    uint8_t readBufferPadding;
+  };
+};
+
+
+
+
 template <uint16_t x, uint16_t y>
 class BufferedCameraOV7670 : public CameraOV7670 {
 
@@ -15,7 +35,7 @@ protected:
   static const uint16_t lineLength = x;
   static const uint16_t lineCount = y;
   static const uint16_t pixelBufferLength = x*2;
-  static uint8_t pixelBuffer[];
+  static OV7670PixelBuffer<x*2> pixelBuffer;
 
 public:
   BufferedCameraOV7670(PixelFormat format) : CameraOV7670(format) {};
@@ -31,10 +51,9 @@ public:
 };
 
 
-// shift everything by one since first pixel from camera is a half pixel
-template <uint16_t x, uint16_t y>
-uint8_t BufferedCameraOV7670<x, y>::pixelBuffer[BufferedCameraOV7670<x, y>::pixelBufferLength + 1];
 
+template <uint16_t x, uint16_t y>
+OV7670PixelBuffer<x*2> BufferedCameraOV7670<x, y>::pixelBuffer;
 
 
 
@@ -56,7 +75,7 @@ uint16_t BufferedCameraOV7670<x, y>::getPixelBufferLength() {
 
 template <uint16_t x, uint16_t y>
 uint8_t BufferedCameraOV7670<x, y>::getPixelByte(uint16_t byteIndex) {
-  return pixelBuffer[byteIndex];
+  return pixelBuffer.readBuffer[byteIndex];
 }
 
 

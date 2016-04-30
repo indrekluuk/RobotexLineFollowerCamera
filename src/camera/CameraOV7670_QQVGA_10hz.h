@@ -29,10 +29,9 @@ private:
 
 
 void CameraOV7670_QQVGA_10hz::readLine() {
-  // shift everything by one since first pixel from camera is a half pixel
-  pixelBuffer[0] = 0;
+  pixelBuffer.writeBufferPadding = 0;
   waitForPixelClockLow();
-  readPixels_unrolled_x160(1);
+  readPixels_unrolled_x160(0);
 }
 
 
@@ -72,9 +71,9 @@ void CameraOV7670_QQVGA_10hz::readPixels_unrolled_x10(uint16_t byteIndex) {
 
 void CameraOV7670_QQVGA_10hz::readPixel_unrolled(uint16_t byteIndex) {
   asm volatile("nop");
-  pixelBuffer[byteIndex + 0] = readPixelByte();
+  pixelBuffer.writeBuffer[byteIndex + 0] = readPixelByte();
   asm volatile("nop");
-  pixelBuffer[byteIndex + 1] = readPixelByte();
+  pixelBuffer.writeBuffer[byteIndex + 1] = readPixelByte();
 }
 
 
