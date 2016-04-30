@@ -1,52 +1,15 @@
 
 #include "screen/Adafruit_ST7735_mod.h"
-#include "camera/CameraOV7670.h"
+#include "camera/CameraOV7670_QQVGA_10hz.h"
 
 
-CameraOV7670 cameraOV7670;
+CameraOV7670_QQVGA_10hz cameraOV7670(CameraOV7670::PIXEL_YUV422);
 
 int TFT_RST = 10;
 int TFT_CS  = 9;
 int TFT_DC  = 8;
 // TFT_SPI_clock = 13 and TFT_SPI_data = 11
 Adafruit_ST7735_mod tft = Adafruit_ST7735_mod(TFT_CS, TFT_DC, TFT_RST);
-
-
-
-/*
-B (digital pin 8 to 13)
-C (analog input pins)
-D (digital pins 0 to 7)
-*/
-#define VSYNC_PORTD 0b00000100 // PIN 2
-//#define HREF_PORTC 0b10000000 // PIN A7 - doesn't work!
-#define PCLOCK_PORTB 0b00010000 // PIN 12
-#define LOW_4_BITS_PORTC 0b00001111 // PIN A0..A3
-#define HIGH_4_BITS_PORTD 0b11110000 // PIN 4..7
-
-
-
-
-
-void setUpCamera() {
-
-  // pin 3 to 8Mhz (camera clock)
-  pinMode(3, OUTPUT);
-  TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-  TCCR2B = _BV(WGM22) | _BV(CS20);
-  OCR2A = 1;
-  OCR2B = 0;
-
-  cameraOV7670.init();
-}
-
-
-
-void setUpScreen() {
-  tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
-  tft.fillScreen(ST7735_BLACK);
-}
-
 
 
 void sleep(uint64_t milliseconds) {
@@ -56,16 +19,13 @@ void sleep(uint64_t milliseconds) {
 }
 
 
-
-
 void setup() {
   //Serial.begin(9600);
-  setUpCamera();
-  setUpScreen();
+  cameraOV7670.init();
+  tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
+  tft.fillScreen(ST7735_BLACK);
   noInterrupts();
 }
-
-
 
 
 
@@ -75,18 +35,14 @@ void loop() {
 
 
 
-
-
-inline void waitForVsync(void) __attribute__((always_inline));
-
 inline void readPixels_unrolled_x160(uint16_t byteIndex) __attribute__((always_inline));
 inline void readPixels_unrolled_x10(uint16_t byteIndex) __attribute__((always_inline));
 inline void readPixel_unrolled(uint16_t byteIndex) __attribute__((always_inline));
 inline void readPixels_loop_line() __attribute__((always_inline));
 
-inline void waitForPixelClockLow(void) __attribute__((always_inline));
+
 inline void waitForPixelClockRisingEdge(void) __attribute__((always_inline));
-inline uint8_t getPixelByte(void) __attribute__((always_inline));
+
 
 inline void sendLineBufferToDisplay() __attribute__((always_inline));
 inline void screenLineStart(void) __attribute__((always_inline));
@@ -624,13 +580,14 @@ uint8_t graysScaleTableLow[] = {
 
 
 void processFrame() {
-  waitForVsync();
+
+  cameraOV7670.waitForVsync();
 
   uint8_t pixelRowIndex = 0;
   scanLine = screen_w;
 
   while (pixelRowIndex < cameraPixelRowCount) {
-    waitForPixelClockLow();
+    cameraOV7670.waitForPixelClockLow();
 
     // 2.5 FPS or less:
     //readPixels_loop_line();
@@ -656,9 +613,7 @@ void processFrame() {
 
 
 
-void waitForVsync()   {
-  while(!(PIND & VSYNC_PORTD));
-}
+
 
 
 #define READ_PIXEL_X160_STEP 20
@@ -699,9 +654,9 @@ void readPixels_unrolled_x10(uint16_t byteIndex) {
 
 void readPixel_unrolled(uint16_t byteIndex) {
   waitForPixelClockRisingEdge();
-  lineBuffer[byteIndex + 0] = getPixelByte();
+  lineBuffer[byteIndex + 0] = cameraOV7670.getPixelByte();
   waitForPixelClockRisingEdge();
-  lineBuffer[byteIndex + 1] = getPixelByte();
+  lineBuffer[byteIndex + 1] = cameraOV7670.getPixelByte();
 }
 
 
@@ -711,18 +666,16 @@ void readPixels_loop_line() {
   uint8_t *buffEnd = buff+ cameraPixelColCount*2;
   while (buff < buffEnd) {
     waitForPixelClockRisingEdge();
-    *buff = getPixelByte();
+    *buff = cameraOV7670.getPixelByte();
     buff++;
     waitForPixelClockRisingEdge();
-    *buff = getPixelByte();
+    *buff = cameraOV7670.getPixelByte();
     buff++;
   }
 }
 
 
-void waitForPixelClockLow() {
-  while(PINB & PCLOCK_PORTB);
-}
+
 
 
 void waitForPixelClockRisingEdge() {
@@ -739,9 +692,7 @@ void waitForPixelClockRisingEdge() {
 
 
 
-uint8_t getPixelByte() {
-  return (PINC & LOW_4_BITS_PORTC) | (PIND & HIGH_4_BITS_PORTD);
-}
+
 
 
 
@@ -750,7 +701,7 @@ void sendLineBufferToDisplay() {
   screenLineStart();
 
   uint8_t greyScale;
-  uint16_t rgbPixel;
+//  uint16_t rgbPixel;
 
 
   // bytes from camera are out of sync by one byte

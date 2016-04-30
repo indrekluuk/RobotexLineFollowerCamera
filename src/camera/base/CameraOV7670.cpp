@@ -3,15 +3,25 @@
 
 
 
-CameraOV7670::CameraOV7670() {
+CameraOV7670::CameraOV7670(PixelFormat format) : pixelFormat(format) {
 }
 
 
 void CameraOV7670::init() {
   Wire.begin();
+  initClock();
   setUpCamera();
 }
 
+
+void CameraOV7670::initClock() {
+  // pin 3 to 8Mhz (camera clock)
+  pinMode(3, OUTPUT);
+  TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
+  TCCR2B = _BV(WGM22) | _BV(CS20);
+  OCR2A = 1;
+  OCR2B = 0;
+}
 
 
 void CameraOV7670::setUpCamera() {
@@ -70,6 +80,9 @@ void CameraOV7670::addBitsToRegister(uint8_t addr, uint8_t bits) {
   uint8_t val = readRegister(addr);
   setRegister(addr, val | bits);
 }
+
+
+
 
 
 
