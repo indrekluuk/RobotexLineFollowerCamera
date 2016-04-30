@@ -26,12 +26,16 @@ D (digital pins 0 to 7)
 class CameraOV7670 {
 
 public:
+
   enum PixelFormat {
     PIXEL_RGB565,
     PIXEL_YUV422
   };
 
-
+  enum FramesPerSecond {
+    FPS_10Hz,
+    FPS_5Hz
+  };
 
 private:
   static const int i2cAddress = 0x21;
@@ -42,12 +46,12 @@ private:
   static const RegisterData regsClock[];
 
   PixelFormat pixelFormat;
-
+  FramesPerSecond framesPerSecond;
 
 
 public:
 
-  CameraOV7670(PixelFormat format);
+  CameraOV7670(PixelFormat format, FramesPerSecond fps);
   void init();
   inline void waitForVsync(void) __attribute__((always_inline));
   inline void waitForPixelClockLow(void) __attribute__((always_inline));

@@ -3,7 +3,9 @@
 
 
 
-CameraOV7670::CameraOV7670(PixelFormat format) : pixelFormat(format) {
+CameraOV7670::CameraOV7670(PixelFormat format, FramesPerSecond fps) :
+    pixelFormat(format),
+    framesPerSecond(fps) {
 }
 
 
@@ -26,6 +28,7 @@ void CameraOV7670::initClock() {
 
 void CameraOV7670::setUpCamera() {
   resetSettings();
+
   setRegisters(regsDefault);
   switch (pixelFormat) {
     default:
@@ -36,8 +39,19 @@ void CameraOV7670::setUpCamera() {
       setRegisters(regsYUV422);
       break;
   }
+
   setRegisters(regsQQVGA);
+
   setRegisters(regsClock);
+  switch (framesPerSecond) {
+    default:
+    case FPS_10Hz:
+      break;
+    case FPS_5Hz:
+      addBitsToRegister(REG_CLKRC, 1); // divide pixel clock by 2
+      break;
+  }
+
 }
 
 
