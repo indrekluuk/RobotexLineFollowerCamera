@@ -6,7 +6,8 @@
 
 
 
-CameraOV7670_QQVGA cameraOV7670(CameraOV7670::PIXEL_YUV422, CameraOV7670::FPS_5_Hz);
+//CameraOV7670_QQVGA cameraOV7670(CameraOV7670::PIXEL_YUV422, CameraOV7670::FPS_5_Hz);
+CameraOV7670_QQVGA_10hz cameraOV7670(CameraOV7670::PIXEL_YUV422);
 
 int TFT_RST = 10;
 int TFT_CS  = 9;
@@ -38,94 +39,37 @@ void loop() {
 }
 
 
-inline void readPixels_loop_line() __attribute__((always_inline));
-
-
-inline void waitForPixelClockRisingEdge(void) __attribute__((always_inline));
-
 
 inline void sendLineBufferToDisplay() __attribute__((always_inline));
 inline void screenLineStart(void) __attribute__((always_inline));
 inline void screenLineEnd(void) __attribute__((always_inline));
-
-inline uint16_t rgbGreyScale(uint8_t greysCale) __attribute__((always_inline));
 inline void sendPixelByte(uint8_t byte) __attribute__((always_inline));
 
 
 
-uint8_t screen_w = ST7735_TFTWIDTH;
-uint8_t screen_h = ST7735_TFTHEIGHT_18;
-uint8_t scanLine;
-
+// Normally it is portrait screen. Use it as landscape
+uint8_t screen_w = ST7735_TFTHEIGHT_18;
+uint8_t screen_h = ST7735_TFTWIDTH;
+uint8_t screenLineIndex;
 
 
 void processFrame() {
-
   cameraOV7670.waitForVsync();
 
-  uint8_t cameraPixelRowCount = cameraOV7670.getLineCount();
+  screenLineIndex = screen_h;
 
-  uint8_t pixelRowIndex = 0;
-  scanLine = screen_w;
-
-  while (pixelRowIndex < cameraPixelRowCount) {
+      uint8_t lineIndex = 0;
+  while (lineIndex < cameraOV7670.getLineCount()) {
     cameraOV7670.readLine();
     sendLineBufferToDisplay();
-    pixelRowIndex++;
-  }
-
-
-}
-
-
-
-
-
-
-
-/*
-
-
-void readPixels_loop_line() {
-  uint8_t *buff = lineBuffer;
-  uint8_t *buffEnd = buff+ cameraPixelColCount*2;
-  while (buff < buffEnd) {
-    waitForPixelClockRisingEdge();
-    *buff = cameraOV7670.getPixelByte();
-    buff++;
-    waitForPixelClockRisingEdge();
-    *buff = cameraOV7670.getPixelByte();
-    buff++;
+    lineIndex++;
   }
 }
 
-
-*/
-/*
-
-void waitForPixelClockRisingEdge() {
-#if PIXEL_CLOCK_WAITING == 1
-  while(!(PINB & PCLOCK_PORTB));
-#elif PIXEL_CLOCK_WAITING == 2
-  asm volatile("nop");
-#else
-  while(PINB & PCLOCK_PORTB);
-  while(!(PINB & PCLOCK_PORTB));
-#endif
-}
-
-
-
-*/
-
-
-
-uint8_t cameraPixelColCount = cameraOV7670.getLineLength();
 
 
 void sendLineBufferToDisplay() {
   screenLineStart();
-
 
   // bytes from camera are out of sync by one byte
   for (uint16_t i=0; i<cameraOV7670.getPixelBufferLength(); i+=2) {
@@ -155,16 +99,16 @@ void sendLineBufferToDisplay() {
 }
 
 
-void screenLineStart()   {
-  if (scanLine > 0) scanLine--;
-  tft.startAddrWindow(scanLine, 0, scanLine, screen_h-1);
-}
 
+
+void screenLineStart()   {
+  if (screenLineIndex > 0) screenLineIndex--;
+  tft.startAddrWindow(screenLineIndex, 0, screenLineIndex, screen_w-1);
+}
 
 void screenLineEnd() {
   tft.endAddrWindow();
 }
-
 
 void sendPixelByte(uint8_t byte) {
   SPDR = byte;
