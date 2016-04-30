@@ -27,8 +27,15 @@ void CameraOV7670::initClock() {
 void CameraOV7670::setUpCamera() {
   resetSettings();
   setRegisters(regsDefault);
-  //setRegisters(regsRGB565);
-  setRegisters(regsYUV422);
+  switch (pixelFormat) {
+    default:
+    case PIXEL_RGB565:
+      setRegisters(regsRGB565);
+      break;
+    case PIXEL_YUV422:
+      setRegisters(regsYUV422);
+      break;
+  }
   setRegisters(regsQQVGA);
   setRegisters(regsClock);
 }
