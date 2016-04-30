@@ -2,19 +2,19 @@
 
 // https://github.com/ComputerNerd/ov7670-no-ram-arduino-uno
 
-#ifndef _OV7670_INITIALIZER_h_
-#define _OV7670_INITIALIZER_h_
+#ifndef _CAMERA_OV7670_h_
+#define _CAMERA_OV7670_h_
 
 #include "Arduino.h"
 #include "Wire.h"
-#include "OV7670RegisterDefinitions.h"
+#include "CameraOV7670RegisterDefinitions.h"
 
 
-class OV7670Initializer {
+class CameraOV7670 {
 
 
 private:
-  int i2cAddress = 0x21;
+  static const int i2cAddress = 0x21;
   static const RegisterData regsDefault[];
   static const RegisterData regsRGB565[];
   static const RegisterData regsYUV422[];
@@ -24,7 +24,7 @@ private:
 
 public:
 
-  OV7670Initializer();
+  CameraOV7670();
   void init();
 
 
@@ -40,5 +40,5 @@ private:
 };
 
 
-#endif // _OV7670_INITIALIZER_h_
+#endif // _CAMERA_OV7670_h_
 

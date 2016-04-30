@@ -2,13 +2,13 @@
 // Created by indrek on 17.04.2016.
 //
 
-#include "OV7670Initializer.h"
+#include "CameraOV7670.h"
 
 
 /*
  * https://github.com/ComputerNerd/ov7670-no-ram-arduino-uno/blob/master/ov7670.c
  */
-const PROGMEM RegisterData OV7670Initializer::regsYUV422 [] = {
+const PROGMEM RegisterData CameraOV7670::regsYUV422 [] = {
     {REG_COM7, 0x0},	/* Selects YUV mode */
     {REG_RGB444, 0},	/* No RGB444 please */
     {REG_COM1, 0},

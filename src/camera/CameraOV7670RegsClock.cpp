@@ -2,10 +2,10 @@
 // Created by indrek on 17.04.2016.
 //
 
-#include "OV7670Initializer.h"
+#include "CameraOV7670.h"
 
 
-const PROGMEM RegisterData OV7670Initializer::regsClock [] = {
+const PROGMEM RegisterData CameraOV7670::regsClock [] = {
     {REG_COM10, COM10_PCLK_HB}, // disable pixel clock during blank lines
 
     // 0x80 - enable double clock option (disabled => input / 2)

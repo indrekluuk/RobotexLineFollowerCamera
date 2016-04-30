@@ -47,11 +47,11 @@ add_custom_target(
 )
 
 add_executable(RobotexLineFollowerCamera
-    src/camera/OV7670Initializer.cpp
-    src/camera/OV7670InitializerRegsClock.cpp
-    src/camera/OV7670InitializerRegsDefault.cpp
-    src/camera/OV7670InitializerRegsQQVGA.cpp
-    src/camera/OV7670InitializerRegsRGB565.cpp
-    src/camera/OV7670InitializerRegsYUV422.cpp
-    src/screen/Adafruit_ST7735_mod.cpp
+        src/camera/CameraOV7670.cpp
+        src/camera/CameraOV7670RegsClock.cpp
+        src/camera/CameraOV7670RegsDefault.cpp
+        src/camera/CameraOV7670RegsQQVGA.cpp
+        src/camera/CameraOV7670RegsRGB565.cpp
+        src/camera/CameraOV7670RegsYUV422.cpp
+        src/screen/Adafruit_ST7735_mod.cpp
 )

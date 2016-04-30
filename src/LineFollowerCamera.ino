@@ -1,9 +1,9 @@
 
 #include "screen/Adafruit_ST7735_mod.h"
-#include "camera/OV7670Initializer.h"
+#include "camera/CameraOV7670.h"
 
 
-OV7670Initializer cameraInitializer;
+CameraOV7670 cameraOV7670;
 
 int TFT_RST = 10;
 int TFT_CS  = 9;
@@ -37,7 +37,7 @@ void setUpCamera() {
   OCR2A = 1;
   OCR2B = 0;
 
-  cameraInitializer.init();
+  cameraOV7670.init();
 }
 
 
