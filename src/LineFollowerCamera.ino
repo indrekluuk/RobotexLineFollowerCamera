@@ -639,13 +639,10 @@ uint8_t cameraPixelColCount = cameraOV7670.getLineLength();
 void sendLineBufferToDisplay() {
   screenLineStart();
 
-  uint8_t greyScale;
-  //uint16_t rgbPixel;
-
 
   // bytes from camera are out of sync by one byte
   for (uint16_t i=0; i<cameraOV7670.getPixelBufferLength(); i+=2) {
-    greyScale = cameraOV7670.getPixelByte(i);
+    uint8_t greyScale = cameraOV7670.getPixelByte(i);
 
     sendPixelByte(graysScaleTableHigh[greyScale]);
     asm volatile("nop");

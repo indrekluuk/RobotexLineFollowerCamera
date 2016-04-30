@@ -26,7 +26,7 @@ public:
   uint16_t getLineCount();
   void readLine();
   inline uint16_t getPixelBufferLength() __attribute__((always_inline));
-  static inline uint8_t getPixelByte(uint16_t byteIndex) __attribute__((always_inline));
+  inline uint8_t getPixelByte(uint16_t byteIndex) __attribute__((always_inline));
 
 private:
 
