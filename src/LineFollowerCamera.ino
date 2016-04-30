@@ -1,12 +1,12 @@
 
 #include "screen/Adafruit_ST7735_mod.h"
 #include "camera/CameraOV7670_QQVGA_10hz.h"
-#include "camera/CameraOV7670_QQVGA_5hz.h"
+#include "camera/CameraOV7670_QQVGA.h"
 #include "GrayScaleTable.h"
 
 
 
-CameraOV7670_QQVGA_5hz cameraOV7670(CameraOV7670::PIXEL_YUV422);
+CameraOV7670_QQVGA cameraOV7670(CameraOV7670::PIXEL_YUV422, CameraOV7670::FPS_5_Hz);
 
 int TFT_RST = 10;
 int TFT_CS  = 9;

@@ -33,8 +33,10 @@ public:
   };
 
   enum FramesPerSecond {
-    FPS_10Hz,
-    FPS_5Hz
+    FPS_5_Hz,
+    FPS_3p33_Hz,
+    FPS_2p5_Hz,
+    FPS_2_Hz
   };
 
 private:
@@ -46,17 +48,16 @@ private:
   static const RegisterData regsClock[];
 
   PixelFormat pixelFormat;
-  FramesPerSecond framesPerSecond;
+  uint8_t internalClockPreScaler;
 
 
 public:
 
-  CameraOV7670(PixelFormat format, FramesPerSecond fps);
+  CameraOV7670(PixelFormat format, uint8_t internalClockPreScaler);
   void init();
   inline void waitForVsync(void) __attribute__((always_inline));
   inline void waitForPixelClockLow(void) __attribute__((always_inline));
   inline uint8_t readPixelByte(void) __attribute__((always_inline));
-
 
 
 private:

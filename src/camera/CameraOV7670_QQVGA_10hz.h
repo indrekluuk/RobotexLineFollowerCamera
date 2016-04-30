@@ -13,7 +13,7 @@ class CameraOV7670_QQVGA_10hz : public BufferedCameraOV7670<160, 120> {
 
 
 public:
-  CameraOV7670_QQVGA_10hz(PixelFormat format) : BufferedCameraOV7670(format, FPS_5Hz) {};
+  CameraOV7670_QQVGA_10hz(PixelFormat format) : BufferedCameraOV7670(format, 0) {};
 
   inline void readLine() override __attribute__((always_inline));
 

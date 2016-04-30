@@ -38,7 +38,7 @@ protected:
   static OV7670PixelBuffer<x*2> pixelBuffer;
 
 public:
-  BufferedCameraOV7670(PixelFormat format, FramesPerSecond fps) : CameraOV7670(format, fps) {};
+  BufferedCameraOV7670(PixelFormat format, uint8_t internalClockPreScaler) : CameraOV7670(format, internalClockPreScaler) {};
 
   virtual void readLine() = 0;
 

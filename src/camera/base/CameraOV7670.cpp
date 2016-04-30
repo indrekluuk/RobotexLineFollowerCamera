@@ -3,10 +3,11 @@
 
 
 
-CameraOV7670::CameraOV7670(PixelFormat format, FramesPerSecond fps) :
+CameraOV7670::CameraOV7670(PixelFormat format, uint8_t internalClockPreScaler) :
     pixelFormat(format),
-    framesPerSecond(fps) {
+    internalClockPreScaler(internalClockPreScaler) {
 }
+
 
 
 void CameraOV7670::init() {
@@ -43,13 +44,8 @@ void CameraOV7670::setUpCamera() {
   setRegisters(regsQQVGA);
 
   setRegisters(regsClock);
-  switch (framesPerSecond) {
-    default:
-    case FPS_10Hz:
-      break;
-    case FPS_5Hz:
-      addBitsToRegister(REG_CLKRC, 1); // divide pixel clock by 2
-      break;
+  if (internalClockPreScaler > 0){
+    addBitsToRegister(REG_CLKRC, internalClockPreScaler);
   }
 
 }
