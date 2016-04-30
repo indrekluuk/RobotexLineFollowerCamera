@@ -16,7 +16,10 @@ private:
 
 public:
   CameraOV7670_QQVGA(PixelFormat format, FramesPerSecond fps) :
-      BufferedCameraOV7670(format, getPreScalerForFps(fps)), framesPerSecond(fps) {};
+      BufferedCameraOV7670(format, getPreScalerForFps(fps)),
+      framesPerSecond(fps)
+  {};
+
 
   inline void readLine() override __attribute__((always_inline));
 
@@ -40,19 +43,26 @@ private:
 };
 
 
+
+
 void CameraOV7670_QQVGA::readLine() {
   pixelBuffer.writeBufferPadding = 0;
   uint16_t bufferIndex = 0;
+
 
   if (framesPerSecond == FPS_5_Hz) {
 
     waitForPixelClockLow();
     while (bufferIndex < getPixelBufferLength()) {
-      //while(PINB & OV7670_PCLOCK_PORTB);
-      while(!(PINB & OV7670_PCLOCK_PORTB));
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
       pixelBuffer.writeBuffer[bufferIndex++] = readPixelByte();
-      //while(PINB & OV7670_PCLOCK_PORTB);
-      while(!(PINB & OV7670_PCLOCK_PORTB));
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
       pixelBuffer.writeBuffer[bufferIndex++] = readPixelByte();
     }
 
@@ -68,6 +78,7 @@ void CameraOV7670_QQVGA::readLine() {
       pixelBuffer.writeBuffer[bufferIndex++] = readPixelByte();
     }
   }
+
 }
 
 
