@@ -54,12 +54,6 @@ public:
   inline uint8_t readPixelByte(void) __attribute__((always_inline));
 
 
-  virtual uint16_t getLineLength() = 0;
-  virtual uint16_t getLineCount() = 0;
-  virtual void readLine() = 0;
-  virtual uint16_t getPixelBufferLength() = 0;
-  virtual uint8_t getPixelByte(uint16_t byteIndex) = 0;
-
 
 private:
   void initClock();

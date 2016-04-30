@@ -5,32 +5,20 @@
 #ifndef _CAMERAOV7670_QQVGA_10HZ_H
 #define _CAMERAOV7670_QQVGA_10HZ_H
 
-#include "base/CameraOV7670.h"
+#include "base/BufferedCameraOV7670.h"
 
 
-// 160x120
-class CameraOV7670_QQVGA_10hz : public CameraOV7670 {
+// 160 x 120 @ 10Hz
+class CameraOV7670_QQVGA_10hz : public BufferedCameraOV7670<160, 120> {
 
-private:
-  static const uint16_t lineLength = 160;
-  static const uint16_t lineCount = 120;
-  static const uint16_t pixelBufferLength = lineLength*2;
-  static uint8_t pixelBuffer[];
 
 public:
+  CameraOV7670_QQVGA_10hz(PixelFormat format) : BufferedCameraOV7670(format) {};
 
+  inline void readLine() override __attribute__((always_inline));
 
-  CameraOV7670_QQVGA_10hz(PixelFormat format) : CameraOV7670(format) {};
-
-
-  inline uint16_t getLineLength() __attribute__((always_inline));
-  inline uint16_t getLineCount() __attribute__((always_inline));
-  inline void readLine() __attribute__((always_inline));
-  inline uint16_t getPixelBufferLength() __attribute__((always_inline));
-  inline uint8_t getPixelByte(uint16_t byteIndex) __attribute__((always_inline));
 
 private:
-
   inline void readPixels_unrolled_x160(uint16_t byteIndex) __attribute__((always_inline));
   inline void readPixels_unrolled_x10(uint16_t byteIndex) __attribute__((always_inline));
   inline void readPixel_unrolled(uint16_t byteIndex) __attribute__((always_inline));
@@ -40,34 +28,12 @@ private:
 
 
 
-
-uint16_t CameraOV7670_QQVGA_10hz::getLineLength() {
-  return lineLength;
-}
-
-uint16_t CameraOV7670_QQVGA_10hz::getLineCount() {
-  return lineCount;
-}
-
 void CameraOV7670_QQVGA_10hz::readLine() {
   // shift everything by one since first pixel from camera is a half pixel
   pixelBuffer[0] = 0;
   waitForPixelClockLow();
   readPixels_unrolled_x160(1);
 }
-
-uint16_t CameraOV7670_QQVGA_10hz::getPixelBufferLength() {
-  return pixelBufferLength;
-}
-
-uint8_t CameraOV7670_QQVGA_10hz::getPixelByte(uint16_t byteIndex) {
-  return pixelBuffer[byteIndex];
-}
-
-
-
-
-
 
 
 #define CameraOV7670_QQVGA_10hz_READ_PIXEL_X160_STEP 20
