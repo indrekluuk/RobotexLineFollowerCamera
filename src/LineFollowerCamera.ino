@@ -34,10 +34,6 @@ void loop() {
 }
 
 
-
-inline void readPixels_unrolled_x160(uint16_t byteIndex) __attribute__((always_inline));
-inline void readPixels_unrolled_x10(uint16_t byteIndex) __attribute__((always_inline));
-inline void readPixel_unrolled(uint16_t byteIndex) __attribute__((always_inline));
 inline void readPixels_loop_line() __attribute__((always_inline));
 
 
@@ -55,10 +51,7 @@ inline void sendPixelByte(uint8_t byte) __attribute__((always_inline));
 
 uint8_t screen_w = ST7735_TFTWIDTH;
 uint8_t screen_h = ST7735_TFTHEIGHT_18;
-const uint8_t cameraPixelColCount = 160;
-const uint8_t cameraPixelRowCount = 120;
 uint8_t scanLine;
-uint8_t lineBuffer[cameraPixelColCount * 2];
 
 uint8_t graysScaleTableHigh[] = {
     0x00,
@@ -583,23 +576,13 @@ void processFrame() {
 
   cameraOV7670.waitForVsync();
 
+  uint8_t cameraPixelRowCount = cameraOV7670.getLineCount();
+
   uint8_t pixelRowIndex = 0;
   scanLine = screen_w;
 
   while (pixelRowIndex < cameraPixelRowCount) {
-    cameraOV7670.waitForPixelClockLow();
-
-    // 2.5 FPS or less:
-    //readPixels_loop_line();
-
-    // 5 FPS
-    //#define PIXEL_CLOCK_WAITING 1
-    //readPixels_loop_line();
-
-    // 10 FPS
-    #define PIXEL_CLOCK_WAITING 2
-    readPixels_unrolled_x160(0);
-
+    cameraOV7670.readLine();
     sendLineBufferToDisplay();
     pixelRowIndex++;
   }
@@ -613,52 +596,7 @@ void processFrame() {
 
 
 
-
-
-
-#define READ_PIXEL_X160_STEP 20
-void readPixels_unrolled_x160(uint16_t byteIndex) {
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 0);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 1);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 2);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 3);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 4);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 5);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 6);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 7);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 8);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 9);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 10);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 11);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 12);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 13);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 14);
-  readPixels_unrolled_x10(byteIndex + READ_PIXEL_X160_STEP * 15);
-}
-
-#define READ_PIXEL_X10_STEP 2
-void readPixels_unrolled_x10(uint16_t byteIndex) {
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 0);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 1);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 2);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 3);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 4);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 5);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 6);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 7);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 8);
-  readPixel_unrolled(byteIndex + READ_PIXEL_X10_STEP * 9);
-}
-
-
-
-void readPixel_unrolled(uint16_t byteIndex) {
-  waitForPixelClockRisingEdge();
-  lineBuffer[byteIndex + 0] = cameraOV7670.getPixelByte();
-  waitForPixelClockRisingEdge();
-  lineBuffer[byteIndex + 1] = cameraOV7670.getPixelByte();
-}
-
+/*
 
 
 void readPixels_loop_line() {
@@ -675,8 +613,8 @@ void readPixels_loop_line() {
 }
 
 
-
-
+*/
+/*
 
 void waitForPixelClockRisingEdge() {
 #if PIXEL_CLOCK_WAITING == 1
@@ -691,24 +629,24 @@ void waitForPixelClockRisingEdge() {
 
 
 
+*/
 
 
 
-
+uint8_t cameraPixelColCount = cameraOV7670.getLineLength();
 
 
 void sendLineBufferToDisplay() {
   screenLineStart();
 
   uint8_t greyScale;
-//  uint16_t rgbPixel;
+  //uint16_t rgbPixel;
 
 
   // bytes from camera are out of sync by one byte
-  for (uint16_t i=1; i<(cameraPixelColCount * 2) - 1; i+=2) {
-    greyScale = lineBuffer[i];
+  for (uint16_t i=0; i<cameraOV7670.getPixelBufferLength(); i+=2) {
+    greyScale = cameraOV7670.getPixelByte(i);
 
-    //sendPixelByte((gray & 0xF8) | (gray >> 5));
     sendPixelByte(graysScaleTableHigh[greyScale]);
     asm volatile("nop");
     asm volatile("nop");
@@ -728,25 +666,6 @@ void sendLineBufferToDisplay() {
     asm volatile("nop");
 
   }
-
-  sendPixelByte(0);
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
 
   screenLineEnd();
 }

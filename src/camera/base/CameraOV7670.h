@@ -51,7 +51,7 @@ public:
   void init();
   inline void waitForVsync(void) __attribute__((always_inline));
   inline void waitForPixelClockLow(void) __attribute__((always_inline));
-  inline uint8_t getPixelByte(void) __attribute__((always_inline));
+  inline uint8_t readPixelByte(void) __attribute__((always_inline));
 
 
 private:
@@ -75,7 +75,7 @@ void CameraOV7670::waitForPixelClockLow() {
   while(PINB & OV7670_PCLOCK_PORTB);
 }
 
-uint8_t CameraOV7670::getPixelByte() {
+uint8_t CameraOV7670::readPixelByte() {
   return (PINC & OV7670_LOW_4_BITS_PORTC) | (PIND & OV7670_HIGH_4_BITS_PORTD);
 }
 
