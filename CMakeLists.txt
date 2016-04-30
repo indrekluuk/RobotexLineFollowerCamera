@@ -54,5 +54,5 @@ add_executable(RobotexLineFollowerCamera
         src/camera/base/CameraOV7670RegsRGB565.cpp
         src/camera/base/CameraOV7670RegsYUV422.cpp
         src/screen/Adafruit_ST7735_mod.cpp
-        src/camera/CameraOV7670_QQVGA_10hz.cpp
-        src/camera/CameraOV7670_QQVGA_10hz.h src/camera/base/BufferedCameraOV7670.h)
+        src/camera/CameraOV7670_QQVGA_10hz.h
+        src/camera/base/BufferedCameraOV7670.h)
