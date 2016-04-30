@@ -20,11 +20,12 @@ private:
 public:
 
 
-  CameraOV7670_QQVGA_10hz(PixelFormat format);
+  CameraOV7670_QQVGA_10hz(PixelFormat format) : CameraOV7670(format) {};
 
-  uint16_t getLineLength();
-  uint16_t getLineCount();
-  void readLine();
+
+  inline uint16_t getLineLength() __attribute__((always_inline));
+  inline uint16_t getLineCount() __attribute__((always_inline));
+  inline void readLine() __attribute__((always_inline));
   inline uint16_t getPixelBufferLength() __attribute__((always_inline));
   inline uint8_t getPixelByte(uint16_t byteIndex) __attribute__((always_inline));
 
@@ -35,6 +36,36 @@ private:
   inline void readPixel_unrolled(uint16_t byteIndex) __attribute__((always_inline));
 
 };
+
+
+
+
+
+uint16_t CameraOV7670_QQVGA_10hz::getLineLength() {
+  return lineLength;
+}
+
+uint16_t CameraOV7670_QQVGA_10hz::getLineCount() {
+  return lineCount;
+}
+
+void CameraOV7670_QQVGA_10hz::readLine() {
+  // shift everything by one since first pixel from camera is a half pixel
+  pixelBuffer[0] = 0;
+  waitForPixelClockLow();
+  readPixels_unrolled_x160(1);
+}
+
+uint16_t CameraOV7670_QQVGA_10hz::getPixelBufferLength() {
+  return pixelBufferLength;
+}
+
+uint8_t CameraOV7670_QQVGA_10hz::getPixelByte(uint16_t byteIndex) {
+  return pixelBuffer[byteIndex];
+}
+
+
+
 
 
 
@@ -73,7 +104,6 @@ void CameraOV7670_QQVGA_10hz::readPixels_unrolled_x10(uint16_t byteIndex) {
   readPixel_unrolled(byteIndex + CameraOV7670_QQVGA_10hz_READ_PIXEL_X10_STEP * 9);
 }
 
-
 void CameraOV7670_QQVGA_10hz::readPixel_unrolled(uint16_t byteIndex) {
   asm volatile("nop");
   pixelBuffer[byteIndex + 0] = readPixelByte();
@@ -81,13 +111,7 @@ void CameraOV7670_QQVGA_10hz::readPixel_unrolled(uint16_t byteIndex) {
   pixelBuffer[byteIndex + 1] = readPixelByte();
 }
 
-uint16_t CameraOV7670_QQVGA_10hz::getPixelBufferLength() {
-  return pixelBufferLength;
-}
 
-uint8_t CameraOV7670_QQVGA_10hz::getPixelByte(uint16_t byteIndex) {
-  return pixelBuffer[byteIndex];
-}
 
 
 #endif //_CAMERAOV7670_QQVGA_10HZ_H
