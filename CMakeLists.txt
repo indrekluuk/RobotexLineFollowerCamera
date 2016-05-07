@@ -7,7 +7,7 @@ add_definitions(-DF_CPU=16000000L)
 add_definitions(-DARDUINO_ARCH_AVR)
 add_definitions(-DARDUINO_AVR_NANO)
 add_definitions(-DARDUINO=10608)
-add_definitions(-DPLATFORMIO=020806)
+add_definitions(-DPLATFORMIO=020901)
 add_definitions(-D__AVR_ATmega328P__)
 
 add_custom_target(
@@ -47,11 +47,13 @@ add_custom_target(
 )
 
 add_executable(RobotexLineFollowerCamera
-        src/camera/base/CameraOV7670Base.cpp
-        src/camera/base/CameraOV7670RegsClock.cpp
-        src/camera/base/CameraOV7670RegsDefault.cpp
-        src/camera/base/CameraOV7670RegsQQVGA.cpp
-        src/camera/base/CameraOV7670RegsRGB565.cpp
-        src/camera/base/CameraOV7670RegsYUV422.cpp
-        src/screen/Adafruit_ST7735_mod.cpp
-)
+    src/camera/base/CameraOV7670.cpp
+    src/camera/base/CameraOV7670RegsBayerRGB.cpp
+    src/camera/base/CameraOV7670RegsDefault.cpp
+    src/camera/base/CameraOV7670RegsQQVGA.cpp
+    src/camera/base/CameraOV7670RegsQVGA.cpp
+    src/camera/base/CameraOV7670RegsRGB565.cpp
+    src/camera/base/CameraOV7670RegsVGA.cpp
+    src/camera/base/CameraOV7670RegsYUV422.cpp
+    src/screen/Adafruit_ST7735_mod.cpp
+    src/main.cpp)
