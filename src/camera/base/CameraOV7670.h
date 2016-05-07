@@ -1,7 +1,5 @@
 
 
-// https://github.com/ComputerNerd/ov7670-no-ram-arduino-uno
-
 #ifndef _CAMERA_OV7670_h_
 #define _CAMERA_OV7670_h_
 
@@ -10,15 +8,36 @@
 #include "CameraOV7670RegisterDefinitions.h"
 
 
+
 /*
 B (digital pin 8 to 13)
 C (analog input pins)
 D (digital pins 0 to 7)
 */
-#define OV7670_VSYNC_PORTD 0b00000100 // PIN 2
-#define OV7670_PCLOCK_PORTB 0b00010000 // PIN 12
-#define OV7670_LOW_4_BITS_PORTC 0b00001111 // PIN A0..A3
-#define OV7670_HIGH_4_BITS_PORTD 0b11110000 // PIN 4..7
+
+#ifndef OV7670_VSYNC_PIN_REG
+// PIN 2
+#define OV7670_VSYNC_PIN_REG PIND
+#define OV7670_VSYNC_MASK 0b00000100
+#endif
+
+#ifndef OV7670_PCLOCK_PIN_REG
+// PIN 12
+#define OV7670_PCLOCK_PIN_REG PINB
+#define OV7670_PCLOCK_MASK 0b00010000
+#endif
+
+#ifndef OV7670_LOW_4_BITS_PIN_REG
+// PIN A0..A3
+#define OV7670_LOW_4_BITS_PIN_REG PINC
+#define OV7670_LOW_4_BITS_MASK 0b00001111
+#endif
+
+#ifndef OV7670_HIGH_4_BITS_PIN_REG
+// PIN 4..7
+#define OV7670_HIGH_4_BITS_PIN_REG PIND
+#define OV7670_HIGH_4_BITS_MASK 0b11110000
+#endif
 
 
 
@@ -29,34 +48,44 @@ public:
 
   enum PixelFormat {
     PIXEL_RGB565,
+    PIXEL_BAYERRGB,
     PIXEL_YUV422
   };
 
-  enum FramesPerSecond {
-    FPS_5_Hz,
-    FPS_3p33_Hz,
-    FPS_2p5_Hz,
-    FPS_2_Hz
+  enum Resolution {
+    RESOLUTION_VGA_640x480,
+    RESOLUTION_QVGA_320x240,
+    RESOLUTION_QQVGA_160x120
   };
+
 
 private:
   static const int i2cAddress = 0x21;
   static const RegisterData regsDefault[];
   static const RegisterData regsRGB565[];
+  static const RegisterData regsBayerRGB[];
   static const RegisterData regsYUV422[];
   static const RegisterData regsQQVGA[];
-  static const RegisterData regsClock[];
+  static const RegisterData regsQVGA[];
+  static const RegisterData regsVGA[];
 
+  Resolution resolution;
   PixelFormat pixelFormat;
   uint8_t internalClockPreScaler;
 
 
 public:
 
-  CameraOV7670(PixelFormat format, uint8_t internalClockPreScaler);
+  CameraOV7670(Resolution resolution, PixelFormat format, uint8_t internalClockPreScaler) :
+      resolution(resolution),
+      pixelFormat(format),
+      internalClockPreScaler(internalClockPreScaler) {};
+
   void init();
   inline void waitForVsync(void) __attribute__((always_inline));
+  inline void waitForPixelClockRisingEdge(void) __attribute__((always_inline));
   inline void waitForPixelClockLow(void) __attribute__((always_inline));
+  inline void waitForPixelClockHigh(void) __attribute__((always_inline));
   inline uint8_t readPixelByte(void) __attribute__((always_inline));
 
 
@@ -74,15 +103,25 @@ private:
 
 
 void CameraOV7670::waitForVsync() {
-  while(!(PIND & OV7670_VSYNC_PORTD));
+  while(!(OV7670_VSYNC_PIN_REG & OV7670_VSYNC_MASK));
+}
+
+void CameraOV7670::waitForPixelClockRisingEdge() {
+  waitForPixelClockLow();
+  waitForPixelClockHigh();
 }
 
 void CameraOV7670::waitForPixelClockLow() {
-  while(PINB & OV7670_PCLOCK_PORTB);
+  while(OV7670_PCLOCK_PIN_REG & OV7670_PCLOCK_MASK);
+}
+
+void CameraOV7670::waitForPixelClockHigh() {
+  while(!(OV7670_PCLOCK_PIN_REG & OV7670_PCLOCK_MASK));
 }
 
 uint8_t CameraOV7670::readPixelByte() {
-  return (PINC & OV7670_LOW_4_BITS_PORTC) | (PIND & OV7670_HIGH_4_BITS_PORTD);
+  return (OV7670_LOW_4_BITS_PIN_REG & OV7670_LOW_4_BITS_MASK)
+         | (OV7670_HIGH_4_BITS_PIN_REG & OV7670_HIGH_4_BITS_MASK);
 }
 
 

@@ -5,13 +5,13 @@
 #ifndef _CAMERAOV7670LINEBUFFER_H
 #define _CAMERAOV7670LINEBUFFER_H
 
-#include "CameraOV7670.h"
+#include "../base/CameraOV7670.h"
 
 
 
-// Pixel receiving order from camera: Pixel_1_H, Pixel_1_L, Pixel_2_H, Pixel_2_L ...
+// Pixel receiving order from camera for downsampled pictures: Pixel_1_H, Pixel_1_L, Pixel_2_H, Pixel_2_L ...
 // First byte from camera is half a pixel (lower byte of a pixel).
-// Shift line data data by 1 byte to correct it.
+// Shift line data by 1 byte to correct for it.
 // This means that first pixel in each line is actually broken.
 template <uint16_t size>
 union OV7670PixelBuffer {
@@ -38,9 +38,10 @@ protected:
   static OV7670PixelBuffer<x*2> pixelBuffer;
 
 public:
-  BufferedCameraOV7670(PixelFormat format, uint8_t internalClockPreScaler) : CameraOV7670(format, internalClockPreScaler) {};
+  BufferedCameraOV7670(Resolution resolution, PixelFormat format, uint8_t internalClockPreScaler) :
+      CameraOV7670(resolution, format, internalClockPreScaler) {};
 
-  virtual void readLine() = 0;
+  virtual inline void readLine() __attribute__((always_inline));
 
   inline uint16_t getLineLength() __attribute__((always_inline));
   inline uint16_t getLineCount() __attribute__((always_inline));
@@ -77,6 +78,27 @@ template <uint16_t x, uint16_t y>
 uint8_t BufferedCameraOV7670<x, y>::getPixelByte(uint16_t byteIndex) {
   return pixelBuffer.readBuffer[byteIndex];
 }
+
+
+
+
+template <uint16_t x, uint16_t y>
+void BufferedCameraOV7670<x, y>::readLine() {
+
+  pixelBuffer.writeBufferPadding = 0;
+  uint16_t bufferIndex = 0;
+
+  while (bufferIndex < getPixelBufferLength()) {
+    waitForPixelClockRisingEdge();
+    pixelBuffer.writeBuffer[bufferIndex++] = readPixelByte();
+    waitForPixelClockRisingEdge();
+    pixelBuffer.writeBuffer[bufferIndex++] = readPixelByte();
+  }
+}
+
+
+
+
 
 
 

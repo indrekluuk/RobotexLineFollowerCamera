@@ -2,27 +2,35 @@
 // Created by indrek on 30.04.2016.
 //
 
-#ifndef _CAMERAOV7670_QQVGA_H
-#define _CAMERAOV7670_QQVGA_H
+#ifndef _BUFFEREDCAMERAOV7670_QQVGA_H
+#define _BUFFEREDCAMERAOV7670_QQVGA_H
 
-#include "base/BufferedCameraOV7670.h"
+#include "BufferedCameraOV7670.h"
 
 
-// 160 x 120 @ 5Hz
-class CameraOV7670_QQVGA : public BufferedCameraOV7670<160, 120> {
+// 160 x 120 @ 5Hz or less
+class BufferedCameraOV7670_QQVGA : public BufferedCameraOV7670<160, 120> {
+
+public:
+  enum FramesPerSecond {
+    FPS_5_Hz,
+    FPS_3p33_Hz,
+    FPS_2p5_Hz,
+    FPS_2_Hz,
+    FPS_1p66_Hz
+  };
+
 
 private:
   FramesPerSecond framesPerSecond;
 
 public:
-  CameraOV7670_QQVGA(PixelFormat format, FramesPerSecond fps) :
-      BufferedCameraOV7670(format, getPreScalerForFps(fps)),
+  BufferedCameraOV7670_QQVGA(PixelFormat format, FramesPerSecond fps) :
+      BufferedCameraOV7670(Resolution::RESOLUTION_QQVGA_160x120, format, getPreScalerForFps(fps)),
       framesPerSecond(fps)
   {};
 
-
   inline void readLine() override __attribute__((always_inline));
-
 
 
 private:
@@ -37,20 +45,21 @@ private:
         return 3;
       case FPS_2_Hz:
         return 4;
+      case FPS_1p66_Hz:
+        return 5;
     }
   }
-
 };
 
 
 
 
-void CameraOV7670_QQVGA::readLine() {
-  pixelBuffer.writeBufferPadding = 0;
-  uint16_t bufferIndex = 0;
+void BufferedCameraOV7670_QQVGA::readLine() {
 
-
+  // reading loop is too tight fro 5Hz to wait for raising clock edge
   if (framesPerSecond == FPS_5_Hz) {
+    pixelBuffer.writeBufferPadding = 0;
+    uint16_t bufferIndex = 0;
 
     waitForPixelClockLow();
     while (bufferIndex < getPixelBufferLength()) {
@@ -67,16 +76,7 @@ void CameraOV7670_QQVGA::readLine() {
     }
 
   } else {
-
-    waitForPixelClockLow();
-    while (bufferIndex < getPixelBufferLength()) {
-      while(PINB & OV7670_PCLOCK_PORTB);
-      while(!(PINB & OV7670_PCLOCK_PORTB));
-      pixelBuffer.writeBuffer[bufferIndex++] = readPixelByte();
-      while(PINB & OV7670_PCLOCK_PORTB);
-      while(!(PINB & OV7670_PCLOCK_PORTB));
-      pixelBuffer.writeBuffer[bufferIndex++] = readPixelByte();
-    }
+    BufferedCameraOV7670::readLine();
   }
 
 }
@@ -86,4 +86,4 @@ void CameraOV7670_QQVGA::readLine() {
 
 
 
-#endif //_CAMERAOV7670_QQVGA_H
+#endif //_BUFFEREDCAMERAOV7670_QQVGA_H
