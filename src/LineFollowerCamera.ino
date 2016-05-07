@@ -42,6 +42,7 @@ inline void sendLineBufferToDisplay() __attribute__((always_inline));
 inline void screenLineStart(void) __attribute__((always_inline));
 inline void screenLineEnd(void) __attribute__((always_inline));
 inline void sendPixelByte(uint8_t byte) __attribute__((always_inline));
+inline void processLine() __attribute__((always_inline));
 
 
 
@@ -59,41 +60,53 @@ void processFrame() {
       uint8_t lineIndex = 0;
   while (lineIndex < cameraOV7670.getLineCount()) {
     cameraOV7670.readLine();
-    sendLineBufferToDisplay();
+    processLine();
     lineIndex++;
   }
 }
 
 
+uint8_t threshold = 0;
+uint16_t lineTotal = 0;
 
-void sendLineBufferToDisplay() {
+void processLine() {
   screenLineStart();
 
-  // bytes from camera are out of sync by one byte
+  lineTotal = 0;
+
   for (uint16_t i=0; i<cameraOV7670.getPixelBufferLength(); i+=2) {
     uint8_t greyScale = cameraOV7670.getPixelByte(i);
 
+    uint8_t monoChrome = greyScale > threshold ? 0xFF : 0x00;
+
     sendPixelByte(graysScaleTableHigh[greyScale]);
+    lineTotal += greyScale;
+
+
     asm volatile("nop");
     asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
+    //asm volatile("nop");
 
     sendPixelByte(graysScaleTableLow[greyScale]);
     asm volatile("nop");
     asm volatile("nop");
 
   }
-
   screenLineEnd();
+
+  threshold = (lineTotal / cameraOV7670.getLineLength()) + 25;
+  //if (threshold < 150 ) threshold + 150;
+
+
 }
 
 
