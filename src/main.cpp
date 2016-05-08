@@ -115,7 +115,7 @@ void processLine() {
 
   // process and display greyscale
   lineTotal = 0;
-  for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength(); i+=4) {
+  for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=4) {
     uint8_t greyScale = cameraOV7670.getPixelByte(i);
 
     sendPixelByte(graysScaleTableHigh[greyScale]);
@@ -141,8 +141,48 @@ void processLine() {
 
 
   // process and display monochrome
-  for (uint16_t i=4; i<cameraOV7670.getPixelBufferLength(); i+=4) {
+  for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength(); i+=8) {
     uint8_t monoChrome = cameraOV7670.getPixelByte(i) > threshold ? 0xFF : 0x00;
+
+    sendPixelByte(monoChrome);
+
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+
+    sendPixelByte(monoChrome);
+
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
 
     sendPixelByte(monoChrome);
 
