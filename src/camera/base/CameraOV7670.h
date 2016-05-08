@@ -88,6 +88,10 @@ public:
   inline void waitForPixelClockHigh(void) __attribute__((always_inline));
   inline uint8_t readPixelByte(void) __attribute__((always_inline));
 
+  void setManualContrastCenter(uint8_t center);
+  void setContrast(uint8_t contrast);
+  void setBrightness(uint8_t birghtness);
+
 
 private:
   void initClock();
@@ -96,7 +100,8 @@ private:
   void setRegisters(const RegisterData *registerData);
   void setRegister(uint8_t addr, uint8_t val);
   uint8_t readRegister(uint8_t addr);
-  void addBitsToRegister(uint8_t addr, uint8_t bits);
+  void setRegisterBitsOR(uint8_t addr, uint8_t bits);
+  void setRegisterBitsAND(uint8_t addr, uint8_t bits);
 
 };
 

@@ -50,13 +50,30 @@ void CameraOV7670::setUpCamera() {
       break;
   }
 
-
   setRegister(REG_COM10, COM10_PCLK_HB); // disable pixel clock during blank lines
   setRegister(REG_CLKRC, 0x80 | internalClockPreScaler); // f = input / (val + 1)
+
+
 
 }
 
 
+
+void CameraOV7670::setManualContrastCenter(uint8_t contrastCenter) {
+  setRegisterBitsAND(MTXS, 0x7F); // disable auto contrast
+  setRegister(REG_CONTRAST_CENTER, contrastCenter);
+}
+
+
+void CameraOV7670::setContrast(uint8_t contrast) {
+  // default 0x40
+  setRegister(REG_CONTRAS, contrast);
+}
+
+
+void CameraOV7670::setBrightness(uint8_t birghtness) {
+  setRegister(REG_BRIGHT, birghtness);
+}
 
 
 void CameraOV7670::resetSettings() {
@@ -99,11 +116,15 @@ uint8_t CameraOV7670::readRegister(uint8_t addr) {
 }
 
 
-void CameraOV7670::addBitsToRegister(uint8_t addr, uint8_t bits) {
+void CameraOV7670::setRegisterBitsOR(uint8_t addr, uint8_t bits) {
   uint8_t val = readRegister(addr);
   setRegister(addr, val | bits);
 }
 
+void CameraOV7670::setRegisterBitsAND(uint8_t addr, uint8_t bits) {
+  uint8_t val = readRegister(addr);
+  setRegister(addr, val & bits);
+}
 
 
 

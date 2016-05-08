@@ -84,7 +84,7 @@ const PROGMEM RegisterData CameraOV7670::regsDefault [] = { //from the linux dri
                          {0x4f, 0x80},		{0x50, 0x80},
                          {0x51, 0},		{0x52, 0x22},
                          {0x53, 0x5e},		{0x54, 0x80},
-                         {0x58, 0x9e},
+                         {MTXS, 0x9e},
 
                          {REG_COM16, COM16_AWBGAIN},	{REG_EDGE, 0},
                          {0x75, 0x05},		{REG_REG76, 0xe1},
