@@ -91,6 +91,7 @@ public:
   void setManualContrastCenter(uint8_t center);
   void setContrast(uint8_t contrast);
   void setBrightness(uint8_t birghtness);
+  void reversePixelBits();
 
 
 private:

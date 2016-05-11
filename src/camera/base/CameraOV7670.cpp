@@ -76,6 +76,11 @@ void CameraOV7670::setBrightness(uint8_t birghtness) {
 }
 
 
+void CameraOV7670::reversePixelBits() {
+  setRegisterBitsOR(REG_COM3, COM3_SWAP);
+}
+
+
 void CameraOV7670::resetSettings() {
   setRegister(REG_COM7, COM7_RESET);
   delay(500);
