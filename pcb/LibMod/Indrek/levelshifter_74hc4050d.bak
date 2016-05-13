@@ -1,0 +1,15 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#
+# LevelShifter_74HC4050D
+#
+DEF LevelShifter_74HC4050D LS 0 40 Y Y 1 F N
+F0 "LS" 0 700 60 H V C CNN
+F1 "LevelShifter_74HC4050D" 0 -600 60 H V C CNN
+F2 "" 0 0 60 H V C CNN
+F3 "" 0 0 60 H V C CNN
+DRAW
+ENDDRAW
+ENDDEF
+#
+#End Library
