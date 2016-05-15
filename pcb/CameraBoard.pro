@@ -1,4 +1,4 @@
-update=13.05.2016 7:48:50
+update=15.05.2016 15:38:28
 version=1
 last_client=kicad
 [pcbnew]
@@ -64,3 +64,5 @@ LibName32=LibMod/Indrek/levelshifter_74hc4050d
 LibName33=LibMod/Indrek/tft_1.8inch
 LibName34=LibMod/Indrek/shiftregister_74hc595
 LibName35=LibMod/Indrek/shiftregister_74hc165
+LibName36=LibMod/Indrek/fifo_74hc40105
+LibName37=LibMod/Indrek/notgate_74hc04

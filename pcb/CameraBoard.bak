@@ -33,6 +33,7 @@ LIBS:camera_ov7670
 LIBS:levelshifter_74hc4050d
 LIBS:tft_1.8inch
 LIBS:shiftregister_74hc595
+LIBS:shiftregister_74hc165
 LIBS:CameraBoard-cache
 EELAYER 25 0
 EELAYER END
