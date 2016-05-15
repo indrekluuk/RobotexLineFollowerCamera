@@ -979,7 +979,6 @@ F 3 "" H 9650 5600 50  0000 C CNN
 $EndComp
 NoConn ~ 9450 5750
 NoConn ~ 9450 5850
-NoConn ~ 9450 5950
 NoConn ~ 1850 4450
 $Comp
 L power_connection PWR1
@@ -991,5 +990,16 @@ F 2 "Pin_Headers:Pin_Header_Straight_1x02" H 1250 950 60  0001 C CNN
 F 3 "" H 1250 950 60  0000 C CNN
 	1    1250 950 
 	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 5738DE02
+P 9450 5950
+F 0 "#PWR?" H 9450 5700 50  0001 C CNN
+F 1 "GND" H 9450 5800 50  0000 C CNN
+F 2 "" H 9450 5950 50  0000 C CNN
+F 3 "" H 9450 5950 50  0000 C CNN
+	1    9450 5950
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
