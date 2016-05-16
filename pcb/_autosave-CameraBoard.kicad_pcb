@@ -3,9 +3,9 @@
   (general
     (links 97)
     (no_connects 0)
-    (area 130.718167 84.545951 180.413 132.788001)
+    (area 130.718167 84.545951 180.859501 132.980501)
     (thickness 1.6)
-    (drawings 0)
+    (drawings 5)
     (tracks 635)
     (zones 0)
     (modules 17)
@@ -64,8 +64,8 @@
     (aux_axis_origin 0 0)
     (visible_elements 7FFEFFFF)
     (pcbplotparams
-      (layerselection 0x00030_80000001)
-      (usegerberextensions false)
+      (layerselection 0x010f0_80000001)
+      (usegerberextensions true)
       (excludeedgelayer true)
       (linewidth 0.100000)
       (plotframeref false)
@@ -85,9 +85,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory ""))
+      (outputdirectory gerber/))
   )
 
   (net 0 "")
@@ -1057,6 +1057,12 @@
       (rotate (xyz 0 0 90))
     )
   )
+
+  (gr_line (start 131.191 86.36) (end 131.2545 86.36) (angle 90) (layer Edge.Cuts) (width 0.15))
+  (gr_line (start 131.191 132.9055) (end 131.191 86.36) (angle 90) (layer Edge.Cuts) (width 0.15))
+  (gr_line (start 180.7845 132.9055) (end 131.191 132.9055) (angle 90) (layer Edge.Cuts) (width 0.15))
+  (gr_line (start 180.7845 86.233) (end 180.7845 132.9055) (angle 90) (layer Edge.Cuts) (width 0.15))
+  (gr_line (start 131.318 86.233) (end 180.7845 86.233) (angle 90) (layer Edge.Cuts) (width 0.15))
 
   (segment (start 137.287 116.967) (end 138.557 116.967) (width 0.25) (layer B.Cu) (net 1))
   (segment (start 140.4315 115.3795) (end 140.4315 115.8545) (width 0.25) (layer F.Cu) (net 1) (tstamp 5738EBBE))
