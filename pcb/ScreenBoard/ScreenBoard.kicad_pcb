@@ -270,11 +270,11 @@
     )
   )
 
-  (module Connect:1pin (layer F.Cu) (tedit 578231F0) (tstamp 578230FE)
+  (module Connect:1pin (layer F.Cu) (tedit 57823985) (tstamp 578230FE)
     (at 136.525 88.646)
     (descr "module 1 pin (ou trou mecanique de percage)")
     (tags DEV)
-    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS)
+    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 1pin (at 0 2.794) (layer F.Fab) hide
@@ -284,11 +284,11 @@
     (pad 1 thru_hole circle (at 0 0) (size 5 5) (drill 3.2) (layers *.Cu *.Mask F.SilkS))
   )
 
-  (module Connect:1pin (layer F.Cu) (tedit 57823261) (tstamp 5782324D)
+  (module Connect:1pin (layer F.Cu) (tedit 5782398F) (tstamp 5782324D)
     (at 164.5285 88.646)
     (descr "module 1 pin (ou trou mecanique de percage)")
     (tags DEV)
-    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS)
+    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 1pin (at 0 2.794) (layer F.Fab) hide
@@ -298,11 +298,11 @@
     (pad 1 thru_hole circle (at 0 0) (size 5 5) (drill 3.2) (layers *.Cu *.Mask F.SilkS))
   )
 
-  (module Connect:1pin (layer F.Cu) (tedit 5782328B) (tstamp 5782326B)
+  (module Connect:1pin (layer F.Cu) (tedit 57823998) (tstamp 5782326B)
     (at 136.525 146.685)
     (descr "module 1 pin (ou trou mecanique de percage)")
     (tags DEV)
-    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS)
+    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 1pin (at 0 2.794) (layer F.Fab) hide
@@ -312,11 +312,11 @@
     (pad 1 thru_hole circle (at 0 0) (size 5 5) (drill 3.2) (layers *.Cu *.Mask F.SilkS))
   )
 
-  (module Connect:1pin (layer F.Cu) (tedit 5782329D) (tstamp 5782326E)
+  (module Connect:1pin (layer F.Cu) (tedit 5782399F) (tstamp 5782326E)
     (at 164.5285 146.6215)
     (descr "module 1 pin (ou trou mecanique de percage)")
     (tags DEV)
-    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS)
+    (fp_text reference REF** (at 0 -3.048) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 1pin (at 0 2.794) (layer F.Fab) hide
