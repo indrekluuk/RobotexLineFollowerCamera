@@ -2,12 +2,19 @@
 // Created by Indrek Luuk on 07.05.16.
 //
 
+#define OV7670_HIGH_4_BITS_PIN_REG PIND
+#define OV7670_HIGH_4_BITS_MASK 0b01110000
+
+#define OV7670_LOW_4_BITS_PIN_REG PINC
+#define OV7670_LOW_4_BITS_MASK 0b00001111
+
 
 
 #include <arduino.h>
 #include "screen/Adafruit_ST7735_mod.h"
 #include "camera/buffered/BufferedCameraOV7670_QQVGA_10hz.h"
 #include "GrayScaleTable.h"
+#include "ByteInversionTable.h"
 #include "utils/Utils.h"
 
 
@@ -28,6 +35,7 @@ void processFrame();
 void run() {
   Serial.begin(9600);
   cameraOV7670.init();
+  cameraOV7670.reversePixelBits();
   cameraOV7670.setManualContrastCenter(0);
   cameraOV7670.setContrast(0xFF);
 
@@ -142,7 +150,7 @@ void processLine() {
 
   // process and display monochrome
   for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength(); i+=8) {
-    uint8_t monoChrome = cameraOV7670.getPixelByte(i) > threshold ? 0xFF : 0x00;
+    uint8_t monoChrome = byteInversionTable[cameraOV7670.getPixelByte(i)] > threshold ? 0xFF : 0x00;
 
     sendPixelByte(monoChrome);
 
