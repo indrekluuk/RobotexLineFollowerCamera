@@ -13,6 +13,7 @@
 #include <arduino.h>
 #include "screen/Adafruit_ST7735_mod.h"
 #include "camera/buffered/BufferedCameraOV7670_QQVGA_10hz.h"
+#include "databuffer/DataBufferSender.h"
 #include "GrayScaleTable.h"
 #include "ByteInversionTable.h"
 #include "utils/Utils.h"
@@ -26,6 +27,10 @@ int TFT_CS  = 9;
 int TFT_DC  = 8;
 // TFT_SPI_clock = 13 and TFT_SPI_data = 11
 Adafruit_ST7735_mod tft = Adafruit_ST7735_mod(TFT_CS, TFT_DC, TFT_RST);
+
+
+DataBufferSender dataBufferSender;
+
 
 
 void processFrame();
@@ -43,6 +48,8 @@ void run() {
   tft.fillScreen(ST7735_BLACK);
   noInterrupts();
 
+  dataBufferSender.newFrame();
+  dataBufferSender.send(~0b11111011);
 
   while(true) {
     processFrame();
