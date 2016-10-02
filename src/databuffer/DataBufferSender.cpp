@@ -17,11 +17,11 @@ DataBufferSender::DataBufferSender() {
 
 
 
-void DataBufferSender::send(uint8_t * buf, uint8_t count) {
-  send(count | MESSAGE_START);
+void DataBufferSender::sendMessage(uint8_t * buf, uint8_t count) {
+  sendByte(count | MESSAGE_START);
   uint8_t * bufEnd = buf + count;
   for (; buf < bufEnd; buf++) {
-    send(*buf);
+    sendByte(*buf);
   }
 }
 

@@ -19,8 +19,8 @@ private:
 
 public:
     DataBufferSender();
-    void send(uint8_t * buf, uint8_t count);
-    inline void send(uint8_t byte) __attribute__((always_inline));
+    void sendMessage(uint8_t * buf, uint8_t count);
+    inline void sendByte(uint8_t byte) __attribute__((always_inline));
 
 
 private:
@@ -29,7 +29,7 @@ private:
 
 
 
-void DataBufferSender::send(uint8_t byte) {
+void DataBufferSender::sendByte(uint8_t byte) {
   SPDR = byte;
   dataDelay();
   PORTD = PORTD | PORTD_CLOCK_ENABLE_MAP;

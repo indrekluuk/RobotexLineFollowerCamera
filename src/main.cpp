@@ -50,7 +50,7 @@ void run() {
 
   char buf [] = "Hello World 2!";
   while(true) {
-    dataBufferSender.send((uint8_t *)buf, strlen(buf));
+    dataBufferSender.sendMessage((uint8_t *)buf, strlen(buf));
     delay(5000);
   }
 
