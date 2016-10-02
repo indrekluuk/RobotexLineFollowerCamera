@@ -56,5 +56,5 @@ add_executable(RobotexLineFollowerCamera
     src/camera/base/CameraOV7670RegsVGA.cpp
     src/camera/base/CameraOV7670RegsYUV422.cpp
     src/screen/Adafruit_ST7735_mod.cpp
-    src/main.cpp src/databuffer/DataBufferSender.cpp
-    src/databuffer/DataBufferSender.h)
+    src/main.cpp
+    src/databuffer/DataBufferSender.cpp)

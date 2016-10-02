@@ -9,6 +9,8 @@
 #include <arduino.h>
 
 
+#define MESSAGE_START 0xF0
+
 class DataBufferSender {
 
 private:
@@ -17,28 +19,21 @@ private:
 
 public:
     DataBufferSender();
-
-    void newFrame();
-    inline void send(uint8_t data) __attribute__((always_inline));
-
+    void send(uint8_t * buf, uint8_t count);
+    inline void send(uint8_t byte) __attribute__((always_inline));
 
 
 private:
-    bool isNewFrame = false;
-
     void dataDelay();
-
 };
 
 
 
-void DataBufferSender::send(uint8_t data) {
-    //SPI.transfer(data);
-    SPDR = data;
-    dataDelay();
-    isNewFrame = false;
-    PORTD = PORTD | PORTD_CLOCK_ENABLE_MAP;
-    PORTD = PORTD & (~PORTD_CLOCK_ENABLE_MAP);
+void DataBufferSender::send(uint8_t byte) {
+  SPDR = byte;
+  dataDelay();
+  PORTD = PORTD | PORTD_CLOCK_ENABLE_MAP;
+  PORTD = PORTD & (~PORTD_CLOCK_ENABLE_MAP);
 }
 
 

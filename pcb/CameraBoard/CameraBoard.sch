@@ -548,7 +548,7 @@ Wire Wire Line
 Wire Wire Line
 	6450 2950 5950 2950
 Wire Wire Line
-	5950 2950 5950 2600
+	5950 2600 5950 2950
 Wire Wire Line
 	3400 2400 8800 2400
 Wire Wire Line
@@ -588,11 +588,11 @@ Wire Wire Line
 Wire Wire Line
 	1200 3350 1200 2450
 Wire Wire Line
-	10850 3250 10850 650 
+	10850 650  10850 3250
 Wire Wire Line
 	2700 650  2700 2100
 Wire Wire Line
-	10850 650  2700 650 
+	2700 650  10850 650 
 Connection ~ 9200 650 
 Connection ~ 9500 650 
 Wire Wire Line
@@ -721,7 +721,7 @@ Wire Wire Line
 Wire Wire Line
 	6200 5600 6650 5600
 Wire Wire Line
-	5950 2600 3250 2600
+	3250 2600 5950 2600
 Wire Wire Line
 	4900 2950 4700 2950
 Connection ~ 4700 2950
@@ -891,29 +891,14 @@ Wire Wire Line
 	6100 4950 6100 4200
 Wire Wire Line
 	6100 4200 8200 4200
-$Comp
-L notgate_74HCT04 U2
-U 1 1 5738EBCE
-P 6700 4500
-F 0 "U2" H 6850 4600 50  0000 C CNN
-F 1 "notgate_74HCT04" H 6900 4300 50  0000 C CNN
-F 2 "Housings_SOIC:SOIC-14_3.9x8.7mm_Pitch1.27mm" H 6700 4500 50  0001 C CNN
-F 3 "" H 6700 4500 50  0000 C CNN
-	1    6700 4500
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
 	6250 5050 6250 4500
 Wire Wire Line
 	5850 5050 6250 5050
 Wire Wire Line
-	7150 4500 7150 4750
+	6650 4500 6650 5100
 Wire Wire Line
-	7150 4750 6650 4750
-Wire Wire Line
-	6650 4750 6650 5100
-Wire Wire Line
-	7150 4500 8100 4500
+	6250 4500 8100 4500
 Wire Wire Line
 	8050 5450 9450 5450
 NoConn ~ 8050 5900
@@ -1002,4 +987,5 @@ F 3 "" H 9450 5950 50  0000 C CNN
 	1    9450 5950
 	1    0    0    -1  
 $EndComp
+Connection ~ 6650 4500
 $EndSCHEMATC

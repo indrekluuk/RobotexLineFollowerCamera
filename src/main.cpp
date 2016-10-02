@@ -46,10 +46,16 @@ void run() {
 
   tft.initR(INITR_BLACKTAB);
   tft.fillScreen(ST7735_BLACK);
+
+
+  char buf [] = "Hello World 2!";
+  while(true) {
+    dataBufferSender.send((uint8_t *)buf, strlen(buf));
+    delay(5000);
+  }
+
   noInterrupts();
 
-  dataBufferSender.newFrame();
-  dataBufferSender.send(~0b11111011);
 
   while(true) {
     processFrame();

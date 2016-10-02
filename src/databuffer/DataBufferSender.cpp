@@ -17,12 +17,18 @@ DataBufferSender::DataBufferSender() {
 
 
 
-void DataBufferSender::newFrame() {
-  isNewFrame = true;
+void DataBufferSender::send(uint8_t * buf, uint8_t count) {
+  send(count | MESSAGE_START);
+  uint8_t * bufEnd = buf + count;
+  for (; buf < bufEnd; buf++) {
+    send(*buf);
+  }
 }
 
 
 void DataBufferSender::dataDelay() {
+  asm volatile("nop");
+  asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");
