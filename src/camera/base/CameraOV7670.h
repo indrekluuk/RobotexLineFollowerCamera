@@ -4,9 +4,7 @@
 #define _CAMERA_OV7670_h_
 
 #include "Arduino.h"
-#include "Wire.h"
-#include "CameraOV7670RegisterDefinitions.h"
-
+#include "CameraOV7670Registers.h"
 
 
 /*
@@ -15,28 +13,17 @@ C (analog input pins)
 D (digital pins 0 to 7)
 */
 
-#ifndef OV7670_VSYNC_PIN_REG
-// PIN 2
-#define OV7670_VSYNC_PIN_REG PIND
-#define OV7670_VSYNC_MASK 0b00000100
+#ifndef OV7670_VSYNC
+#define OV7670_VSYNC (PIND & 0b00000100) // PIN 2
 #endif
 
-#ifndef OV7670_PCLOCK_PIN_REG
-// PIN 12
-#define OV7670_PCLOCK_PIN_REG PINB
-#define OV7670_PCLOCK_MASK 0b00010000
+#ifndef OV7670_PIXEL_CLOCK
+#define OV7670_PIXEL_CLOCK (PINB & 0b00010000) // PIN 12
 #endif
 
-#ifndef OV7670_LOW_4_BITS_PIN_REG
-// PIN A0..A3
-#define OV7670_LOW_4_BITS_PIN_REG PINC
-#define OV7670_LOW_4_BITS_MASK 0b00001111
-#endif
-
-#ifndef OV7670_HIGH_4_BITS_PIN_REG
-// PIN 4..7
-#define OV7670_HIGH_4_BITS_PIN_REG PIND
-#define OV7670_HIGH_4_BITS_MASK 0b11110000
+#ifndef OV7670_PIXEL_BYTE
+// (PIN 4..7) | (PIN A0..A3)
+#define OV7670_PIXEL_BYTE ((PIND & 0b11110000) | (PINC & 0b00001111))
 #endif
 
 
@@ -60,18 +47,12 @@ public:
 
 
 private:
-  static const int i2cAddress = 0x21;
-  static const RegisterData regsDefault[];
-  static const RegisterData regsRGB565[];
-  static const RegisterData regsBayerRGB[];
-  static const RegisterData regsYUV422[];
-  static const RegisterData regsQQVGA[];
-  static const RegisterData regsQVGA[];
-  static const RegisterData regsVGA[];
+  static const uint8_t i2cAddress = 0x21;
 
   Resolution resolution;
   PixelFormat pixelFormat;
   uint8_t internalClockPreScaler;
+  CameraOV7670Registers registers;
 
 
 public:
@@ -79,37 +60,31 @@ public:
   CameraOV7670(Resolution resolution, PixelFormat format, uint8_t internalClockPreScaler) :
       resolution(resolution),
       pixelFormat(format),
-      internalClockPreScaler(internalClockPreScaler) {};
+      internalClockPreScaler(internalClockPreScaler),
+      registers(i2cAddress) {};
 
   void init();
+  void setManualContrastCenter(uint8_t center);
+  void setContrast(uint8_t contrast);
+  void setBrightness(uint8_t birghtness);
+  void reversePixelBits();
+
   inline void waitForVsync(void) __attribute__((always_inline));
   inline void waitForPixelClockRisingEdge(void) __attribute__((always_inline));
   inline void waitForPixelClockLow(void) __attribute__((always_inline));
   inline void waitForPixelClockHigh(void) __attribute__((always_inline));
   inline uint8_t readPixelByte(void) __attribute__((always_inline));
 
-  void setManualContrastCenter(uint8_t center);
-  void setContrast(uint8_t contrast);
-  void setBrightness(uint8_t birghtness);
-  void reversePixelBits();
-
 
 private:
   void initClock();
-  void resetSettings();
   void setUpCamera();
-  void setRegisters(const RegisterData *registerData);
-  void setRegister(uint8_t addr, uint8_t val);
-  uint8_t readRegister(uint8_t addr);
-  void setRegisterBitsOR(uint8_t addr, uint8_t bits);
-  void setRegisterBitsAND(uint8_t addr, uint8_t bits);
-
 };
 
 
 
 void CameraOV7670::waitForVsync() {
-  while(!(OV7670_VSYNC_PIN_REG & OV7670_VSYNC_MASK));
+  while(!OV7670_VSYNC);
 }
 
 void CameraOV7670::waitForPixelClockRisingEdge() {
@@ -118,16 +93,15 @@ void CameraOV7670::waitForPixelClockRisingEdge() {
 }
 
 void CameraOV7670::waitForPixelClockLow() {
-  while(OV7670_PCLOCK_PIN_REG & OV7670_PCLOCK_MASK);
+  while(OV7670_PIXEL_CLOCK);
 }
 
 void CameraOV7670::waitForPixelClockHigh() {
-  while(!(OV7670_PCLOCK_PIN_REG & OV7670_PCLOCK_MASK));
+  while(!OV7670_PIXEL_CLOCK);
 }
 
 uint8_t CameraOV7670::readPixelByte() {
-  return (OV7670_LOW_4_BITS_PIN_REG & OV7670_LOW_4_BITS_MASK)
-         | (OV7670_HIGH_4_BITS_PIN_REG & OV7670_HIGH_4_BITS_MASK);
+  return OV7670_PIXEL_BYTE;
 }
 
 

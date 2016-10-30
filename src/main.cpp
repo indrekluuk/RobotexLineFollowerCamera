@@ -2,11 +2,10 @@
 // Created by Indrek Luuk on 07.05.16.
 //
 
-#define OV7670_HIGH_4_BITS_PIN_REG PIND
-#define OV7670_HIGH_4_BITS_MASK 0b01110000
 
-#define OV7670_LOW_4_BITS_PIN_REG PINC
-#define OV7670_LOW_4_BITS_MASK 0b00001111
+
+// pre-define OV7670_PIXEL_BYTE since we only use 7 bits
+#define OV7670_PIXEL_BYTE ((PIND & 0b01110000) | (PINC & 0b00001111))
 
 
 
@@ -47,12 +46,13 @@ void run() {
   tft.initR(INITR_BLACKTAB);
   tft.fillScreen(ST7735_BLACK);
 
-
+/*
   char buf [] = "Hello World 2!";
   while(true) {
     dataBufferSender.sendMessage((uint8_t *)buf, strlen(buf));
     delay(5000);
   }
+*/
 
   noInterrupts();
 
@@ -136,7 +136,8 @@ void processLine() {
 
   // process and display greyscale
   lineTotal = 0;
-  for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=4) {
+  //for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=4) {
+  for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=2) {
     uint8_t greyScale = cameraOV7670.getPixelByte(i);
 
     sendPixelByte(graysScaleTableHigh[greyScale]);
@@ -152,7 +153,7 @@ void processLine() {
   if (rowMax > frameMax) frameMax = rowMax;
   if (rowMin < frameMin) frameMin = rowMin;
 
-
+/*
   // screen greyscale/monochrome divider
   sendPixelByte(0);
   fullSendPixelDelay();
@@ -231,7 +232,7 @@ void processLine() {
 
   }
 
-
+*/
   screenLineEnd();
 
 

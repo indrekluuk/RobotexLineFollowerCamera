@@ -1,4 +1,4 @@
-update=15.05.2016 17:23:57
+update=3.10.2016 13:07:26
 version=1
 last_client=kicad
 [pcbnew]
@@ -67,3 +67,13 @@ LibName35=LibMod/Indrek/shiftregister_74hc165
 LibName36=LibMod/Indrek/fifo_74hc40105
 LibName37=LibMod/Indrek/notgate_74hc04
 LibName38=LibMod/Indrek/power_connection
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60
