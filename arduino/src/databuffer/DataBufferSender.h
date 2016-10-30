@@ -6,7 +6,7 @@
 #define ROBOTEXLINEFOLLOWERCAMERA_DATABUFFERSENDER_H
 
 
-#include <arduino.h>
+#include <Arduino.h>
 
 
 #define MESSAGE_START 0xF0

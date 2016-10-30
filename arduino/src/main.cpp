@@ -9,7 +9,7 @@
 
 
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "screen/Adafruit_ST7735_mod.h"
 #include "camera/buffered/BufferedCameraOV7670_QQVGA_10hz.h"
 #include "databuffer/DataBufferSender.h"

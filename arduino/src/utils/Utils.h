@@ -5,7 +5,7 @@
 #ifndef ROBOTEXLINEFOLLOWERCAMERA_UTILS_H
 #define ROBOTEXLINEFOLLOWERCAMERA_UTILS_H
 
-#include <arduino.h>
+#include <Arduino.h>
 
 
 inline void sleep(uint64_t milliseconds) {
