@@ -28,8 +28,9 @@ public:
     static const RegisterData regsQVGA[];
     static const RegisterData regsVGA[];
 
-    CameraOV7670Registers(const uint8_t i2cAddress) : i2cAddress(i2cAddress) {}
+    CameraOV7670Registers(const uint8_t i2cAddress);
 
+    void init();
 
     void resetSettings();
     void setRegisters(const RegisterData *registerData);
