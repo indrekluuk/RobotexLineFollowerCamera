@@ -4,14 +4,12 @@
 
 
 
-// pre-define OV7670_PIXEL_BYTE since we only use 7 bits
-#define OV7670_PIXEL_BYTE ((PIND & 0b01110000) | (PINC & 0b00001111))
 
 
 
 #include <Arduino.h>
-#include "screen/Adafruit_ST7735_mod.h"
-#include "camera/buffered/BufferedCameraOV7670_QQVGA_10hz.h"
+#include "Camera.h"
+#include "Screen.h"
 #include "databuffer/DataBufferSender.h"
 #include "GrayScaleTable.h"
 #include "ByteInversionTable.h"
@@ -19,15 +17,9 @@
 
 
 
-BufferedCameraOV7670_QQVGA_10hz cameraOV7670(CameraOV7670::PIXEL_YUV422);
 
-int TFT_RST = 10;
-int TFT_CS  = 9;
-int TFT_DC  = 8;
-// TFT_SPI_clock = 13 and TFT_SPI_data = 11
-Adafruit_ST7735_mod tft = Adafruit_ST7735_mod(TFT_CS, TFT_DC, TFT_RST);
-
-
+Camera camera;
+Screen screen;
 DataBufferSender dataBufferSender;
 
 
@@ -38,25 +30,18 @@ void processFrame();
 
 void run() {
   Serial.begin(9600);
-  cameraOV7670.init();
-  cameraOV7670.reversePixelBits();
-  cameraOV7670.setManualContrastCenter(0);
-  cameraOV7670.setContrast(0xFF);
+  camera.init();
+  screen.init();
 
-  tft.initR(INITR_BLACKTAB);
-  tft.fillScreen(ST7735_BLACK);
-
-/*
+  /*
   char buf [] = "Hello World 2!";
   while(true) {
     dataBufferSender.sendMessage((uint8_t *)buf, strlen(buf));
     delay(5000);
   }
-*/
+  */
 
   noInterrupts();
-
-
   while(true) {
     processFrame();
   }
@@ -67,49 +52,21 @@ void run() {
 
 
 
-inline void screenLineStart(void) __attribute__((always_inline));
-inline void screenLineEnd(void) __attribute__((always_inline));
-inline void sendPixelByte(uint8_t byte) __attribute__((always_inline));
-inline void fullSendPixelDelay() __attribute__((always_inline));
+
+
 inline void processLine() __attribute__((always_inline));
 
 
 
-// Normally it is portrait screen. Use it as landscape
-uint8_t screen_w = ST7735_TFTHEIGHT_18;
-uint8_t screen_h = ST7735_TFTWIDTH;
-uint8_t screenLineIndex;
 
-
-uint16_t lineTotal = 0;
-uint32_t colorTotal = 0;
-uint32_t pixelCountInColorTotal = (cameraOV7670.getLineLength() * cameraOV7670.getLineCount()) / 2;
-uint8_t threshold = 0;
-uint8_t frameMin = 0xFF;
-uint8_t frameMax = 0x00;
-
+void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength);
 
 
 void processFrame() {
-  cameraOV7670.waitForVsync();
-
-  screenLineIndex = screen_h;
-
-  colorTotal = 0;
-  frameMin = 0xFF;
-  frameMax = 0x00;
 
 
-  uint8_t lineIndex = 0;
-  while (lineIndex < cameraOV7670.getLineCount()) {
-    cameraOV7670.readLine();
-    processLine();
-    lineIndex++;
-  }
-
-
-  uint8_t colorAverage = (colorTotal / pixelCountInColorTotal);
-  threshold = colorAverage / 2;
+  screen.resetFrame();
+  camera.readFrame(processLine);
 
   /*
   Serial.print("Avg: ");
@@ -122,36 +79,67 @@ void processFrame() {
   Serial.print((int)frameMax);
   Serial.println();
   */
-
 }
 
 
 
+uint16_t colorTotal = 0;
+uint8_t frameMax = 0;
+uint8_t frameMin = 0xFF;
 
 
-void processLine() {
-  screenLineStart();
+
+void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength) {
+  screen.screenLineStart();
+
+  uint16_t lineTotal = 0;
   uint8_t rowMax = 0;
   uint8_t rowMin = 0xFF;
 
-  // process and display greyscale
-  lineTotal = 0;
+
   //for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=4) {
   for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=2) {
     uint8_t greyScale = cameraOV7670.getPixelByte(i);
+    screen.sendPixelByte(graysScaleTableHigh[greyScale]);
+    lineTotal += greyScale;
+    if (greyScale > rowMax) rowMax = greyScale;
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
 
-    sendPixelByte(graysScaleTableHigh[greyScale]);
+    screen.sendPixelByte(graysScaleTableLow[greyScale]);
+    if (greyScale < rowMin) rowMin = greyScale;
+    //asm volatile("nop");
+
+  }
+  colorTotal += lineTotal;
+  if (rowMax > frameMax) frameMax = rowMax;
+  if (rowMin < frameMin) frameMin = rowMin;
+
+
+
+  /*
+  //for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=4) {
+  for (uint16_t i=2; i<lineLength - 2; i+=2) {
+    uint8_t greyScale = buffer[i];
+    screen.sendPixelByte(graysScaleTableHigh[greyScale]);
     lineTotal += greyScale;
     if (greyScale > rowMax) rowMax = greyScale;
     //asm volatile("nop");
 
-    sendPixelByte(graysScaleTableLow[greyScale]);
+    screen.sendPixelByte(graysScaleTableLow[greyScale]);
     if (greyScale < rowMin) rowMin = greyScale;
     //asm volatile("nop");
   }
   colorTotal += lineTotal;
   if (rowMax > frameMax) frameMax = rowMax;
   if (rowMin < frameMin) frameMin = rowMin;
+  */
+
 
 /*
   // screen greyscale/monochrome divider
@@ -233,46 +221,12 @@ void processLine() {
   }
 
 */
-  screenLineEnd();
-
-
+  screen.screenLineEnd();
 }
 
 
 
 
-void screenLineStart()   {
-  if (screenLineIndex > 0) screenLineIndex--;
-  tft.startAddrWindow(screenLineIndex, 0, screenLineIndex, screen_w-1);
-}
-
-void screenLineEnd() {
-  tft.endAddrWindow();
-}
-
-void sendPixelByte(uint8_t byte) {
-  SPDR = byte;
-}
-
-void fullSendPixelDelay() {
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-}
 
 
 

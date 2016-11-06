@@ -9,7 +9,7 @@
 // grayscale table for inverted byte
 // 00000000, 10000000, 01000000, 11000000, 00100000 ...
 
-uint8_t byteInversionTable[] = {
+const uint8_t byteInversionTable[] = {
     0,
     128,
     64,
