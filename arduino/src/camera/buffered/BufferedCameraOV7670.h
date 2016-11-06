@@ -13,7 +13,7 @@
 // First byte from camera is half a pixel (lower byte of a pixel).
 // Shift line data by 1 byte to correct for it.
 // This means that first pixel in each line is actually broken.
-template <uint16_t size>
+template <typename TBuffer, TBuffer size>
 union OV7670PixelBuffer {
   struct {
     uint8_t writeBufferPadding;
@@ -28,14 +28,18 @@ union OV7670PixelBuffer {
 
 
 
-template <uint16_t x, uint16_t y>
+// TBuffer type for buffer size. If buffer is smaller than 256 then uin8_t can be used otherwise use uin16_t
+// Tx type for line length. If line length is smaller than 256 then uin8_t can be used otherwise use uin16_t
+// Ty type for line count. If line length is smaller than 256 then uin8_t can be used otherwise use uin16_t
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
 class BufferedCameraOV7670 : public CameraOV7670 {
 
 protected:
-  static const uint16_t lineLength = x;
-  static const uint16_t lineCount = y;
-  static const uint16_t pixelBufferLength = x*2;
-  static OV7670PixelBuffer<x*2> pixelBuffer;
+
+  static const Tx lineLength = x;
+  static const Ty lineCount = y;
+  static const TBuffer pixelBufferLength = ((TBuffer)x)*2;
+  static OV7670PixelBuffer<TBuffer, ((TBuffer)x)*2> pixelBuffer;
 
 public:
   BufferedCameraOV7670(Resolution resolution, PixelFormat format, uint8_t internalClockPreScaler) :
@@ -43,56 +47,58 @@ public:
 
   virtual inline void readLine() __attribute__((always_inline));
 
-  inline const uint16_t getLineLength() __attribute__((always_inline));
-  inline const uint16_t getLineCount() __attribute__((always_inline));
+  inline const Tx getLineLength() __attribute__((always_inline));
+  inline const Ty getLineCount() __attribute__((always_inline));
   inline const uint8_t * getPixelBuffer() __attribute__((always_inline));
-  inline const uint16_t getPixelBufferLength() __attribute__((always_inline));
-  inline const uint8_t getPixelByte(uint16_t byteIndex) __attribute__((always_inline));
+  inline const TBuffer getPixelBufferLength() __attribute__((always_inline));
+  inline const uint8_t getPixelByte(TBuffer byteIndex) __attribute__((always_inline));
 
 
 };
 
 
 
-template <uint16_t x, uint16_t y>
-OV7670PixelBuffer<x*2> BufferedCameraOV7670<x, y>::pixelBuffer;
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
+OV7670PixelBuffer<TBuffer, ((TBuffer)x)*2> BufferedCameraOV7670<TBuffer, Tx, x, Ty, y>::pixelBuffer;
 
 
 
 
-template <uint16_t x, uint16_t y>
-const uint16_t BufferedCameraOV7670<x, y>::getLineLength() {
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
+const Tx BufferedCameraOV7670<TBuffer, Tx, x, Ty, y>::getLineLength() {
   return lineLength;
 }
 
-template <uint16_t x, uint16_t y>
-const uint16_t BufferedCameraOV7670<x, y>::getLineCount() {
+
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
+const Ty BufferedCameraOV7670<TBuffer, Tx, x, Ty, y>::getLineCount() {
   return lineCount;
 }
 
-template <uint16_t x, uint16_t y>
-const uint8_t * BufferedCameraOV7670<x, y>::getPixelBuffer() {
+
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
+const uint8_t * BufferedCameraOV7670<TBuffer, Tx, x, Ty, y>::getPixelBuffer() {
   return pixelBuffer.readBuffer;
 };
 
-template <uint16_t x, uint16_t y>
-const uint16_t BufferedCameraOV7670<x, y>::getPixelBufferLength() {
+
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
+const TBuffer BufferedCameraOV7670<TBuffer, Tx, x, Ty, y>::getPixelBufferLength() {
   return pixelBufferLength;
 }
 
-template <uint16_t x, uint16_t y>
-const uint8_t BufferedCameraOV7670<x, y>::getPixelByte(const uint16_t byteIndex) {
+
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
+const uint8_t BufferedCameraOV7670<TBuffer, Tx, x, Ty, y>::getPixelByte(const TBuffer byteIndex) {
   return pixelBuffer.readBuffer[byteIndex];
 }
 
 
-
-
-template <uint16_t x, uint16_t y>
-void BufferedCameraOV7670<x, y>::readLine() {
+template <typename TBuffer, typename Tx, Tx x, typename Ty, Ty y>
+void BufferedCameraOV7670<TBuffer, Tx, x, Ty, y>::readLine() {
 
   pixelBuffer.writeBufferPadding = 0;
-  uint16_t bufferIndex = 0;
+  TBuffer bufferIndex = 0;
 
   while (bufferIndex < getPixelBufferLength()) {
     waitForPixelClockRisingEdge();

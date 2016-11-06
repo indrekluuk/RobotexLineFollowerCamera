@@ -59,7 +59,7 @@ inline void processLine() __attribute__((always_inline));
 
 
 
-void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength);
+inline void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength) __attribute__((always_inline));
 
 
 void processFrame() {
@@ -83,26 +83,21 @@ void processFrame() {
 
 
 
-uint16_t colorTotal = 0;
-uint8_t frameMax = 0;
-uint8_t frameMin = 0xFF;
-
 
 
 void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength) {
   screen.screenLineStart();
 
-  uint16_t lineTotal = 0;
-  uint8_t rowMax = 0;
-  uint8_t rowMin = 0xFF;
+  for (uint16_t i=2; i<camera.getPixelBufferLength() - 2; i+=2) {
+  //for (uint16_t i=2; i<ll - 2; i+=2) {
+    uint8_t greyScale = camera.getPixelByte(i);
 
-
-  //for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=4) {
-  for (uint16_t i=2; i<cameraOV7670.getPixelBufferLength() - 2; i+=2) {
-    uint8_t greyScale = cameraOV7670.getPixelByte(i);
     screen.sendPixelByte(graysScaleTableHigh[greyScale]);
-    lineTotal += greyScale;
-    if (greyScale > rowMax) rowMax = greyScale;
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
@@ -112,14 +107,10 @@ void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t
     asm volatile("nop");
 
     screen.sendPixelByte(graysScaleTableLow[greyScale]);
-    if (greyScale < rowMin) rowMin = greyScale;
-    //asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
 
   }
-  colorTotal += lineTotal;
-  if (rowMax > frameMax) frameMax = rowMax;
-  if (rowMin < frameMin) frameMin = rowMin;
-
 
 
   /*
