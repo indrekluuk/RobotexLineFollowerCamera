@@ -41,17 +41,17 @@ void run() {
 
   noInterrupts();
   while(true) {
-    screen.resetFrame();
     camera.readFrame(processLine);
   }
 }
 
 
 
-void processLine(const uint8_t lineIndex) {
-  screen.screenLineStart();
 
-  if (lineIndex & 1) {
+void processLine(const uint8_t lineIndex) {
+  screen.screenLineStart(lineIndex);
+
+  if (lineIndex & 1 || true) {
     processPixelsGrayscale(lineIndex);
   } else {
     processPixelsMonochrome(lineIndex);

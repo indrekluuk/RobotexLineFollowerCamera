@@ -26,16 +26,11 @@ class Screen {
     // Normally it is portrait screen. Use it as landscape
     static const uint8_t screen_w = ST7735_TFTHEIGHT_18;
     static const uint8_t screen_h = ST7735_TFTWIDTH;
-    static uint8_t screenLineIndex;
-
 
 public:
     void init();
 
-
-    void resetFrame();
-
-    inline void screenLineStart(void) __attribute__((always_inline));
+    inline void screenLineStart(const uint8_t lineIndex) __attribute__((always_inline));
     inline void screenLineEnd(void) __attribute__((always_inline));
     inline void sendPixelByte(const uint8_t byte) __attribute__((always_inline));
     inline void sendGrayscalePixelHigh(const uint8_t byte) __attribute__((always_inline));
@@ -47,7 +42,7 @@ public:
 };
 
 
-uint8_t Screen::screenLineIndex;
+
 
 
 void Screen::init() {
@@ -55,15 +50,9 @@ void Screen::init() {
   tft.fillScreen(ST7735_BLACK);
 }
 
-
-void Screen::resetFrame() {
-  screenLineIndex = screen_h;
-}
-
-
-void Screen::screenLineStart()   {
-  if (screenLineIndex > 0) screenLineIndex--;
-  tft.startAddrWindow(screenLineIndex, 0, screenLineIndex, screen_w-1);
+void Screen::screenLineStart(const uint8_t lineIndex) {
+  const uint8_t screenLineIndex = screen_h - lineIndex - 1;
+  tft.startAddrWindow(screenLineIndex, 0, screenLineIndex, screen_w - 1);
 }
 
 void Screen::screenLineEnd() {
