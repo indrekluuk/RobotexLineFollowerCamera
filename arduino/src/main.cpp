@@ -11,8 +11,6 @@
 #include "Camera.h"
 #include "Screen.h"
 #include "databuffer/DataBufferSender.h"
-#include "GrayScaleTable.h"
-#include "ByteInversionTable.h"
 #include "utils/Utils.h"
 
 
@@ -82,7 +80,7 @@ void processLine(const uint8_t lineIndex) {
   //for (uint16_t i=2; i<ll - 2; i+=2) {
     uint8_t greyScale = camera.getPixelByte(i);
 
-    screen.sendPixelByte(graysScaleTableHigh[greyScale]);
+    screen.sendGrayscalePixelHigh(greyScale);
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
@@ -96,7 +94,7 @@ void processLine(const uint8_t lineIndex) {
     asm volatile("nop");
     asm volatile("nop");
 
-    screen.sendPixelByte(graysScaleTableLow[greyScale]);
+    screen.sendGrayscalePixelLow(greyScale);
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");

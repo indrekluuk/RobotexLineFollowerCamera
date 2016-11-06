@@ -8,6 +8,7 @@
 
 #include "Arduino.h"
 #include "screen/Adafruit_ST7735_mod.h"
+#include "GrayScaleTable.h"
 
 
 
@@ -37,6 +38,10 @@ public:
     inline void screenLineStart(void) __attribute__((always_inline));
     inline void screenLineEnd(void) __attribute__((always_inline));
     inline void sendPixelByte(const uint8_t byte) __attribute__((always_inline));
+    inline void sendGrayscalePixelHigh(const uint8_t byte) __attribute__((always_inline));
+    inline void sendGrayscalePixelLow(const uint8_t byte) __attribute__((always_inline));
+
+
 
     void fullSendPixelDelay();
 };
@@ -68,6 +73,15 @@ void Screen::screenLineEnd() {
 void Screen::sendPixelByte(const uint8_t byte) {
   SPDR = byte;
 }
+
+void Screen::sendGrayscalePixelHigh(const uint8_t byte) {
+  sendPixelByte(graysScaleTableHigh[byte]);
+}
+
+void Screen::sendGrayscalePixelLow(const uint8_t byte) {
+  sendPixelByte(graysScaleTableLow[byte]);
+}
+
 
 
 
