@@ -50,17 +50,7 @@ void run() {
 
 
 
-
-
-
-
-inline void processLine() __attribute__((always_inline));
-
-
-
-
-inline void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength) __attribute__((always_inline));
-
+void processLine(const uint8_t lineIndex);
 
 void processFrame() {
 
@@ -85,7 +75,7 @@ void processFrame() {
 
 
 
-void processLine(const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength) {
+void processLine(const uint8_t lineIndex) {
   screen.screenLineStart();
 
   for (uint16_t i=2; i<camera.getPixelBufferLength() - 2; i+=2) {

@@ -20,7 +20,7 @@ class Camera {
     static BufferedCameraOV7670_QQVGA_10hz cameraOV7670;
 
 public:
-    using ProcessLineCallback = void (const uint8_t lineIndex, const uint8_t * buffer, const uint16_t lineLength);
+    using ProcessLineCallback = void (const uint8_t lineIndex);
 
     void init();
     void readFrame(ProcessLineCallback * processLineCallback);
@@ -50,7 +50,7 @@ void Camera::readFrame(ProcessLineCallback * processLineCallback) {
   cameraOV7670.waitForVsync();
   while (lineIndex < cameraOV7670.getLineCount()) {
     cameraOV7670.readLine();
-    processLineCallback(lineIndex, cameraOV7670.getPixelBuffer(), cameraOV7670.getPixelBufferLength());
+    processLineCallback(lineIndex);
     lineIndex++;
   }
 }
