@@ -11,13 +11,13 @@
 
 
 #include <Arduino.h>
-#include "camera/buffered/BufferedCameraOV7670_QQVGA_10hz.h"
+#include "camera/buffered/BufferedCameraOV7670_QQVGA_10hz_Grayscale.h"
 
 
 
 class Camera {
 
-    static BufferedCameraOV7670_QQVGA_10hz cameraOV7670;
+    static BufferedCameraOV7670_QQVGA_10hz_Grayscale cameraOV7670;
 
 public:
     using ProcessLineCallback = void (const uint8_t lineIndex);
@@ -26,13 +26,13 @@ public:
     void readFrame(ProcessLineCallback * processLineCallback);
 
 
-    inline const uint16_t getPixelBufferLength() __attribute__((always_inline));
-    inline const uint8_t getPixelByte(uint16_t byteIndex) __attribute__((always_inline));
+    inline const uint8_t getPixelBufferLength() __attribute__((always_inline));
+    inline const uint8_t getPixelByte(uint8_t byteIndex) __attribute__((always_inline));
 
 };
 
+BufferedCameraOV7670_QQVGA_10hz_Grayscale Camera::cameraOV7670;
 
-BufferedCameraOV7670_QQVGA_10hz Camera::cameraOV7670(CameraOV7670::PIXEL_YUV422);
 
 
 
@@ -56,11 +56,11 @@ void Camera::readFrame(ProcessLineCallback * processLineCallback) {
 }
 
 
-const uint16_t Camera::getPixelBufferLength() {
+const uint8_t Camera::getPixelBufferLength() {
   return cameraOV7670.getPixelBufferLength();
 }
 
-const uint8_t Camera::getPixelByte(uint16_t byteIndex) {
+const uint8_t Camera::getPixelByte(uint8_t byteIndex) {
   return cameraOV7670.getPixelByte(byteIndex);
 }
 

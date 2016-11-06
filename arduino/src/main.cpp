@@ -78,7 +78,7 @@ void processFrame() {
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart();
 
-  for (uint16_t i=2; i<camera.getPixelBufferLength() - 2; i+=2) {
+  for (uint8_t i=0; i<camera.getPixelBufferLength(); i++) {
   //for (uint16_t i=2; i<ll - 2; i+=2) {
     uint8_t greyScale = camera.getPixelByte(i);
 
@@ -97,6 +97,8 @@ void processLine(const uint8_t lineIndex) {
     asm volatile("nop");
 
     screen.sendPixelByte(graysScaleTableLow[greyScale]);
+    asm volatile("nop");
+    asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
 
