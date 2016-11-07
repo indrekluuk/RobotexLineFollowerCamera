@@ -11,13 +11,13 @@
 
 
 #include <Arduino.h>
-#include "camera/buffered/BufferedCameraOV7670_QQVGA_10hz_Grayscale.h"
+#include "camera/buffered/BufferedCameraOV7670_80x120_10hz_Grayscale.h"
 
 
 
 class Camera {
 
-    static BufferedCameraOV7670_QQVGA_10hz_Grayscale cameraOV7670;
+    static BufferedCameraOV7670_80x120_10hz_Grayscale cameraOV7670;
 
 public:
     using ProcessLineCallback = void (const uint8_t lineIndex);
@@ -31,7 +31,7 @@ public:
 
 };
 
-BufferedCameraOV7670_QQVGA_10hz_Grayscale Camera::cameraOV7670;
+BufferedCameraOV7670_80x120_10hz_Grayscale Camera::cameraOV7670;
 
 
 

@@ -30,6 +30,9 @@ class Screen {
 public:
     void init();
 
+    inline const uint8_t getLineCount() __attribute__((always_inline));
+    inline const uint8_t getLineLength() __attribute__((always_inline));
+
     inline void screenLineStart(const uint8_t lineIndex) __attribute__((always_inline));
     inline void screenLineEnd(void) __attribute__((always_inline));
     inline void sendPixelByte(const uint8_t byte) __attribute__((always_inline));
@@ -49,6 +52,16 @@ void Screen::init() {
   tft.initR(INITR_BLACKTAB);
   tft.fillScreen(ST7735_BLACK);
 }
+
+
+const uint8_t Screen::getLineCount() {
+  return screen_h;
+}
+
+const uint8_t Screen::getLineLength() {
+  return screen_w;
+}
+
 
 void Screen::screenLineStart(const uint8_t lineIndex) {
   const uint8_t screenLineIndex = screen_h - lineIndex - 1;

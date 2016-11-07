@@ -26,6 +26,7 @@ void processPixelsGrayscale(const uint8_t lineIndex);
 void processPixelsMonochrome(const uint8_t lineIndex);
 
 
+
 void run() {
   Serial.begin(9600);
   camera.init();
@@ -46,19 +47,18 @@ void run() {
 }
 
 
+uint8_t threshold = 0x80;
+uint8_t monochromeBuffer[80];
+
 
 
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
-
-  if (lineIndex & 1 || true) {
-    processPixelsGrayscale(lineIndex);
-  } else {
-    processPixelsMonochrome(lineIndex);
-  }
-
+  processPixelsGrayscale(lineIndex);
+  processPixelsMonochrome(lineIndex);
   screen.screenLineEnd();
 }
+
 
 
 void processPixelsGrayscale(const uint8_t lineIndex) {
@@ -89,7 +89,7 @@ void processPixelsGrayscale(const uint8_t lineIndex) {
 
 void processPixelsMonochrome(const uint8_t lineIndex) {
   for (uint8_t i=0; i<camera.getPixelBufferLength(); i++) {
-    uint8_t monoChrome = byteInversionTable[camera.getPixelByte(i)] > 0x25 ? 0xFF : 0x00;
+    uint8_t monoChrome = byteInversionTable[camera.getPixelByte(i)] > threshold ? 0x00 : 0xFF;
 
     screen.sendPixelByte(monoChrome);
     asm volatile("nop");
@@ -111,7 +111,7 @@ void processPixelsMonochrome(const uint8_t lineIndex) {
     asm volatile("nop");
     asm volatile("nop");
 
-    screen.sendPixelByte(monoChrome);
+    screen.sendPixelByte(0);
     //asm volatile("nop");
 
   }
