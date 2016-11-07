@@ -48,7 +48,8 @@ void run() {
 
 
 uint8_t threshold = 0x80;
-uint8_t monochromeBuffer[80];
+const uint8_t monochromeBufferLength = 80;
+uint8_t monochromeBuffer[monochromeBufferLength];
 
 
 
@@ -63,23 +64,28 @@ void processLine(const uint8_t lineIndex) {
 
 void processPixelsGrayscale(const uint8_t lineIndex) {
   for (uint8_t i=0; i<camera.getPixelBufferLength(); i++) {
-    uint8_t greyScale = camera.getPixelByte(i);
+    uint8_t pixelByte = camera.getPixelByte(i);
 
-    screen.sendGrayscalePixelHigh(greyScale);
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
+    screen.sendGrayscalePixelHigh(pixelByte);
 
-    screen.sendGrayscalePixelLow(greyScale);
+    monochromeBuffer[i] = byteInversionTable[pixelByte] > threshold ? 0x00 : 0xFF;
+
+    /*
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+     */
+
+    screen.sendGrayscalePixelLow(pixelByte);
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
@@ -88,10 +94,9 @@ void processPixelsGrayscale(const uint8_t lineIndex) {
 }
 
 void processPixelsMonochrome(const uint8_t lineIndex) {
-  for (uint8_t i=0; i<camera.getPixelBufferLength(); i++) {
-    uint8_t monoChrome = byteInversionTable[camera.getPixelByte(i)] > threshold ? 0x00 : 0xFF;
+  for (uint8_t i=0; i<monochromeBufferLength; i++) {
 
-    screen.sendPixelByte(monoChrome);
+    screen.sendPixelByte(monochromeBuffer[i]);
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
@@ -104,7 +109,6 @@ void processPixelsMonochrome(const uint8_t lineIndex) {
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
-
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
@@ -112,7 +116,16 @@ void processPixelsMonochrome(const uint8_t lineIndex) {
     asm volatile("nop");
 
     screen.sendPixelByte(0);
-    //asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
 
   }
 }
