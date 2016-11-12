@@ -25,7 +25,8 @@ DataBufferSender dataBufferSender;
 void processLine(const uint8_t lineIndex);
 void processPixelsGrayscale();
 void processPixelsMonochrome(bool horizontalLine);
-uint8_t getLine();
+
+
 
 
 
@@ -43,39 +44,29 @@ void run() {
 
 
 
+
 uint16_t colorMin = 0xFF;
 uint16_t colorMax = 0xFF;
 uint8_t threshold = 0x80;
 uint8_t scanLine = 30;
 uint16_t monochromeLine;
-int8_t lineRight;
-int8_t lineLeft;
+
 
 
 
 void processLine(const uint8_t lineIndex) {
-  lineRight = -1;
-  lineLeft = camera.getPixelBufferLength();
-
   screen.screenLineStart(lineIndex);
   processPixelsGrayscale();
   processPixelsMonochrome(lineIndex == scanLine);
   screen.screenLineEnd();
 
   if (lineIndex == scanLine){
-    uint8_t aa[3];
-    uint8_t line = getLine();
-    aa[0] = line;
-    aa[1] = ((uint8_t)lineRight) & 0x7F;
-    aa[2] = ((uint8_t)lineLeft) & 0x7F;
-    dataBufferSender.sendMessage(aa, 3);
+    uint8_t messageBuffer[3];
+    messageBuffer[0] = lineIndex;
+    messageBuffer[1] = monochromeLine & 0xFF;
+    messageBuffer[2] = (monochromeLine >> 8) & 0xFF;
+    dataBufferSender.sendMessage(messageBuffer, 3);
   }
-}
-
-
-uint8_t getLine() {
-  int8_t line = (40 - lineRight) < (lineLeft - 40) ? lineRight : lineLeft;
-  return line < 0 || line >= camera.getPixelBufferLength() ? 0x7F : static_cast<uint8_t >(line);
 }
 
 
@@ -117,15 +108,15 @@ void processPixelsGrayscale() {
 
 
 void processPixelsMonochrome(bool horizontalLine) {
-  for (uint8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
+  for (uint8_t i=0; i<camera.getPixelBufferLength(); i++) {
+
     uint8_t byte = monochromeLine & monochromeBufferMask[i] ? 0x00 : 0xFF;
 
     screen.sendPixelByte(byte);
 
-    if (byte) {
-      lineRight = i;
-    }
-
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
@@ -147,35 +138,7 @@ void processPixelsMonochrome(bool horizontalLine) {
      */
   }
 
-  for (uint8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
-    uint8_t byte = monochromeLine & monochromeBufferMask[i] ? 0x00 : 0xFF;
 
-    screen.sendPixelByte(byte);
-
-    if (byte && (lineLeft >= camera.getPixelBufferLength())) {
-      lineLeft = i;
-    }
-
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-
-    screen.sendPixelByte(horizontalLine?0xFF:0);
-    /*
-    asm volatile("nop");
-     */
-  }
 
 }
 
