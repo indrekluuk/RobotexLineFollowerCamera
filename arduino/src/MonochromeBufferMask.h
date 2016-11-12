@@ -7,11 +7,6 @@
 
 
 const uint16_t monochromeBufferMask[80] = {
-    0x0001	,
-    0x0001	,
-    0x0001	,
-    0x0001	,
-    0x0001	,
     0x0002	,
     0x0002	,
     0x0002	,
@@ -22,7 +17,6 @@ const uint16_t monochromeBufferMask[80] = {
     0x0004	,
     0x0004	,
     0x0004	,
-    0x0004	,
     0x0008	,
     0x0008	,
     0x0008	,
@@ -47,6 +41,12 @@ const uint16_t monochromeBufferMask[80] = {
     0x0040	,
     0x0040	,
     0x0040	,
+    0x0080	,
+    0x0080	,
+    0x0080	,
+    0x0080	,
+    0x0080	,
+    0x0080	,
     0x0100	,
     0x0100	,
     0x0100	,
@@ -86,7 +86,7 @@ const uint16_t monochromeBufferMask[80] = {
     0x4000	,
     0x4000	,
     0x4000	,
-    0x4000	,
+    0x4000
 };
 
 

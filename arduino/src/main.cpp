@@ -60,13 +60,11 @@ void processLine(const uint8_t lineIndex) {
   processPixelsMonochrome(lineIndex == scanLine);
   screen.screenLineEnd();
 
-  if (lineIndex == scanLine){
-    uint8_t messageBuffer[3];
-    messageBuffer[0] = lineIndex;
-    messageBuffer[1] = monochromeLine & 0xFF;
-    messageBuffer[2] = (monochromeLine >> 8) & 0xFF;
-    dataBufferSender.sendMessage(messageBuffer, 3);
-  }
+  uint8_t messageBuffer[3];
+  messageBuffer[0] = lineIndex;
+  messageBuffer[1] = (monochromeLine >> 8) & 0xFF;
+  messageBuffer[2] = monochromeLine & 0xFF;
+  dataBufferSender.sendMessage(messageBuffer, 3);
 }
 
 
