@@ -157,8 +157,9 @@ class Adafruit_ST7735_mod : public Adafruit_GFX {
  private:
   uint8_t  tabcolor;
 
-  void     spiwrite(uint8_t),
-           writecommand(uint8_t c),
+  inline void spiwrite(uint8_t) __attribute__((always_inline));
+
+  void     writecommand(uint8_t c),
            writedata(uint8_t d),
            commandList(const uint8_t *addr),
            commonInit(const uint8_t *cmdList);
@@ -180,5 +181,32 @@ class Adafruit_ST7735_mod : public Adafruit_GFX {
 #endif
 
 };
+
+
+
+void Adafruit_ST7735_mod::spiwrite(uint8_t byte) {
+ SPDR = byte;
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+ asm volatile("nop");
+}
+
+
+
+
 
 #endif

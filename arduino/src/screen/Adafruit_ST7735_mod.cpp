@@ -68,6 +68,7 @@ Adafruit_ST7735_mod::Adafruit_ST7735_mod(int8_t cs, int8_t rs, int8_t rst)
 #define __AVR__
 #endif
 
+/* faster spriwrite as inline function declared in the header
 inline void Adafruit_ST7735_mod::spiwrite(uint8_t c) {
 
   //Serial.println(c, HEX);
@@ -97,6 +98,7 @@ inline void Adafruit_ST7735_mod::spiwrite(uint8_t c) {
     }
   }
 }
+*/
 
 
 void Adafruit_ST7735_mod::writecommand(uint8_t c) {
@@ -396,19 +398,40 @@ void Adafruit_ST7735_mod::initR(uint8_t options) {
 
 void Adafruit_ST7735_mod::setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 
-  writecommand(ST7735_CASET); // Column addr set
-  writedata(0x00);
-  writedata(x0+colstart);     // XSTART 
-  writedata(0x00);
-  writedata(x1+colstart);     // XEND
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.beginTransaction(mySPISettings);
+#endif
+  *csport &= ~cspinmask; // chip select start
 
-  writecommand(ST7735_RASET); // Row addr set
-  writedata(0x00);
-  writedata(y0+rowstart);     // YSTART
-  writedata(0x00);
-  writedata(y1+rowstart);     // YEND
+  // command
+  *rsport &= ~rspinmask;
+  spiwrite(ST7735_CASET); // Column addr set
 
-  writecommand(ST7735_RAMWR); // write to RAM
+  // data
+  *rsport |=  rspinmask;
+  spiwrite(0x00);
+  spiwrite(x0+colstart); // XSTART
+  spiwrite(0x00);
+  spiwrite(x1+colstart); // XEND
+
+  // command
+  *rsport &= ~rspinmask;
+  spiwrite(ST7735_RASET); // Row addr set
+
+  // data
+  spiwrite(0x00);
+  spiwrite(y0+rowstart); // YSTART
+  spiwrite(0x00);
+  spiwrite(y1+rowstart); // YEND
+
+  // command
+  *rsport &= ~rspinmask;
+  spiwrite(ST7735_RAMWR); // write to RAM
+
+  *csport |= cspinmask; // chip select end
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.endTransaction();
+#endif
 }
 
 
