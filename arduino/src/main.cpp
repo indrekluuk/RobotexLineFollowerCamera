@@ -24,7 +24,7 @@ DataBufferSender dataBufferSender;
 
 void processLine(const uint8_t lineIndex);
 void processPixelsGrayscale();
-void processPixelsMonochrome(bool horizontalLine);
+void processPixelsMonochrome();
 
 
 
@@ -48,7 +48,6 @@ void run() {
 uint16_t colorMin = 0xFF;
 uint16_t colorMax = 0xFF;
 uint8_t threshold = 0x80;
-uint8_t scanLine = 30;
 uint16_t monochromeLine;
 
 
@@ -57,7 +56,7 @@ uint16_t monochromeLine;
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processPixelsGrayscale();
-  processPixelsMonochrome(lineIndex == scanLine);
+  processPixelsMonochrome();
   screen.screenLineEnd();
 
   uint8_t messageBuffer[3];
@@ -105,7 +104,7 @@ void processPixelsGrayscale() {
 
 
 
-void processPixelsMonochrome(bool horizontalLine) {
+void processPixelsMonochrome() {
   for (uint8_t i=0; i<camera.getPixelBufferLength(); i++) {
 
     uint8_t byte = monochromeLine & monochromeBufferMask[i] ? 0x00 : 0xFF;
@@ -130,7 +129,7 @@ void processPixelsMonochrome(bool horizontalLine) {
     asm volatile("nop");
     asm volatile("nop");
 
-    screen.sendPixelByte(horizontalLine?0xFF:0);
+    screen.sendPixelByte(0);
     /*
     asm volatile("nop");
      */
