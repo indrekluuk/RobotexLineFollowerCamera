@@ -56,6 +56,7 @@ uint8_t lineMax;
 
 
 
+
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processPixelsGrayscale();
@@ -73,6 +74,8 @@ void processLine(const uint8_t lineIndex) {
 
 
 
+
+inline void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
 void processPixelsGrayscale() {
   monochromeLineLow = 0;
   monochromeLineHigh = 0;
@@ -80,43 +83,11 @@ void processPixelsGrayscale() {
   lineMax = 0;
 
   for (uint8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
-    uint8_t pixelByte = camera.getPixelByte(i);
-
-    screen.sendGrayscalePixelHigh(pixelByte);
-
-    uint8_t correctedPixel = byteInversionTable[pixelByte];
-    monochromeLineLow |= correctedPixel > threshold ? 0x00 : monochromeBufferMask[i];
-    /*
-    asm volatile("nop");
-     */
-
-    screen.sendGrayscalePixelLow(pixelByte);
-
-    if (lineMin > correctedPixel) lineMin = correctedPixel;
-    if (lineMax < correctedPixel) lineMax = correctedPixel;
-    /*
-    asm volatile("nop");
-     */
+    processGrayScalePixel(i, monochromeLineLow);
   }
 
   for (uint8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
-    uint8_t pixelByte = camera.getPixelByte(i);
-
-    screen.sendGrayscalePixelHigh(pixelByte);
-
-    uint8_t correctedPixel = byteInversionTable[pixelByte];
-    monochromeLineHigh |= correctedPixel > threshold ? 0x00 : monochromeBufferMask[i];
-    /*
-    asm volatile("nop");
-     */
-
-    screen.sendGrayscalePixelLow(pixelByte);
-
-    if (lineMin > correctedPixel) lineMin = correctedPixel;
-    if (lineMax < correctedPixel) lineMax = correctedPixel;
-    /*
-    asm volatile("nop");
-     */
+    processGrayScalePixel(i, monochromeLineHigh);
   }
 
   if (lineMin < ((colorMin >> 1) + (colorMax >> 1))) {
@@ -126,75 +97,64 @@ void processPixelsGrayscale() {
   }
 }
 
+void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) {
+  uint8_t pixelByte = camera.getPixelByte(i);
 
+  screen.sendGrayscalePixelHigh(pixelByte);
+  // asm volatile("nop");
 
+  uint8_t correctedPixel = byteInversionTable[pixelByte];
+  monochromeByte |= correctedPixel > threshold ? 0x00 : monochromeBufferMask[i];
 
-void processPixelsMonochrome() {
-  for (uint8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
+  screen.sendGrayscalePixelLow(pixelByte);
+  // asm volatile("nop");
 
-    uint8_t byte = monochromeLineLow & monochromeBufferMask[i] ? 0x00 : 0xFF;
-
-    screen.sendPixelByte(byte);
-
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-
-    screen.sendPixelByte(0);
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-  }
-
-
-  for (uint8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
-
-    uint8_t byte = monochromeLineHigh & monochromeBufferMask[i] ? 0x00 : 0xFF;
-
-    screen.sendPixelByte(byte);
-
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-
-    screen.sendPixelByte(0);
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-  }
-
-
-
+  if (lineMin > correctedPixel) lineMin = correctedPixel;
+  if (lineMax < correctedPixel) lineMax = correctedPixel;
 }
 
+
+
+
+
+
+inline void processMonochromePixel(uint8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
+void processPixelsMonochrome() {
+  for (uint8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
+    processMonochromePixel(i, monochromeLineLow);
+  }
+  for (uint8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
+    processMonochromePixel(i, monochromeLineHigh);
+  }
+}
+
+void processMonochromePixel(uint8_t &i, uint8_t &monochromeByte) {
+  uint8_t byte = monochromeByte & monochromeBufferMask[i] ? 0x00 : 0xFF;
+
+  screen.sendPixelByte(byte);
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+
+  screen.sendPixelByte(0);
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+}
 
 
 
