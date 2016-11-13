@@ -23,8 +23,10 @@ DataBufferSender dataBufferSender;
 
 
 void processLine(const uint8_t lineIndex);
-void processPixelsGrayscale();
-void processPixelsMonochrome();
+void processGrayscale();
+inline void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
+void processMonochrome();
+inline void processMonochromePixel(uint8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
 
 
 
@@ -59,8 +61,8 @@ uint8_t lineMax;
 
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
-  processPixelsGrayscale();
-  processPixelsMonochrome();
+  processGrayscale();
+  processMonochrome();
   screen.screenLineEnd();
 
   uint8_t messageBuffer[3];
@@ -74,9 +76,7 @@ void processLine(const uint8_t lineIndex) {
 
 
 
-
-inline void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
-void processPixelsGrayscale() {
+void processGrayscale() {
   monochromeLineLow = 0;
   monochromeLineHigh = 0;
   lineMin = 0xFF;
@@ -118,8 +118,7 @@ void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) {
 
 
 
-inline void processMonochromePixel(uint8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
-void processPixelsMonochrome() {
+void processMonochrome() {
   for (uint8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
     processMonochromePixel(i, monochromeLineLow);
   }
