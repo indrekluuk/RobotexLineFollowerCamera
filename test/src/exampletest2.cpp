@@ -10,7 +10,7 @@
 
 
 TEST(ExampleTest2, testSomething2) {
-  ASSERT_EQ(1, 0);
+  ASSERT_EQ(1, 1);
 }
 
 
