@@ -29,6 +29,7 @@ add_executable(runTests
         arduino/src/line/RowLinePosition.h
         arduino/src/line/RowLinePosition.cpp
 
+        test/src/line/LineTest.cpp
         test/src/line/RowLinePositionTest.cpp
         )
 

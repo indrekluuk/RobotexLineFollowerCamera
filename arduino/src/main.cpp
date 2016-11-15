@@ -68,7 +68,7 @@ void run() {
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processGrayscale();
-  //line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
+  line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
   processMonochrome();
   screen.screenLineEnd();
 

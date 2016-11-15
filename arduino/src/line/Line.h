@@ -15,13 +15,16 @@
 class Line {
 
     static const int8_t rowCount = 120;
-    static const int16_t turnCoefficient = 1001;
+    static const int16_t turnCoefficient = 1025;
 
-    int8_t rowLinePositions[rowCount];
-    int16_t rowLineSlantCoefficient[rowCount];
-
-    int8_t lineStartRow;
-    int8_t lineEndRow;
+    int8_t previousLinePos;
+    int16_t previousLineSlantCoefficient;
+    int16_t minLineSlantCoefficient;
+    int16_t maxLineSlantCoefficient;
+    int8_t lineFirstRowIndex;
+    int8_t lineFirstRowPos;
+    int8_t lineLastRowIndex;
+    int8_t lineLastRowPos;
     bool lineFound;
 
 
@@ -29,23 +32,22 @@ class Line {
 public:
     Line();
 
-    static int8_t getRowCount();
-
     void resetLine();
+    void setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
 
-    int8_t setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
-
+    static int8_t getRowCount();
     bool isLineFound();
-    int8_t getLinePosition();
-    int8_t getLineStartRow();
-    int8_t getLineEndRow();
+    int8_t getLineFirstRowIndex();
+    int8_t getLineFirstRowPosition();
+    int8_t getLineLastRowIndex();
+    int8_t getLineLastRowPosition();
 
 
 private:
-    int8_t getPreviousLineLinePosition(uint8_t rowIndex);
-    void setLinePosition(uint8_t rowIndex, int8_t linePos);
-    void setLineLastRow(uint8_t rowIndex);
-    bool isTurnOnRow(uint8_t rowIndex);
+    int16_t processNewLinePosition(uint8_t rowIndex, int8_t linePos);
+    void setLineFirstRow(uint8_t rowIndex, int8_t linePos);
+    void setLineLastRow(uint8_t rowIndex, int8_t linePos);
+    bool isTurnOnRow(uint8_t rowIndex, int16_t lineCoefficient);
 
 
 };
