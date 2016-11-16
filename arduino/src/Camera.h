@@ -29,9 +29,14 @@ public:
     inline const uint8_t getPixelBufferLength() __attribute__((always_inline));
     inline const uint8_t getPixelByte(uint8_t byteIndex) __attribute__((always_inline));
 
+    constexpr int8_t getRowCount() {return cameraOV7670.getLineCount();}
+
 };
 
 BufferedCameraOV7670_80x120_10hz_Grayscale Camera::cameraOV7670;
+
+
+
 
 
 

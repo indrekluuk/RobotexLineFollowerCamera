@@ -9,14 +9,14 @@
 
 
 TEST(LineTest, testLineNotFound) {
-  Line line;
+  Line<120> line;
   ASSERT_FALSE(line.isLineFound());
 }
 
 
 
 TEST(LineTest, testEndOfLineNotFoundYet) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0, 0b00010000, 0b00000000);
   line.setRowBitmap(1, 0b00010000, 0b00000000);
   line.setRowBitmap(2, 0b00010000, 0b00000000);
@@ -26,7 +26,7 @@ TEST(LineTest, testEndOfLineNotFoundYet) {
 
 
 TEST(LineTest, testLineFound) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0, 0b00010000, 0b00000000);
   line.setRowBitmap(1, 0b00010000, 0b00000000);
   line.setRowBitmap(2, 0b00010000, 0b00000000);
@@ -38,10 +38,14 @@ TEST(LineTest, testLineFound) {
 
 
 TEST(LineTest, testLineAcrossTheScreen) {
-  Line line;
-  for (uint8_t i=0; i<Line::getRowCount(); i++) {
-    line.setRowBitmap(i, 0b000010000, 0b000000000);
-  }
+  Line<6> line;
+  line.setRowBitmap(0, 0b000010000, 0b000000000);
+  line.setRowBitmap(1, 0b000010000, 0b000000000);
+  line.setRowBitmap(2, 0b000010000, 0b000000000);
+  line.setRowBitmap(3, 0b000010000, 0b000000000);
+  line.setRowBitmap(4, 0b000010000, 0b000000000);
+  ASSERT_FALSE(line.isLineFound());
+  line.setRowBitmap(5, 0b000010000, 0b000000000);
   ASSERT_TRUE(line.isLineFound());
   ASSERT_EQ(24, line.getLineLastRowPosition());
 }
@@ -50,7 +54,7 @@ TEST(LineTest, testLineAcrossTheScreen) {
 
 
 TEST(LineTest, testSlantedLine) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0, 0b00000010, 0b00000000);
   line.setRowBitmap(1, 0b00000010, 0b00000000);
   line.setRowBitmap(2, 0b00000100, 0b00000000);
@@ -67,7 +71,7 @@ TEST(LineTest, testSlantedLine) {
 
 
 TEST(LineTest, testLineTurnsInSlantDirection) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0,  0b00000000, 0b00000100);
   line.setRowBitmap(1,  0b00000000, 0b00000100);
   line.setRowBitmap(2,  0b00000000, 0b00001000);
@@ -87,7 +91,7 @@ TEST(LineTest, testLineTurnsInSlantDirection) {
 
 
 TEST(LineTest, testLineTurnsAwayFromSlantDirection) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0,  0b00000010, 0b00000000);
   line.setRowBitmap(1,  0b00000010, 0b00000000);
   line.setRowBitmap(2,  0b00000100, 0b00000000);
@@ -110,7 +114,7 @@ TEST(LineTest, testLineTurnsAwayFromSlantDirection) {
 
 
 TEST(LineTest, testIgnoreOtherLine) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0,  0b00000010, 0b00000000);
   line.setRowBitmap(1,  0b00000010, 0b00000000);
   line.setRowBitmap(2,  0b00000010, 0b00000000);
@@ -132,7 +136,7 @@ TEST(LineTest, testIgnoreOtherLine) {
 
 
 TEST(LineTest, testIgnoreLineAfter) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0,  0b00000010, 0b00000000);
   line.setRowBitmap(1,  0b00000010, 0b00000000);
   line.setRowBitmap(2,  0b00000010, 0b00000000);
@@ -152,7 +156,7 @@ TEST(LineTest, testIgnoreLineAfter) {
 
 
 TEST(LineTest, testIgnoreLineAfterGap) {
-  Line line;
+  Line<120> line;
   line.setRowBitmap(0,  0b00000010, 0b00000000);
   line.setRowBitmap(1,  0b00000010, 0b00000000);
   line.setRowBitmap(2,  0b00000010, 0b00000000);

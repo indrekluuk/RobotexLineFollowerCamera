@@ -19,7 +19,7 @@
 
 Camera camera;
 Screen screen;
-Line line;
+Line<camera.getRowCount()> line;
 DataBufferSender dataBufferSender;
 
 
