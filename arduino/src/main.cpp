@@ -26,9 +26,9 @@ DataBufferSender dataBufferSender;
 
 void processLine(const uint8_t lineIndex);
 void processGrayscale();
-inline void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
-void processMonochrome();
-inline void processMonochromePixel(uint8_t &i, uint8_t &monochromeByte, bool isLine) __attribute__((always_inline));
+inline void processGrayScalePixel(int8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
+void processMonochrome(int8_t linePosition);
+inline void processMonochromePixel(int8_t &i, uint8_t &monochromeByte, int8_t linePosition) __attribute__((always_inline));
 
 
 
@@ -68,8 +68,8 @@ void run() {
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processGrayscale();
-  line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
-  processMonochrome();
+  int8_t linePosition = line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
+  processMonochrome(linePosition  * 2.6);
   screen.screenLineEnd();
 
   uint8_t messageBuffer[3];
@@ -89,11 +89,11 @@ void processGrayscale() {
   lineMin = 0xFF;
   lineMax = 0;
 
-  for (uint8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
+  for (int8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
     processGrayScalePixel(i, monochromeLineLow);
   }
 
-  for (uint8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
+  for (int8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
     processGrayScalePixel(i, monochromeLineHigh);
   }
 
@@ -106,7 +106,7 @@ void processGrayscale() {
 }
 
 
-void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) {
+void processGrayScalePixel(int8_t &i, uint8_t &monochromeByte) {
   uint8_t pixelByte = camera.getPixelByte(i);
 
   screen.sendGrayscalePixelHigh(pixelByte);
@@ -127,17 +127,17 @@ void processGrayScalePixel(uint8_t &i, uint8_t &monochromeByte) {
 
 
 
-void processMonochrome() {
+void processMonochrome(int8_t linePosition) {
   //uint8_t pixelPos = (uint8_t)map(rowPos, -13, 13, 0, 80);
-  for (uint8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
-    processMonochromePixel(i, monochromeLineLow, false);
+  for (int8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
+    processMonochromePixel(i, monochromeLineLow, linePosition);
   }
-  for (uint8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
-    processMonochromePixel(i, monochromeLineHigh, false);
+  for (int8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
+    processMonochromePixel(i, monochromeLineHigh, linePosition);
   }
 }
 
-void processMonochromePixel(uint8_t &i, uint8_t &monochromeByte, bool isLine) {
+void processMonochromePixel(int8_t &i, uint8_t &monochromeByte, int8_t linePosition) {
   uint8_t byte = monochromeByte & monochromeBufferMask[i] ? 0x00 : 0xFF;
 
   screen.sendPixelByte(byte);
@@ -154,13 +154,9 @@ void processMonochromePixel(uint8_t &i, uint8_t &monochromeByte, bool isLine) {
   asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
 
-  //screen.sendPixelByte(isLine ? 0xFF : 0);
-  screen.sendPixelByte(0);
+  screen.sendPixelByte(linePosition == i ? 0xFF : 0);
+  asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");

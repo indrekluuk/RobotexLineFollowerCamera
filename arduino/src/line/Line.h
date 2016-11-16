@@ -33,7 +33,7 @@ public:
     Line();
 
     void resetLine();
-    void setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
+    int8_t setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
 
     static int8_t getRowCount();
     bool isLineFound();

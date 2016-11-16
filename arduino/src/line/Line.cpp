@@ -26,7 +26,7 @@ void Line::resetLine() {
 
 
 
-void Line::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
+int8_t Line::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
   if (!lineFound) {
 
     RowLinePosition position(bitmapHigh, bitmapLow);
@@ -48,6 +48,9 @@ void Line::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow)
 
     previousLinePos = linePos;
     previousLineSlantCoefficient = lineCoefficient;
+    return linePos;
+  } else {
+    return RowLinePosition::lineNotFound;
   }
 }
 
