@@ -160,7 +160,7 @@ void processMonochromePixel(int8_t &i, uint8_t &monochromeByte, int8_t linePosit
   asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");
-
+  asm volatile("nop");
 }
 
 
