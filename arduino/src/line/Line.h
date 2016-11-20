@@ -6,18 +6,9 @@
 #define ROBOTEXLINEFOLLOWERCAMERA_LINE_H
 
 
+#include "LineStep.h"
 #include "RowLinePosition.h"
 #include <Arduino.h>
-
-
-struct LineStep {
-    int8_t direction;
-    int8_t rowCount;
-    int8_t rowIndex;
-    int8_t rowPos;
-    int8_t rowSegmentStart;
-    int8_t rowSegmentEnd;
-};
 
 
 
@@ -44,13 +35,6 @@ public:
     Line();
 
     void resetLine();
-    inline void initStep(
-        LineStep & step,
-        int8_t direction,
-        int8_t rowIndex,
-        int8_t rowPos,
-        int8_t rowSegmentStart,
-        int8_t rowSegmentEnd) __attribute__((always_inline));
     int8_t setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
 
     static int8_t getTotalRowCount();
@@ -66,8 +50,6 @@ private:
     void setLineFirstRow(uint8_t rowIndex, int8_t linePos);
     void setLineLastRow(LineStep &step);
     LineStep * getLastStepBeforeTurn(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
-    inline bool isSameLineSegment(LineStep &step1, LineStep &step2);// __attribute__((always_inline));
-
 };
 
 
@@ -94,31 +76,12 @@ void Line<totalRowCount>::resetLine() {
 
   stepBufferIndex = 0;
   stepCount = 0;
-  initStep(
-      lastSteps[stepBufferIndex],
+  lastSteps[stepBufferIndex].initStep(
       0,
       -1,
       RowLinePosition::lineNotFound,
       RowLinePosition::lineNotFound,
       RowLinePosition::lineNotFound);
-}
-
-
-template <int8_t totalRowCount>
-void Line<totalRowCount>::initStep(
-    LineStep & step,
-    int8_t direction,
-    int8_t rowIndex,
-    int8_t rowPos,
-    int8_t rowSegmentStart,
-    int8_t rowSegmentEnd
-) {
-  step.direction = direction;
-  step.rowCount = 0;
-  step.rowIndex = rowIndex;
-  step.rowPos = rowPos;
-  step.rowSegmentStart = rowSegmentStart;
-  step.rowSegmentEnd = rowSegmentEnd;
 }
 
 
@@ -182,8 +145,7 @@ void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePo
         stepCount++;
         stepBufferIndex++;
         stepBufferIndex &= (uint8_t)(stepBufferSize-1);
-        initStep(
-            lastSteps[stepBufferIndex],
+        lastSteps[stepBufferIndex].initStep(
             ((linePos - previousLinePos) < 0) ? (int8_t)-1 : (int8_t)1,
             rowIndex,
             linePos,
@@ -195,8 +157,7 @@ void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePo
       lineFirstRowIndex = rowIndex;
       lineFirstRowPos = linePos;
       stepCount = 1;
-      initStep(
-          lastSteps[stepBufferIndex],
+      lastSteps[stepBufferIndex].initStep(
           0,
           rowIndex,
           linePos,
@@ -237,23 +198,13 @@ LineStep * Line<totalRowCount>::getLastStepBeforeTurn(uint8_t rowIndex, int8_t l
     if (stepCount > 3) {
       LineStep &step1 = lastSteps[(stepBufferIndex - 1) & 0x03];
       LineStep &step2 = lastSteps[(stepBufferIndex - 2) & 0x03];
-      if (step1.direction != step2.direction || !isSameLineSegment(step1, step2)) {
+      if (step1.direction != step2.direction || !step1.isStepOfSameLine(step2)) {
         return &step2;
       }
     }
   }
   return nullptr;
 }
-
-
-template <int8_t totalRowCount>
-bool Line<totalRowCount>::isSameLineSegment(LineStep &step1, LineStep &step2) {
-  int8_t diff = step1.rowCount >> 1;
-  int8_t min = step1.rowCount - diff;
-  int8_t max = step1.rowCount + diff;
-  return step2.rowCount >= min && step2.rowCount <= max;
-}
-
 
 
 
