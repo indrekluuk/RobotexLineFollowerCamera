@@ -353,3 +353,24 @@ TEST(LineTest, testActiveLineSplit) {
 }
 
 
+
+
+
+
+TEST(LineTest, testStartFromTheMiddle) {
+  Line<120> line;
+  line.setRowBitmap(0, 0b00000111, 0b11110011);
+  line.setRowBitmap(1, 0b00000011, 0b11000011);
+  line.setRowBitmap(2, 0b00000011, 0b10000011);
+  line.setRowBitmap(3, 0b00000011, 0b00000001);
+  line.setRowBitmap(4, 0b00000011, 0b00000000);
+  line.setRowBitmap(5, 0b00000000, 0b00000000);
+
+  ASSERT_TRUE(line.isLineFound());
+  ASSERT_EQ(4, line.getLineLastRowIndex());
+  ASSERT_EQ(17, line.getLineLastRowPosition());
+}
+
+
+
+

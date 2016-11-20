@@ -83,7 +83,7 @@ Line<totalRowCount>::Line() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
-  previousLinePos = 0;
+  previousLinePos = RowLinePosition::rowRangeMidPoint;
   previousLineSegmentStart = -1;
   previousLineSegmentEnd = -1;
   lineFirstRowIndex = -1;
