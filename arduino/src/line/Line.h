@@ -122,14 +122,12 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
     if (RowLinePosition::isLineNotFound(linePos)) {
       if (lineFirstRowIndex >= 0) {
         setLineLastRow(rowIndex, lastSteps[stepBufferIndex]);
-        linePos = RowLinePosition::lineNotFound;
       }
     } else {
       LineStep *lastStep = getLastStep(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
       if (lastStep) {
         if (lineFirstRowIndex >= 0) {
           setLineLastRow(rowIndex - 1, *lastStep);
-          linePos = RowLinePosition::lineNotFound;
         }
       } else {
         if (lineFirstRowIndex < 0) {
@@ -143,7 +141,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
     previousLinePos = linePos;
     previousLineSegmentStart = lineSegmentStart;
     previousLineSegmentEnd = lineSegmentEnd;
-    return linePos;
+    return lastSteps[stepBufferIndex].rowPos;
   } else {
     return RowLinePosition::lineNotFound;
   }
