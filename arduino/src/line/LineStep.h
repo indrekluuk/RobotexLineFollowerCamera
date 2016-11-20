@@ -29,7 +29,7 @@ struct LineStep {
 
     inline void update(int8_t rowSegmentStart, int8_t rowSegmentEnd) __attribute__((always_inline));
 
-    inline bool isStepConnected(LineStep & previousStep __attribute__((always_inline));
+    inline bool isStepConnected(LineStep & previousStep) __attribute__((always_inline));
     inline bool isSameSlant(LineStep & previousStep) __attribute__((always_inline));
 
 private:
