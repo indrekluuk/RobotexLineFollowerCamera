@@ -48,11 +48,11 @@ void LineStep::initStep(
 
 
 bool LineStep::isStepOfSameLine(LineStep & previousStep) {
+  int8_t prevMinToEdge = previousStep.getMinPositionToEdge();
+  int8_t prevMinSegmentStart = previousStep.rowPos - prevMinToEdge;
+  int8_t prevMinSegmentEnd = previousStep.rowPos + prevMinToEdge;
 
-  bool areSegmentsTouching = ((rowSegmentEnd - previousStep.rowSegmentStart >= -2)
-                              && (previousStep.rowSegmentEnd - rowSegmentStart >= -2));
-
-  if (!areSegmentsTouching) {
+  if (rowPos < prevMinSegmentStart - 2 || rowPos > prevMinSegmentEnd + 2) {
     return false;
   }
 

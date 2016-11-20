@@ -397,7 +397,8 @@ TEST(LineTest, testLineConnectedHorizonatllySingleLine) {
   ASSERT_EQ(10, line.getLineLastRowPosition());
 }
 
-/*
+
+
 TEST(LineTest, testLineConnectedHorizonatllyDoubleLine) {
   Line<120> line;
   line.setRowBitmap( 0, 0b00000000, 0b00000100);
@@ -405,7 +406,7 @@ TEST(LineTest, testLineConnectedHorizonatllyDoubleLine) {
   line.setRowBitmap( 2, 0b00000000, 0b00001000);
   line.setRowBitmap( 3, 0b00000000, 0b00001000);
   line.setRowBitmap( 4, 0b00000000, 0b00010000);
-  line.setRowBitmap( 5, 0b00000000, 0b00010000);
+  line.setRowBitmap( 5, 0b00000100, 0b00010000);
   line.setRowBitmap( 6, 0b00001111, 0b11100000);
   line.setRowBitmap( 7, 0b00001111, 0b11100000);
   line.setRowBitmap( 8, 0b00001000, 0b00000000);
@@ -415,9 +416,9 @@ TEST(LineTest, testLineConnectedHorizonatllyDoubleLine) {
   line.setRowBitmap(12, 0b00000000, 0b00000000);
 
   ASSERT_TRUE(line.isLineFound());
-  ASSERT_EQ(7, line.getLineLastRowIndex());
-  ASSERT_EQ(10, line.getLineLastRowPosition());
+  ASSERT_EQ(5, line.getLineLastRowIndex());
+  ASSERT_EQ(8, line.getLineLastRowPosition());
 }
-*/
+
 
 
