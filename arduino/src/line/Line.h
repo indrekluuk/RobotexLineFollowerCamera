@@ -58,7 +58,7 @@ public:
 private:
     void processNewLinePosition(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
     void setLineFirstRow(uint8_t rowIndex, int8_t linePos);
-    void setLineLastRow(uint8_t rowIndex, LineStep &step);
+    void setLineLastRow(LineStep &step);
     LineStep * getLastStep(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
 
 
@@ -122,14 +122,14 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
     int8_t currentDetectedLinePosition = lastSteps[stepBufferIndex].rowPos;
     if (RowLinePosition::isLineNotFound(linePos)) {
       if (lineFirstRowIndex >= 0) {
-        setLineLastRow(rowIndex, lastSteps[stepBufferIndex]);
+        setLineLastRow(lastSteps[stepBufferIndex]);
         currentDetectedLinePosition = RowLinePosition::lineNotFound;
       }
     } else {
       LineStep *lastStep = getLastStep(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
       if (lastStep) {
         if (lineFirstRowIndex >= 0) {
-          setLineLastRow(rowIndex - 1, *lastStep);
+          setLineLastRow(*lastStep);
           currentDetectedLinePosition = RowLinePosition::lineNotFound;
         }
       } else {
@@ -137,7 +137,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
           setLineFirstRow(rowIndex, linePos);
         }
         if (rowIndex == totalRowCount - 1) {
-          setLineLastRow(totalRowCount, lastSteps[stepBufferIndex]);
+          setLineLastRow(lastSteps[stepBufferIndex]);
         }
       }
     }
@@ -162,6 +162,7 @@ void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePo
       int8_t stepSegmentEnd = lastSteps[stepBufferIndex].rowSegmentEnd;
       if (stepSegmentStart == lineSegmentStart || stepSegmentEnd == lineSegmentEnd) {
         lastSteps[stepBufferIndex].rowCount++;
+        lastSteps[stepBufferIndex].rowIndex = rowIndex;
       } else {
         stepCount++;
         stepBufferIndex++;
@@ -199,9 +200,9 @@ void Line<totalRowCount>::setLineFirstRow(uint8_t rowIndex, int8_t linePos) {
 
 
 template <int8_t totalRowCount>
-void Line<totalRowCount>::setLineLastRow(uint8_t rowIndex, LineStep &step) {
+void Line<totalRowCount>::setLineLastRow(LineStep &step) {
   lineFound = true;
-  lineLastRowIndex = rowIndex - (uint8_t)1;
+  lineLastRowIndex = step.rowIndex;
   lineLastRowPos = step.rowPos;
 }
 
