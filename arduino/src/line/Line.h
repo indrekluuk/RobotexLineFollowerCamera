@@ -65,7 +65,7 @@ private:
     void processNewLinePosition(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
     void setLineFirstRow(uint8_t rowIndex, int8_t linePos);
     void setLineLastRow(LineStep &step);
-    LineStep * getLastStep(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
+    LineStep * getLastStepBeforeTurn(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
     inline bool isSameLineSegment(LineStep &step1, LineStep &step2);// __attribute__((always_inline));
 
 };
@@ -139,7 +139,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
         currentDetectedLinePosition = RowLinePosition::lineNotFound;
       }
     } else {
-      LineStep *lastStep = getLastStep(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
+      LineStep *lastStep = getLastStepBeforeTurn(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
       if (lastStep) {
         if (lineFirstRowIndex >= 0) {
           setLineLastRow(*lastStep);
@@ -223,14 +223,15 @@ void Line<totalRowCount>::setLineLastRow(LineStep &step) {
 
 
 template <int8_t totalRowCount>
-LineStep * Line<totalRowCount>::getLastStep(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd) {
+LineStep * Line<totalRowCount>::getLastStepBeforeTurn(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd) {
   if (lineFirstRowIndex < 0 || (rowIndex - lineFirstRowIndex < 2)) {
     return nullptr;
   } else {
     bool areSegmentsTouching = ((lineSegmentEnd - previousLineSegmentStart >= -2)
                                 && (previousLineSegmentEnd - lineSegmentStart >= -2));
     if (!areSegmentsTouching) {
-      return nullptr;
+      LineStep &previousStep = lastSteps[(stepBufferIndex - 1) & 0x03];
+      return &previousStep;
     }
 
     if (stepCount > 3) {
