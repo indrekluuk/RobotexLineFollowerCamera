@@ -140,8 +140,7 @@ void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePo
       int8_t stepSegmentEnd = lastSteps[stepBufferIndex].rowSegmentEnd;
       if ((stepSegmentStart == lineSegmentStart || stepSegmentEnd == lineSegmentEnd)
           && (segmentPos >= lineSegmentStart && segmentPos <= lineSegmentEnd)) {
-        lastSteps[stepBufferIndex].rowCount++;
-        lastSteps[stepBufferIndex].rowIndex = rowIndex;
+        lastSteps[stepBufferIndex].update(lineSegmentStart, lineSegmentEnd);
       } else {
         stepCount++;
         stepBufferIndex++;

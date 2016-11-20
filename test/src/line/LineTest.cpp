@@ -446,3 +446,22 @@ TEST(LineTest, testParallelLinesWithoutSteps) {
 
 
 
+
+TEST(LineTest, testThinningLineWith90degreesTurn) {
+  Line<120> line;
+  line.setRowBitmap(0, 0b00000000, 0b01110000);
+  line.setRowBitmap(1, 0b00000000, 0b01110000);
+  line.setRowBitmap(2, 0b00000000, 0b00110000);
+  line.setRowBitmap(3, 0b00000011, 0b11110000);
+  line.setRowBitmap(4, 0b00000011, 0b11110000);
+  line.setRowBitmap(5, 0b00000011, 0b11100000);
+  line.setRowBitmap(6, 0b00000011, 0b11100000);
+  line.setRowBitmap(7, 0b00000000, 0b00000000);
+  line.setRowBitmap(8, 0b00000000, 0b00000000);
+
+  ASSERT_TRUE(line.isLineFound());
+  ASSERT_EQ(4, line.getLineLastRowIndex());
+  ASSERT_EQ(10, line.getLineLastRowPosition());
+}
+
+
