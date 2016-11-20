@@ -44,7 +44,13 @@ public:
     Line();
 
     void resetLine();
-    inline void initStep(LineStep & step, int8_t direction, int8_t rowIndex, int8_t rowPos, int8_t rowSegmentStart, int8_t rowSegmentEnd) __attribute__((always_inline));
+    inline void initStep(
+        LineStep & step,
+        int8_t direction,
+        int8_t rowIndex,
+        int8_t rowPos,
+        int8_t rowSegmentStart,
+        int8_t rowSegmentEnd) __attribute__((always_inline));
     int8_t setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
 
     static int8_t getTotalRowCount();
@@ -60,7 +66,7 @@ private:
     void setLineFirstRow(uint8_t rowIndex, int8_t linePos);
     void setLineLastRow(LineStep &step);
     LineStep * getLastStep(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
-
+    inline bool isSameLineSegment(LineStep &step1, LineStep &step2);// __attribute__((always_inline));
 
 };
 
@@ -165,9 +171,11 @@ void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePo
   if (RowLinePosition::isInRange(linePos)) {
     if (lineFirstRowIndex >= 0) {
 
+      int8_t segmentPos = lastSteps[stepBufferIndex].rowPos;
       int8_t stepSegmentStart = lastSteps[stepBufferIndex].rowSegmentStart;
       int8_t stepSegmentEnd = lastSteps[stepBufferIndex].rowSegmentEnd;
-      if (stepSegmentStart == lineSegmentStart || stepSegmentEnd == lineSegmentEnd) {
+      if ((stepSegmentStart == lineSegmentStart || stepSegmentEnd == lineSegmentEnd)
+          && (segmentPos >= lineSegmentStart && segmentPos <= lineSegmentEnd)) {
         lastSteps[stepBufferIndex].rowCount++;
         lastSteps[stepBufferIndex].rowIndex = rowIndex;
       } else {
@@ -228,13 +236,23 @@ LineStep * Line<totalRowCount>::getLastStep(uint8_t rowIndex, int8_t linePos, in
     if (stepCount > 3) {
       LineStep &step1 = lastSteps[(stepBufferIndex - 1) & 0x03];
       LineStep &step2 = lastSteps[(stepBufferIndex - 2) & 0x03];
-      if (step1.direction != step2.direction || step1.rowCount != step2.rowCount) {
+      if (step1.direction != step2.direction || !isSameLineSegment(step1, step2)) {
         return &step2;
       }
     }
   }
   return nullptr;
 }
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isSameLineSegment(LineStep &step1, LineStep &step2) {
+  int8_t diff = step1.rowCount >> 1;
+  int8_t min = step1.rowCount - diff;
+  int8_t max = step1.rowCount + diff;
+  return step2.rowCount >= min && step2.rowCount <= max;
+}
+
 
 
 

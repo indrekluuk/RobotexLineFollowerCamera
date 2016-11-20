@@ -281,8 +281,6 @@ TEST(LineTest, testActiveLinePosEdge2) {
 
 
 
-/*
-
 TEST(LineTest, testStepLengthVariation) {
   Line<120> line;
   line.setRowBitmap( 0, 0b00000000, 0b00000100);
@@ -312,6 +310,26 @@ TEST(LineTest, testStepLengthVariation) {
 }
 
 
-*/
+
+
+TEST(LineTest, testActiveLineSplit) {
+  Line<120> line;
+  int8_t pos;
+  pos = line.setRowBitmap(0, 0b01111111, 0b11111100);
+  ASSERT_EQ(16, pos);
+  pos = line.setRowBitmap(1, 0b00011110, 0b00000110);
+  ASSERT_EQ(21, pos);
+  pos = line.setRowBitmap(2, 0b00110000, 0b00000010);
+  ASSERT_EQ(25, pos);
+  pos = line.setRowBitmap(3, 0b00100000, 0b00000010);
+  ASSERT_EQ(26, pos);
+  pos = line.setRowBitmap(4, 0b00100000, 0b00000010);
+  ASSERT_EQ(26, pos);
+  pos = line.setRowBitmap(5, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+}
+
+
+
 
 
