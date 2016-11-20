@@ -49,7 +49,7 @@ private:
     void processNewLinePosition(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
     void setLineFirstRow(uint8_t rowIndex, int8_t linePos);
     void setLineLastRow(LineStep &step);
-    LineStep * getLastStepBeforeTurn(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
+    LineStep * getLastStepBeforeTurn();
 };
 
 
@@ -78,6 +78,7 @@ void Line<totalRowCount>::resetLine() {
   stepCount = 0;
   lastSteps[stepBufferIndex].initStep(
       0,
+      0,
       -1,
       RowLinePosition::lineNotFound,
       RowLinePosition::lineNotFound,
@@ -102,7 +103,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
         currentDetectedLinePosition = RowLinePosition::lineNotFound;
       }
     } else {
-      LineStep *lastStep = getLastStepBeforeTurn(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
+      LineStep *lastStep = getLastStepBeforeTurn();
       if (lastStep) {
         if (lineFirstRowIndex >= 0) {
           setLineLastRow(*lastStep);
@@ -148,6 +149,7 @@ void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePo
         lastSteps[stepBufferIndex].initStep(
             ((linePos - previousLinePos) < 0) ? (int8_t)-1 : (int8_t)1,
             rowIndex,
+            1,
             linePos,
             lineSegmentStart,
             lineSegmentEnd);
@@ -160,6 +162,7 @@ void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePo
       lastSteps[stepBufferIndex].initStep(
           0,
           rowIndex,
+          1,
           linePos,
           lineSegmentStart,
           lineSegmentEnd);
@@ -184,26 +187,24 @@ void Line<totalRowCount>::setLineLastRow(LineStep &step) {
 
 
 template <int8_t totalRowCount>
-LineStep * Line<totalRowCount>::getLastStepBeforeTurn(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd) {
-  if (lineFirstRowIndex < 0 || (rowIndex - lineFirstRowIndex < 2)) {
+LineStep * Line<totalRowCount>::getLastStepBeforeTurn() {
+  if (stepCount <= 1) {
     return nullptr;
   } else {
-    bool areSegmentsTouching = ((lineSegmentEnd - previousLineSegmentStart >= -2)
-                                && (previousLineSegmentEnd - lineSegmentStart >= -2));
-    if (!areSegmentsTouching) {
-      LineStep &previousStep = lastSteps[(stepBufferIndex - 1) & 0x03];
-      return &previousStep;
+    LineStep &step0 = lastSteps[stepBufferIndex];
+    LineStep &step1 = lastSteps[(stepBufferIndex - 1) & 0x03];
+
+    if (!step0.isStepConnected(step1)) {
+      return &step1;
     }
 
-    if (stepCount > 3) {
-      LineStep &step1 = lastSteps[(stepBufferIndex - 1) & 0x03];
+    if (stepCount > 2) {
       LineStep &step2 = lastSteps[(stepBufferIndex - 2) & 0x03];
-      if (step1.direction != step2.direction || !step1.isStepOfSameLine(step2)) {
-        return &step2;
-      }
+      return (!step1.isSameSlant(step2)) ? &step2 : nullptr;
+    } else {
+      return nullptr;
     }
   }
-  return nullptr;
 }
 
 
