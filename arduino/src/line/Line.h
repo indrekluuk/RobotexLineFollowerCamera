@@ -88,6 +88,13 @@ void Line<totalRowCount>::resetLine() {
 
   stepBufferIndex = 0;
   stepCount = 0;
+  initStep(
+      lastSteps[stepBufferIndex],
+      0,
+      -1,
+      RowLinePosition::lineNotFound,
+      RowLinePosition::lineNotFound,
+      RowLinePosition::lineNotFound);
 }
 
 

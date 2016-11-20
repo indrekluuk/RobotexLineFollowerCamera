@@ -235,6 +235,52 @@ TEST(LineTest, testStepGetsShorter) {
 
 
 
+
+TEST(LineTest, testActiveLinePosEdge1) {
+  Line<120> line;
+  int8_t pos;
+  pos = line.setRowBitmap(0, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+  pos = line.setRowBitmap(1, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+  pos = line.setRowBitmap(2, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+  pos = line.setRowBitmap(3, 0b00000000, 0b00000001);
+  ASSERT_EQ(0, pos);
+  pos = line.setRowBitmap(4, 0b00000000, 0b00000011);
+  ASSERT_EQ(0, pos);
+  pos = line.setRowBitmap(5, 0b00000000, 0b00000010);
+  ASSERT_EQ(2, pos);
+  pos = line.setRowBitmap(6, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+}
+
+
+
+
+TEST(LineTest, testActiveLinePosEdge2) {
+  Line<120> line;
+  int8_t pos;
+  pos = line.setRowBitmap(0, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+  pos = line.setRowBitmap(1, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+  pos = line.setRowBitmap(2, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+  pos = line.setRowBitmap(3, 0b10000000, 0b00000000);
+  ASSERT_EQ(30, pos);
+  pos = line.setRowBitmap(4, 0b11000000, 0b00000000);
+  ASSERT_EQ(30, pos);
+  pos = line.setRowBitmap(5, 0b01000000, 0b00000000);
+  ASSERT_EQ(28, pos);
+  pos = line.setRowBitmap(6, 0b00000000, 0b00000000);
+  ASSERT_EQ(-1, pos);
+}
+
+
+
+
+
 /*
 
 TEST(LineTest, testStepLengthVariation) {
