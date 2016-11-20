@@ -27,15 +27,19 @@ public:
 
 
     RowLinePosition(uint8_t bitmapHigh, uint8_t bitmapLow, int8_t seekPos);
-    inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart) __attribute__((always_inline));
-    inline void processLineSegment(int8_t lineStart, int8_t lineEnd) __attribute__((always_inline));
-
 
     inline static const bool isInRange(int8_t linePos) __attribute__((always_inline));
     inline static const bool isLineNotFound(int8_t linePos) __attribute__((always_inline));
     inline int8_t getLinePosition() __attribute__((always_inline));
     inline int8_t getLineSegmentStart() __attribute__((always_inline));
     inline int8_t getLineSegmentEnd() __attribute__((always_inline));
+
+    inline static int8_t getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
+
+private:
+    inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart) __attribute__((always_inline));
+    inline void processLineSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
+
 };
 
 
@@ -58,7 +62,7 @@ void RowLinePosition::processPixel(bool isActive, uint8_t index, int8_t &segment
 
 
 void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd) {
-  int8_t newLinePos = (int8_t)((segmentEnd + segmentStart) >> 1);
+  int8_t newLinePos = getLinePositionForSegment(segmentStart, segmentEnd);
   if (linePos == lineNotFound || (abs(lineSeekPos-newLinePos) < abs(lineSeekPos-linePos))) {
     linePos = newLinePos;
     lineSegmentStart = segmentStart;
@@ -66,6 +70,10 @@ void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd)
   }
 }
 
+
+int8_t RowLinePosition::getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) {
+  return (int8_t)((segmentEnd + segmentStart) >> 1);
+}
 
 
 

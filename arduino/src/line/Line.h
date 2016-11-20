@@ -10,18 +10,22 @@
 #include <Arduino.h>
 
 
+struct LineStep {
+    int8_t direction;
+    int8_t rowCount;
+    int8_t rowIndex;
+    int8_t rowPos;
+    int8_t rowSegmentStart;
+    int8_t rowSegmentEnd;
+};
+
 
 
 template <int8_t totalRowCount>
 class Line {
 
     static const uint8_t stepBufferSize = 4;
-    struct Step {
-        int8_t direction;
-        int8_t rowCount;
-        int8_t rowIndex;
-        int8_t rowPos;
-    } lastSteps [stepBufferSize];
+    LineStep lastSteps [stepBufferSize];
     uint8_t stepBufferIndex;
     uint8_t stepCount;
 
@@ -40,7 +44,7 @@ public:
     Line();
 
     void resetLine();
-    inline void resetStep(Step & step, int8_t direction) __attribute__((always_inline));
+    inline void initStep(LineStep & step, int8_t direction, int8_t rowIndex, int8_t rowPos, int8_t rowSegmentStart, int8_t rowSegmentEnd) __attribute__((always_inline));
     int8_t setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
 
     static int8_t getTotalRowCount();
@@ -52,10 +56,10 @@ public:
 
 
 private:
-    void processNewLinePosition(uint8_t rowIndex, int8_t linePos);
+    void processNewLinePosition(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
     void setLineFirstRow(uint8_t rowIndex, int8_t linePos);
-    void setLineLastRow(uint8_t rowIndex, int8_t linePos);
-    int8_t getTurnPosition(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
+    void setLineLastRow(uint8_t rowIndex, LineStep &step);
+    LineStep * getLastStep(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd);
 
 
 };
@@ -84,16 +88,24 @@ void Line<totalRowCount>::resetLine() {
 
   stepBufferIndex = 0;
   stepCount = 0;
-  resetStep(lastSteps[0], 0);
-  resetStep(lastSteps[1], 0);
-  resetStep(lastSteps[2], 0);
 }
 
 
 template <int8_t totalRowCount>
-void Line<totalRowCount>::resetStep(Step & step, int8_t direction) {
+void Line<totalRowCount>::initStep(
+    LineStep & step,
+    int8_t direction,
+    int8_t rowIndex,
+    int8_t rowPos,
+    int8_t rowSegmentStart,
+    int8_t rowSegmentEnd
+) {
   step.direction = direction;
   step.rowCount = 0;
+  step.rowIndex = rowIndex;
+  step.rowPos = rowPos;
+  step.rowSegmentStart = rowSegmentStart;
+  step.rowSegmentEnd = rowSegmentEnd;
 }
 
 
@@ -105,18 +117,18 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
     int8_t linePos = position.getLinePosition();
     int8_t lineSegmentStart = position.getLineSegmentStart();
     int8_t lineSegmentEnd = position.getLineSegmentEnd();
-    processNewLinePosition(rowIndex, linePos);
+    processNewLinePosition(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
 
     if (RowLinePosition::isLineNotFound(linePos)) {
       if (lineFirstRowIndex >= 0) {
-        setLineLastRow(rowIndex, previousLinePos);
+        setLineLastRow(rowIndex, lastSteps[stepBufferIndex]);
         linePos = RowLinePosition::lineNotFound;
       }
     } else {
-      int8_t turnPos = getTurnPosition(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
-      if (turnPos >= 0) {
+      LineStep *lastStep = getLastStep(rowIndex, linePos, lineSegmentStart, lineSegmentEnd);
+      if (lastStep) {
         if (lineFirstRowIndex >= 0) {
-          setLineLastRow(rowIndex - 1, turnPos);
+          setLineLastRow(rowIndex - 1, *lastStep);
           linePos = RowLinePosition::lineNotFound;
         }
       } else {
@@ -124,7 +136,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
           setLineFirstRow(rowIndex, linePos);
         }
         if (rowIndex == totalRowCount - 1) {
-          setLineLastRow(totalRowCount, linePos);
+          setLineLastRow(totalRowCount, lastSteps[stepBufferIndex]);
         }
       }
     }
@@ -141,26 +153,38 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
 
 
 template <int8_t totalRowCount>
-void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePos) {
+void Line<totalRowCount>::processNewLinePosition(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd) {
   if (RowLinePosition::isInRange(linePos)) {
     if (lineFirstRowIndex >= 0) {
 
-      int8_t currentStepDirection = linePos - previousLinePos;
-      if (currentStepDirection == 0) {
+      int8_t stepSegmentStart = lastSteps[stepBufferIndex].rowSegmentStart;
+      int8_t stepSegmentEnd = lastSteps[stepBufferIndex].rowSegmentEnd;
+      if (stepSegmentStart == lineSegmentStart || stepSegmentEnd == lineSegmentEnd) {
         lastSteps[stepBufferIndex].rowCount++;
       } else {
         stepCount++;
         stepBufferIndex++;
         stepBufferIndex &= (uint8_t)(stepBufferSize-1);
-        resetStep(lastSteps[stepBufferIndex], currentStepDirection < 0 ? (int8_t)-1 : (int8_t)1);
-        lastSteps[stepBufferIndex].rowIndex = rowIndex;
-        lastSteps[stepBufferIndex].rowPos = linePos;
+        initStep(
+            lastSteps[stepBufferIndex],
+            ((linePos - previousLinePos) < 0) ? (int8_t)-1 : (int8_t)1,
+            rowIndex,
+            linePos,
+            lineSegmentStart,
+            lineSegmentEnd);
       }
 
     } else {
       lineFirstRowIndex = rowIndex;
       lineFirstRowPos = linePos;
       stepCount = 1;
+      initStep(
+          lastSteps[stepBufferIndex],
+          0,
+          rowIndex,
+          linePos,
+          lineSegmentStart,
+          lineSegmentEnd);
     }
   }
 }
@@ -174,33 +198,33 @@ void Line<totalRowCount>::setLineFirstRow(uint8_t rowIndex, int8_t linePos) {
 
 
 template <int8_t totalRowCount>
-void Line<totalRowCount>::setLineLastRow(uint8_t rowIndex, int8_t linePos) {
+void Line<totalRowCount>::setLineLastRow(uint8_t rowIndex, LineStep &step) {
   lineFound = true;
   lineLastRowIndex = rowIndex - (uint8_t)1;
-  lineLastRowPos = linePos;
+  lineLastRowPos = step.rowPos;
 }
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getTurnPosition(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd) {
+LineStep * Line<totalRowCount>::getLastStep(uint8_t rowIndex, int8_t linePos, int8_t lineSegmentStart, int8_t lineSegmentEnd) {
   if (lineFirstRowIndex < 0 || (rowIndex - lineFirstRowIndex < 2)) {
-    return -1;
+    return nullptr;
   } else {
     bool areSegmentsTouching = ((lineSegmentEnd - previousLineSegmentStart >= -2)
                                 && (previousLineSegmentEnd - lineSegmentStart >= -2));
     if (!areSegmentsTouching) {
-      return -1;
+      return nullptr;
     }
 
     if (stepCount > 3) {
-      Step &step1 = lastSteps[(stepBufferIndex - 1) & 0x03];
-      Step &step2 = lastSteps[(stepBufferIndex - 2) & 0x03];
+      LineStep &step1 = lastSteps[(stepBufferIndex - 1) & 0x03];
+      LineStep &step2 = lastSteps[(stepBufferIndex - 2) & 0x03];
       if (step1.direction != step2.direction || step1.rowCount != step2.rowCount) {
-        return step2.rowPos;
+        return &step2;
       }
     }
   }
-  return -1;
+  return nullptr;
 }
 
 
