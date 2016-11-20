@@ -147,10 +147,22 @@ void processMonochrome(int8_t linePosition) {
   }
 }
 
+
+
 void processMonochromePixel(int8_t &i, uint8_t &monochromeByte, int8_t lineStart, int8_t lineEnd) {
-  uint8_t byte = monochromeByte & monochromeBufferMask[i] ? 0x00 : 0xFF;
+  uint8_t monochromeMask = monochromeBufferMask[i];
+  if (monochromeByte & monochromeMask) {
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    screen.sendPixelByte(0);
+  } else {
+    screen.sendPixelByte((0xAA & monochromeMask ? 0xFD : 0xFF));
+  }
 
-  screen.sendPixelByte(byte);
   asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");
@@ -160,17 +172,17 @@ void processMonochromePixel(int8_t &i, uint8_t &monochromeByte, int8_t lineStart
   asm volatile("nop");
   asm volatile("nop");
   asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-
-  screen.sendPixelByte(i >= lineStart && i<=lineEnd ? 0xFF : 0);
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
+  if (i < lineStart) {
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    screen.sendPixelByte(0);
+  } else {
+    screen.sendPixelByte(i > lineEnd ? 0 : 0xFF);
+  }
 }
 
 
