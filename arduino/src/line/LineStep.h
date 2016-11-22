@@ -15,9 +15,9 @@ struct LineStep {
     int8_t direction;
     int8_t rowIndexStart;
     int8_t rowIndexEnd;
-    int8_t rowPos;
-    int8_t rowSegmentStart;
-    int8_t rowSegmentEnd;
+    int8_t linePos;
+    int8_t lineSegmentStart;
+    int8_t lineSegmentEnd;
 
     inline void initStep(
         int8_t direction,
@@ -45,15 +45,15 @@ void LineStep::initStep(
   this->direction = direction;
   this->rowIndexStart = rowIndex;
   this->rowIndexEnd = rowIndex;
-  this->rowPos = position.getLinePosition();
-  this->rowSegmentStart = position.getLineSegmentStart();
-  this->rowSegmentEnd = position.getLineSegmentEnd();
+  this->linePos = position.getLinePosition();
+  this->lineSegmentStart = position.getLineSegmentStart();
+  this->lineSegmentEnd = position.getLineSegmentEnd();
 }
 
 
 bool LineStep::isPartOfStep(RowLinePosition & position) {
-  return (rowSegmentStart == position.getLineSegmentStart() || rowSegmentEnd == position.getLineSegmentEnd())
-      && (rowPos >= position.getLineSegmentStart() && rowPos <= position.getLineSegmentEnd());
+  return (lineSegmentStart == position.getLineSegmentStart() || lineSegmentEnd == position.getLineSegmentEnd())
+      && (linePos >= position.getLineSegmentStart() && linePos <= position.getLineSegmentEnd());
 }
 
 
@@ -69,13 +69,13 @@ bool LineStep::isStepConnected(LineStep & previousStep) {
     return false;
   }
 
-  bool areSegmentsTouching = ((rowSegmentEnd - previousStep.rowSegmentStart >= -2)
-                              && (previousStep.rowSegmentEnd - rowSegmentStart >= -2));
+  bool areSegmentsTouching = ((lineSegmentEnd - previousStep.lineSegmentStart >= -2)
+                              && (previousStep.lineSegmentEnd - lineSegmentStart >= -2));
   return areSegmentsTouching;
   /*
-  int8_t prevMinSegmentStart = previousStep.rowPos - previousStep.minToEdge;
-  int8_t prevMinSegmentEnd = previousStep.rowPos + previousStep.minToEdge;
-  return (rowPos >= prevMinSegmentStart - 2 && rowPos <= prevMinSegmentEnd + 2);
+  int8_t prevMinSegmentStart = previousStep.linePos - previousStep.minToEdge;
+  int8_t prevMinSegmentEnd = previousStep.linePos + previousStep.minToEdge;
+  return (linePos >= prevMinSegmentStart - 2 && linePos <= prevMinSegmentEnd + 2);
    */
 }
 

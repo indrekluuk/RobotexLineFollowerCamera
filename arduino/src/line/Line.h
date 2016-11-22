@@ -15,10 +15,12 @@
 template <int8_t totalRowCount>
 class Line {
 
-    static const uint8_t stepBufferSize = 4;
-    LineStep steps[stepBufferSize];
-    LineStep & firstStep = steps[0];
-    LineStep & secondStep = steps[1];
+    struct StepBuffer {
+        LineStep firstStep;
+        LineStep secondStep;
+        LineStep step2;
+        LineStep step3;
+    } steps;
     LineStep * previousStep;
     LineStep * currentStep;
     LineStep * lastStep;
@@ -35,9 +37,9 @@ public:
     static int8_t getTotalRowCount();
     bool isLineIdentified();
     int8_t getLineFirstRowIndex();
-    int8_t getLineFirstRowPosition();
+    int8_t getLineFirstPosition();
     int8_t getLineLastRowIndex();
-    int8_t getLineLastRowPosition();
+    int8_t getLineLastPosition();
 
 
 private:
@@ -83,7 +85,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
         currentDetectedLinePosition = RowLinePosition::lineNotFound;
         setLastStep(previousStep);
       } else {
-        currentDetectedLinePosition = currentStep->rowPos;
+        currentDetectedLinePosition = currentStep->linePos;
         if (rowIndex == totalRowCount - 1) {
           setLastStep(currentStep);
         }
@@ -109,24 +111,24 @@ void Line<totalRowCount>::updateStep(uint8_t rowIndex, RowLinePosition & positio
       previousStep = currentStep;
       currentStep = getNextStep();
       currentStep->initStep(
-          ((position.getLinePosition() - previousStep->rowPos) < 0) ? (int8_t)-1 : (int8_t)1,
+          ((position.getLinePosition() - previousStep->linePos) < 0) ? (int8_t)-1 : (int8_t)1,
           rowIndex,
           position);
     }
   } else {
-    firstStep.initStep(
+    steps.firstStep.initStep(
         0,
         rowIndex,
         position);
-    currentStep = &firstStep;
+    currentStep = &steps.firstStep;
   }
 }
 
 
 template <int8_t totalRowCount>
 LineStep * Line<totalRowCount>::getNextStep() {
-  if (currentStep == &steps[stepBufferSize-1]) {
-    return (&secondStep)+1;
+  if (currentStep == &steps.step3) {
+    return &steps.step2;
   } else {
     return currentStep + 1;
   }
@@ -136,13 +138,13 @@ LineStep * Line<totalRowCount>::getNextStep() {
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isTurn() {
-  if (currentStep == &firstStep) {
+  if (currentStep == &steps.firstStep) {
     return false;
   } else {
     if (!currentStep->isStepConnected(*previousStep)) {
       return true;
     }
-    if (currentStep != &secondStep) {
+    if (currentStep != &steps.secondStep) {
       return false; // todo check angle
     } else {
       return false;
@@ -171,13 +173,13 @@ bool Line<totalRowCount>::isLineIdentified() {
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getLineFirstRowIndex() {
-  return firstStep.rowIndexStart;
+  return steps.firstStep.rowIndexStart;
 }
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getLineFirstRowPosition() {
-  return firstStep.rowPos;
+int8_t Line<totalRowCount>::getLineFirstPosition() {
+  return steps.firstStep.linePos;
 }
 
 
@@ -188,8 +190,8 @@ int8_t Line<totalRowCount>::getLineLastRowIndex() {
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getLineLastRowPosition() {
-  return lastStep->rowPos;
+int8_t Line<totalRowCount>::getLineLastPosition() {
+  return lastStep->linePos;
 }
 
 

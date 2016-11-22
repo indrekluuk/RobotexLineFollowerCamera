@@ -32,7 +32,7 @@ TEST(LineTest, testLineFound) {
   line.setRowBitmap(2, 0b00010000, 0b00000000);
   line.setRowBitmap(3, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(24, line.getLineLastRowPosition());
+  ASSERT_EQ(24, line.getLineLastPosition());
 }
 
 
@@ -47,7 +47,7 @@ TEST(LineTest, testLineAcrossTheScreen) {
   ASSERT_FALSE(line.isLineIdentified());
   line.setRowBitmap(5, 0b000010000, 0b000000000);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(24, line.getLineLastRowPosition());
+  ASSERT_EQ(24, line.getLineLastPosition());
 }
 
 
@@ -66,7 +66,7 @@ TEST(LineTest, testSlantedLine) {
   line.setRowBitmap(8, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(7, line.getLineLastRowIndex());
-  ASSERT_EQ(22, line.getLineLastRowPosition());
+  ASSERT_EQ(22, line.getLineLastPosition());
 }
 
 
@@ -90,7 +90,7 @@ TEST(LineTest, testLineTurnsInSlantDirection) {
   line.setRowBitmap(13, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(8, line.getLineLastRowIndex());
-  ASSERT_EQ(6, line.getLineLastRowPosition());
+  ASSERT_EQ(6, line.getLineLastPosition());
 }
 
 
@@ -112,7 +112,7 @@ TEST(LineTest, testLineTurnsAwayFromSlantDirection) {
   line.setRowBitmap(12, 0b00000000, 0b00000000);
   line.setRowBitmap(13, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(24, line.getLineLastRowPosition());
+  ASSERT_EQ(24, line.getLineLastPosition());
 }
 
 
@@ -134,7 +134,7 @@ TEST(LineTest, testIgnoreOtherLine) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(5, line.getLineLastRowIndex());
-  ASSERT_EQ(20, line.getLineLastRowPosition());
+  ASSERT_EQ(20, line.getLineLastPosition());
 }
 
 
@@ -157,7 +157,7 @@ TEST(LineTest, testIgnoreOtherLineEndsAftercurrentLine) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(7, line.getLineLastRowIndex());
-  ASSERT_EQ(12, line.getLineLastRowPosition());
+  ASSERT_EQ(12, line.getLineLastPosition());
 }
 
 
@@ -179,7 +179,7 @@ TEST(LineTest, testIgnoreLineAfter) {
   line.setRowBitmap(10, 0b00000000, 0b00000000);
 
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(22, line.getLineLastRowPosition());
+  ASSERT_EQ(22, line.getLineLastPosition());
 }
 
 
@@ -199,7 +199,7 @@ TEST(LineTest, testIgnoreLineAfterGap) {
   line.setRowBitmap(10, 0b00000000, 0b00000000);
 
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(20, line.getLineLastRowPosition());
+  ASSERT_EQ(20, line.getLineLastPosition());
   ASSERT_EQ(4, line.getLineLastRowIndex());
 }
 
@@ -221,7 +221,7 @@ TEST(LineTest, testJaggedLine) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(8, line.getLineLastRowIndex());
-  ASSERT_EQ(9, line.getLineLastRowPosition());
+  ASSERT_EQ(9, line.getLineLastPosition());
 }
 
 
@@ -255,7 +255,7 @@ TEST(LineTest, testStepGetsShorter) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(14, line.getLineLastRowIndex());
-  ASSERT_EQ(8, line.getLineLastRowPosition());
+  ASSERT_EQ(8, line.getLineLastPosition());
 }
 
 
@@ -332,7 +332,7 @@ TEST(LineTest, testStepLengthVariation) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(18, line.getLineLastRowIndex());
-  ASSERT_EQ(12, line.getLineLastRowPosition());
+  ASSERT_EQ(12, line.getLineLastPosition());
 }
 
 
@@ -371,7 +371,7 @@ TEST(LineTest, testStartFromTheMiddle) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(4, line.getLineLastRowIndex());
-  ASSERT_EQ(17, line.getLineLastRowPosition());
+  ASSERT_EQ(17, line.getLineLastPosition());
 }
 
 
@@ -397,7 +397,7 @@ TEST(LineTest, testLineConnectedHorizonatllySingleLine) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(7, line.getLineLastRowIndex());
-  ASSERT_EQ(10, line.getLineLastRowPosition());
+  ASSERT_EQ(10, line.getLineLastPosition());
 }
 
 
@@ -420,7 +420,7 @@ TEST(LineTest, testLineConnectedHorizonatllyDoubleLine) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(5, line.getLineLastRowIndex());
-  ASSERT_EQ(8, line.getLineLastRowPosition());
+  ASSERT_EQ(8, line.getLineLastPosition());
 }
 
 
@@ -442,7 +442,7 @@ TEST(LineTest, testParallelLinesWithoutSteps) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(4, line.getLineLastRowIndex());
-  ASSERT_EQ(7, line.getLineLastRowPosition());
+  ASSERT_EQ(7, line.getLineLastPosition());
 }
 
 
@@ -463,7 +463,7 @@ TEST(LineTest, testThinningLineWith90degreesTurn) {
 
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(4, line.getLineLastRowIndex());
-  ASSERT_EQ(10, line.getLineLastRowPosition());
+  ASSERT_EQ(10, line.getLineLastPosition());
 }
 
 
