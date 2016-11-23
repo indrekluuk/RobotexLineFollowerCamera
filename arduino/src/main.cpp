@@ -27,8 +27,8 @@ DataBufferSender dataBufferSender;
 void processLine(const uint8_t lineIndex);
 void processGrayscale();
 inline void processGrayScalePixel(int8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
-void processMonochrome(int8_t linePosition);
-inline void processMonochromePixel(int8_t &i, uint8_t &monochromeByte, int8_t lineStart, int8_t lineEnd) __attribute__((always_inline));
+void processMonochrome(const uint8_t & rowIndex, int8_t linePosition);
+inline void processMonochromePixel(const uint8_t &rowIndex, int8_t &i, uint8_t &monochromeByte, int8_t lineStart, int8_t lineEnd) __attribute__((always_inline));
 
 
 
@@ -69,7 +69,7 @@ void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processGrayscale();
   int8_t linePosition = line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
-  processMonochrome(linePosition  * 2.6);
+  processMonochrome(lineIndex, ((linePosition  * 5) >> 1) + 2);
   screen.screenLineEnd();
 
   uint8_t messageBuffer[3];
@@ -127,7 +127,7 @@ void processGrayScalePixel(int8_t &i, uint8_t &monochromeByte) {
 
 
 
-void processMonochrome(int8_t linePosition) {
+void processMonochrome(const uint8_t & rowIndex, int8_t linePosition) {
   int8_t lineStart;
   int8_t lineEnd;
   if (linePosition < 0) {
@@ -140,25 +140,19 @@ void processMonochrome(int8_t linePosition) {
 
   //uint8_t pixelPos = (uint8_t)map(rowPos, -13, 13, 0, 80);
   for (int8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
-    processMonochromePixel(i, monochromeLineLow, lineStart, lineEnd);
+    processMonochromePixel(rowIndex, i, monochromeLineLow, lineStart, lineEnd);
   }
   for (int8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
-    processMonochromePixel(i, monochromeLineHigh, lineStart, lineEnd);
+    processMonochromePixel(rowIndex, i, monochromeLineHigh, lineStart, lineEnd);
   }
 }
 
 
 
-void processMonochromePixel(int8_t &i, uint8_t &monochromeByte, int8_t lineStart, int8_t lineEnd) {
+void processMonochromePixel(const uint8_t &rowIndex, int8_t &i, uint8_t &monochromeByte, int8_t lineStart, int8_t lineEnd) {
   uint8_t monochromeMask = monochromeBufferMask[i];
   if (monochromeByte & monochromeMask) {
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    asm volatile("nop");
-    screen.sendPixelByte(0);
+    screen.sendPixelByte(rowIndex & 1 ? 0 : 0x78);
   } else {
     screen.sendPixelByte((0xAA & monochromeMask ? 0xFD : 0xFF));
   }
