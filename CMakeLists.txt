@@ -12,7 +12,7 @@ add_subdirectory(arduino)
 
 
 # init Google Test target
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 
 # fake arduino headers
 include_directories(test/fake)
@@ -28,8 +28,9 @@ add_executable(runTests
         arduino/src/line/RowLinePosition.h
         arduino/src/line/RowLinePosition.cpp
 
-        test/src/line/LineTest.cpp
         test/src/line/RowLinePositionTest.cpp
+        test/src/line/LineTest.cpp
+        test/src/line/fullscreen/Screen1Test.cpp
         )
 
 # link
