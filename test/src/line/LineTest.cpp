@@ -98,20 +98,21 @@ TEST(LineTest, testLineTurnsInSlantDirection) {
 
 TEST(LineTest, testLineTurnsAwayFromSlantDirection) {
   Line<120> line;
-  line.setRowBitmap(0,  0b00000010, 0b00000000);
-  line.setRowBitmap(1,  0b00000010, 0b00000000);
-  line.setRowBitmap(2,  0b00000100, 0b00000000);
-  line.setRowBitmap(3,  0b00000100, 0b00000000);
-  line.setRowBitmap(5,  0b00001000, 0b00000000);
-  line.setRowBitmap(6,  0b00001000, 0b00000000);
-  line.setRowBitmap(7,  0b00010000, 0b00000000);
-  line.setRowBitmap(8,  0b00010000, 0b00000000);
-  line.setRowBitmap(9,  0b00000111, 0b11110000);
-  line.setRowBitmap(10, 0b00000000, 0b11111111);
+  line.setRowBitmap( 0, 0b00000010, 0b00000000);
+  line.setRowBitmap( 1, 0b00000010, 0b00000000);
+  line.setRowBitmap( 2, 0b00000100, 0b00000000);
+  line.setRowBitmap( 3, 0b00000100, 0b00000000);
+  line.setRowBitmap( 4, 0b00001000, 0b00000000);
+  line.setRowBitmap( 5, 0b00001000, 0b00000000);
+  line.setRowBitmap( 6, 0b00010000, 0b00000000);
+  line.setRowBitmap( 7, 0b00010000, 0b00000000);
+  line.setRowBitmap( 8, 0b00000111, 0b11110000);
+  line.setRowBitmap( 9, 0b00000000, 0b11111111);
+  line.setRowBitmap(10, 0b00000000, 0b00000000);
   line.setRowBitmap(11, 0b00000000, 0b00000000);
-  line.setRowBitmap(12, 0b00000000, 0b00000000);
-  line.setRowBitmap(13, 0b00000000, 0b00000000);
+  line.setRowBitmap(11, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(7, line.getLineLastRowIndex());
   ASSERT_EQ(24, line.getLineLastPosition());
 }
 
@@ -254,8 +255,8 @@ TEST(LineTest, testStepGetsShorter) {
   line.setRowBitmap(19, 0b00000000, 0b00000000);
 
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(14, line.getLineLastRowIndex());
-  ASSERT_EQ(8, line.getLineLastPosition());
+  ASSERT_EQ(16, line.getLineLastRowIndex());
+  ASSERT_EQ(10, line.getLineLastPosition());
 }
 
 
