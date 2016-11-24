@@ -72,11 +72,12 @@ void processLine(const uint8_t lineIndex) {
   processMonochrome(lineIndex, ((linePosition  * 5) >> 1) + 2);
   screen.screenLineEnd();
 
-  uint8_t messageBuffer[3];
+  uint8_t messageBuffer[4];
   messageBuffer[0] = lineIndex;
-  messageBuffer[1] = monochromeLineHigh;
-  messageBuffer[2] = monochromeLineLow;
-  dataBufferSender.sendMessage(messageBuffer, 3);
+  messageBuffer[1] = ((monochromeLineHigh >> 6) & 0x02) | (monochromeLineLow >> 7);
+  messageBuffer[2] = monochromeLineHigh;
+  messageBuffer[3] = monochromeLineLow;
+  dataBufferSender.sendMessage(messageBuffer, 4);
 }
 
 

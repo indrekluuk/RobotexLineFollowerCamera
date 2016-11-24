@@ -21,7 +21,7 @@ void DataBufferSender::sendMessage(uint8_t * buf, uint8_t count) {
   sendByte(count | MESSAGE_START);
   uint8_t * bufEnd = buf + count;
   for (; buf < bufEnd; buf++) {
-    sendByte(*buf);
+    sendByte((*buf) & MESSAGE_DATA_MASK);
   }
 }
 
