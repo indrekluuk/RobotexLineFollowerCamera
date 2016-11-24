@@ -60,7 +60,9 @@ void LineStep::initStep(
 
 
 bool LineStep::isPartOfStep(RowLinePosition & position) {
-  return (lineSegmentStart == position.getLineSegmentStart() || lineSegmentEnd == position.getLineSegmentEnd())
+  return (lineSegmentStart == position.getLineSegmentStart()
+            || lineSegmentEnd == position.getLineSegmentEnd()
+            || position.getLinePosition() == linePos)
       && (linePos >= position.getLineSegmentStart() && linePos <= position.getLineSegmentEnd());
 }
 

@@ -145,7 +145,6 @@ bool Line<totalRowCount>::updateLineStep(uint8_t rowIndex, RowLinePosition & pos
           checkSlopeForMinMax(nextStep->bottomSlope);
         }
       }
-      nextStep->calculateTopSlope(steps.firstStep);
 
       if (nextStep->isStepConnected(*currentStep) && !isTurn(*nextStep)) {
         if (currentStep->isBottomSlopeValid()) {

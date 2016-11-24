@@ -30,7 +30,7 @@ add_executable(runTests
 
         test/src/line/RowLinePositionTest.cpp
         test/src/line/LineTest.cpp
-        test/src/line/fullscreen/Screen1Test.cpp
+        test/src/line/screencapture/CapturedScreenTest.cpp
         )
 
 # link
