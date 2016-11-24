@@ -50,8 +50,8 @@ public:
 private:
     bool updateLineStep(uint8_t rowIndex, RowLinePosition & position);
     inline LineStep * getNextStep() __attribute__((always_inline));
-    inline void checkSlopeForMinMax(int16_t slope) __attribute__((always_inline));
-    inline bool isTurn(LineStep & nextStep) __attribute__((always_inline));
+    inline void checkSlopeForMinMax(int16_t slope); //todo __attribute__((always_inline));
+    inline bool isTurn(LineStep & nextStep); // todo __attribute__((always_inline));
     inline bool isSlopeInRange(int16_t slope) __attribute__((always_inline));
     inline void setLastStep(LineStep * step) __attribute__((always_inline));
 };
@@ -130,6 +130,10 @@ bool Line<totalRowCount>::updateLineStep(uint8_t rowIndex, RowLinePosition & pos
       return true;
 
     } else {
+      if (currentStep->isTopSlopeValid()) {
+        checkSlopeForMinMax(currentStep->topSlope);
+      }
+
       LineStep * nextStep = getNextStep();
 
       nextStep->initStep(
@@ -147,12 +151,6 @@ bool Line<totalRowCount>::updateLineStep(uint8_t rowIndex, RowLinePosition & pos
       }
 
       if (nextStep->isStepConnected(*currentStep) && !isTurn(*nextStep)) {
-        if (currentStep->isBottomSlopeValid()) {
-          checkSlopeForMinMax(currentStep->bottomSlope);
-        }
-        if (currentStep->isTopSlopeValid()) {
-          checkSlopeForMinMax(currentStep->topSlope);
-        }
         previousStep = currentStep;
         currentStep = nextStep;
         return true;
@@ -198,8 +196,12 @@ LineStep * Line<totalRowCount>::getNextStep() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::checkSlopeForMinMax(int16_t slope) {
-  if (slope > slopeMax) slopeMax = slope;
-  if (slope < slopeMin) slopeMin = slope;
+  if (slope > slopeMax) {
+    slopeMax = slope;
+  }
+  if (slope < slopeMin) {
+    slopeMin = slope;
+  }
 }
 
 

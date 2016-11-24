@@ -54,8 +54,8 @@ protected:
 TEST_F(CapturedScreenTest, testScreen1) {
   processScreen(capture_1);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(100, line.getLineLastRowIndex());
-  ASSERT_EQ(12, line.getLineLastPosition());
+  ASSERT_EQ(101, line.getLineLastRowIndex());
+  ASSERT_EQ(14, line.getLineLastPosition());
 }
 
 
