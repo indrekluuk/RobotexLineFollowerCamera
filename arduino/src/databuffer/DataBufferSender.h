@@ -10,7 +10,7 @@
 
 
 #define MESSAGE_START 0xF0
-#define MESSAGE_DATA_MASK 0x1F
+#define MESSAGE_DATA_MASK 0x7F
 
 class DataBufferSender {
 
