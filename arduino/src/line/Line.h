@@ -53,8 +53,8 @@ public:
 private:
     bool updateLineStep(uint8_t rowIndex, RowLinePosition & position);
     inline LineStep * getNextStep() __attribute__((always_inline));
-    inline void checkSlopeForMinMax(int16_t slope); //todo __attribute__((always_inline));
-    inline bool isTurn(LineStep & nextStep); // todo __attribute__((always_inline));
+    inline void checkSlopeForMinMax(int16_t slope) __attribute__((always_inline));
+    inline bool isTurn(LineStep & nextStep) __attribute__((always_inline));
     inline bool isSlopeInRange(int16_t slope) __attribute__((always_inline));
     inline void setLastStep(LineStep * step) __attribute__((always_inline));
 };
