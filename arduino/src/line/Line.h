@@ -46,6 +46,9 @@ public:
     int8_t getLineLastRowIndex();
     int8_t getLineLastPosition();
 
+    LineStep * getPreviousStep();
+    LineStep * getCurrentStep();
+
 
 private:
     bool updateLineStep(uint8_t rowIndex, RowLinePosition & position);
@@ -254,6 +257,16 @@ int8_t Line<totalRowCount>::getLineLastPosition() {
 }
 
 
+template <int8_t totalRowCount>
+LineStep * Line<totalRowCount>::getPreviousStep() {
+  return previousStep;
+}
+
+
+template <int8_t totalRowCount>
+LineStep * Line<totalRowCount>::getCurrentStep() {
+  return currentStep;
+}
 
 
 
