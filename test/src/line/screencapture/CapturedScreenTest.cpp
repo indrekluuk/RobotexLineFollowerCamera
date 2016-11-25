@@ -33,8 +33,8 @@ protected:
         lineData[i].pixelData = screenRow;
         lineData[i].linePos = line.setRowBitmap(rowIndex, (screenRow >> 8) & 0xFF, (screenRow) & 0xFF);
         LineStep * step = line.getCurrentStep();
-        lineData[i].bottomSlope = step != nullptr && step->isTopSlopeValid() ? step->topSlope : (int16_t)0;
-        lineData[i].topSlope = step != nullptr && step->isBottomSlopeValid() ? step->bottomSlope : (int16_t)0;
+        lineData[i].bottomSlope = step != nullptr && step->isBottomSlopeValid() ? step->bottomSlope : (int16_t)0;
+        lineData[i].topSlope = step != nullptr && step->isTopSlopeValid() ? step->topSlope : (int16_t)0;
       }
       printScreen(lineData);
     }
@@ -52,10 +52,10 @@ protected:
           screenLine[30-data.linePos] = '*';
         }
         std::cout << std::setw(3) << std::setfill('0') << (LINE_COUNT - i - 1);
-        std::cout << ": " << screenLine << "  " << data.topSlope << " / " << data.bottomSlope << "\n";
+        std::cout << ": " << screenLine << "  " << data.bottomSlope << " / " << data.topSlope << "\n";
       }
       std::cout << "       28  24  20  16  12  08  04  00  slope\n";
-      std::cout << "     30  26  22  18  14  10  06  02    top / bottom\n";
+      std::cout << "     30  26  22  18  14  10  06  02    bottom / top\n";
     }
 
 };
@@ -75,7 +75,7 @@ TEST_F(CapturedScreenTest, testCapture1) {
 TEST_F(CapturedScreenTest, testCapture2) {
   processScreen(capture_2);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(103, line.getLineLastRowIndex());
+  ASSERT_EQ(82, line.getLineLastRowIndex());
   ASSERT_EQ(12, line.getLineLastPosition());
 }
 

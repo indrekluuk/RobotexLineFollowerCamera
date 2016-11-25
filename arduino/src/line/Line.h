@@ -15,7 +15,7 @@
 template <int8_t totalRowCount>
 class Line {
 
-    static const int16_t D_SLOPE = 700;
+    static const int16_t D_SLOPE = 35;
 
     struct StepBuffer {
         LineStep firstStep;
@@ -147,7 +147,7 @@ bool Line<totalRowCount>::updateLineStep(uint8_t rowIndex, RowLinePosition & pos
       // Step start position slope can be calculated starting from third step.
       // Second step is the first one with fully visible bottom.
       if (nextStep > &steps.secondStep) {
-        nextStep->calculateBottomSlope(*previousStep);
+        nextStep->calculateBottomSlope(*currentStep);
         if (currentStep == &steps.secondStep) {
           checkSlopeForMinMax(nextStep->bottomSlope);
         }
