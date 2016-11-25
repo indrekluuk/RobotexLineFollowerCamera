@@ -9,6 +9,7 @@
 #include "Capture1.h"
 #include "Capture2.h"
 #include "Capture3.h"
+#include "Capture4.h"
 
 
 
@@ -72,15 +73,12 @@ TEST_F(CapturedScreenTest, testCapture1) {
 }
 
 
-
 TEST_F(CapturedScreenTest, testCapture2) {
   processScreen(capture_2);
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(82, line.getLineLastRowIndex());
   ASSERT_EQ(12, line.getLineLastPosition());
 }
-
-
 
 
 TEST_F(CapturedScreenTest, testCapture3) {
@@ -91,5 +89,11 @@ TEST_F(CapturedScreenTest, testCapture3) {
 }
 
 
+TEST_F(CapturedScreenTest, testCapture4) {
+  processScreen(capture_4);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(73, line.getLineLastRowIndex());
+  ASSERT_EQ(4, line.getLineLastPosition());
+}
 
 

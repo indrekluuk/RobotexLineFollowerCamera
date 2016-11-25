@@ -15,7 +15,7 @@
 template <int8_t totalRowCount>
 class Line {
 
-    static const int16_t D_SLOPE = 100;
+    static const int16_t D_SLOPE = 150;
 
     struct StepBuffer {
         LineStep firstStep;
