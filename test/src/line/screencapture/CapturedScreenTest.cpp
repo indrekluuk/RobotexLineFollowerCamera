@@ -8,6 +8,7 @@
 
 #include "Capture1.h"
 #include "Capture2.h"
+#include "Capture3.h"
 
 
 
@@ -78,5 +79,17 @@ TEST_F(CapturedScreenTest, testCapture2) {
   ASSERT_EQ(82, line.getLineLastRowIndex());
   ASSERT_EQ(12, line.getLineLastPosition());
 }
+
+
+
+
+TEST_F(CapturedScreenTest, testCapture3) {
+  processScreen(capture_3);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(76, line.getLineLastRowIndex());
+  ASSERT_EQ(8, line.getLineLastPosition());
+}
+
+
 
 
