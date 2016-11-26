@@ -27,6 +27,9 @@ class Line {
     int8_t lineTopPosition;
 
 public:
+
+    static const uint8_t ignoreFirstRows = 5;
+
     Line();
 
     void resetLine();
@@ -79,8 +82,8 @@ void Line<totalRowCount>::resetLine() {
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
 
-  // ignore first line
-  if (rowIndex == 0) {
+  // ignore first lines
+  if (rowIndex < ignoreFirstRows) {
     return RowLinePosition::lineNotFound;
   }
 

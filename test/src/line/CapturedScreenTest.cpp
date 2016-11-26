@@ -134,8 +134,8 @@ TEST(CapturedScreenTest, testCapture10) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_10);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(72, line.getLineLastRowIndex());
-  ASSERT_EQ(30, line.getLineLastPosition());
+  ASSERT_EQ(52, line.getLineLastRowIndex());
+  ASSERT_EQ(26, line.getLineLastPosition());
 }
 
 
