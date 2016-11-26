@@ -6,11 +6,11 @@
 #include "line/Line.h"
 #include "gtest/gtest.h"
 
-#include "Capture1.h"
-#include "Capture2.h"
-#include "Capture3.h"
-#include "Capture4.h"
-#include "Capture5.h"
+#include "screencapture/Capture1.h"
+#include "screencapture/Capture2.h"
+#include "screencapture/Capture3.h"
+#include "screencapture/Capture4.h"
+#include "screencapture/Capture5.h"
 
 
 
@@ -23,8 +23,6 @@ protected:
     struct LineData {
         uint16_t pixelData;
         int8_t linePos;
-        int16_t bottomSlope;
-        int16_t topSlope;
     };
     Line<LINE_COUNT> line;
 
@@ -35,9 +33,6 @@ protected:
         uint16_t screenRow = screen[i];
         lineData[i].pixelData = screenRow;
         lineData[i].linePos = line.setRowBitmap(rowIndex, (screenRow >> 8) & 0xFF, (screenRow) & 0xFF);
-        LineStep * step = line.getCurrentStep();
-        lineData[i].bottomSlope = step != nullptr && step->isBottomSlopeValid() ? step->bottomSlope : (int16_t)0;
-        lineData[i].topSlope = step != nullptr && step->isTopSlopeValid() ? step->topSlope : (int16_t)0;
       }
       printScreen(lineData);
     }
@@ -55,10 +50,10 @@ protected:
           screenLine[30-data.linePos] = '*';
         }
         std::cout << std::setw(3) << std::setfill('0') << (LINE_COUNT - i - 1);
-        std::cout << ": " << screenLine << "  " << data.bottomSlope << " / " << data.topSlope << "\n";
+        std::cout << ": " << screenLine << "\n";
       }
-      std::cout << "       28  24  20  16  12  08  04  00  slope\n";
-      std::cout << "     30  26  22  18  14  10  06  02    bottom / top\n";
+      std::cout << "       28  24  20  16  12  08  04  00\n";
+      std::cout << "     30  26  22  18  14  10  06  02\n";
     }
 
 };
@@ -69,8 +64,8 @@ protected:
 TEST_F(CapturedScreenTest, testCapture1) {
   processScreen(capture_1);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(103, line.getLineLastRowIndex());
-  ASSERT_EQ(12, line.getLineLastPosition());
+  ASSERT_EQ(101, line.getLineLastRowIndex());
+  ASSERT_EQ(13, line.getLineLastPosition());
 }
 
 
@@ -78,22 +73,22 @@ TEST_F(CapturedScreenTest, testCapture2) {
   processScreen(capture_2);
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(82, line.getLineLastRowIndex());
-  ASSERT_EQ(12, line.getLineLastPosition());
+  ASSERT_EQ(11, line.getLineLastPosition());
 }
 
 
 TEST_F(CapturedScreenTest, testCapture3) {
   processScreen(capture_3);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(76, line.getLineLastRowIndex());
-  ASSERT_EQ(8, line.getLineLastPosition());
+  ASSERT_EQ(87, line.getLineLastRowIndex());
+  ASSERT_EQ(6, line.getLineLastPosition());
 }
 
 
 TEST_F(CapturedScreenTest, testCapture4) {
   processScreen(capture_4);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(73, line.getLineLastRowIndex());
+  ASSERT_EQ(79, line.getLineLastRowIndex());
   ASSERT_EQ(4, line.getLineLastPosition());
 }
 
@@ -101,7 +96,7 @@ TEST_F(CapturedScreenTest, testCapture4) {
 TEST_F(CapturedScreenTest, testCapture5) {
   processScreen(capture_5);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(85, line.getLineLastRowIndex());
-  ASSERT_EQ(3, line.getLineLastPosition());
+  ASSERT_EQ(88, line.getLineLastRowIndex());
+  ASSERT_EQ(4, line.getLineLastPosition());
 }
 

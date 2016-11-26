@@ -6,7 +6,7 @@
 #define ROBOTEXLINEFOLLOWERCAMERA_LINE_H
 
 
-#include "LineStep.h"
+#include "LineEdge.h"
 #include "RowLinePosition.h"
 #include <Arduino.h>
 
@@ -15,23 +15,16 @@
 template <int8_t totalRowCount>
 class Line {
 
-    static const int16_t D_SLOPE = 150;
+    LineEdge startEdge;
+    LineEdge endEdge;
+    int8_t previousDetectedLinePosition;
+    int8_t lineSeekPosition;
 
-    struct StepBuffer {
-        LineStep firstStep;
-        LineStep secondStep;
-        LineStep step2;
-        LineStep step3;
-        LineStep stepBufferLast;
-    } steps;
-    LineStep * previousStep;
-    LineStep * currentStep;
-    LineStep * lastStep;
-    int8_t previousLinePos;
 
-    int16_t slopeMax;
-    int16_t slopeMin;
-
+    int8_t lineBottomRowIndex;
+    int8_t lineBottomPosition;
+    int8_t lineTopRowIndex;
+    int8_t lineTopPosition;
 
 public:
     Line();
@@ -46,17 +39,12 @@ public:
     int8_t getLineLastRowIndex();
     int8_t getLineLastPosition();
 
-    LineStep * getPreviousStep();
-    LineStep * getCurrentStep();
-
 
 private:
-    bool updateLineStep(uint8_t rowIndex, RowLinePosition & position);
-    inline LineStep * getNextStep() __attribute__((always_inline));
-    inline void checkSlopeForMinMax(int16_t slope) __attribute__((always_inline));
-    inline bool isTurn(LineStep & nextStep) __attribute__((always_inline));
-    inline bool isSlopeInRange(int16_t slope) __attribute__((always_inline));
-    inline void setLastStep(LineStep * step) __attribute__((always_inline));
+    int8_t updateLine(uint8_t rowIndex, RowLinePosition & position);
+    inline bool areSegmentsTouching(RowLinePosition & position) __attribute__((always_inline));
+    inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
+    inline void setLineTop(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
 };
 
 
@@ -72,38 +60,40 @@ Line<totalRowCount>::Line() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
-  previousLinePos = RowLinePosition::rowRangeMidPoint;
-  previousStep = nullptr;
-  currentStep = nullptr;
-  lastStep = nullptr;
-  slopeMin = 0x7FFF;
-  slopeMax = -0x7FFF;
+  lineSeekPosition = RowLinePosition::rowRangeMidPoint;
+  previousDetectedLinePosition = RowLinePosition::rowRangeMidPoint;
+  startEdge.init(-1, -1);
+  endEdge.init(-1, -1);
+  lineBottomRowIndex = -1;
+  lineBottomPosition = -1;
+  lineTopRowIndex = -1;
+  lineTopPosition = -1;
 }
 
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
-  if (!lastStep) {
-    RowLinePosition position(bitmapHigh, bitmapLow, previousLinePos);
+  if (lineTopRowIndex <0) {
+    RowLinePosition position(bitmapHigh, bitmapLow, lineSeekPosition);
     int8_t currentDetectedLinePosition = RowLinePosition::lineNotFound;
 
     if (position.isLineNotFound()) {
-      if (currentStep != nullptr) {
-        setLastStep(currentStep);
+      if (lineBottomRowIndex >= 0) {
+        setLineTop(rowIndex-1, previousDetectedLinePosition);
       }
     } else {
-      if (updateLineStep(rowIndex, position)) {
-        currentDetectedLinePosition = currentStep->linePos;
-        if (rowIndex == totalRowCount - 1) {
-          setLastStep(currentStep);
-        }
+      currentDetectedLinePosition = updateLine(rowIndex, position);
+      if (RowLinePosition::isLineNotFound(currentDetectedLinePosition)) {
+        setLineTop(rowIndex - 1, previousDetectedLinePosition);
       } else {
-        currentDetectedLinePosition = RowLinePosition::lineNotFound;
-        setLastStep(currentStep);
+        if (rowIndex == totalRowCount - 1) {
+          setLineTop(rowIndex, position.getLinePosition());
+        }
       }
     }
 
-    previousLinePos = position.getLinePosition();
+    lineSeekPosition = position.getLinePosition();
+    previousDetectedLinePosition = currentDetectedLinePosition;
     return currentDetectedLinePosition;
   } else {
     return RowLinePosition::lineNotFound;
@@ -114,110 +104,59 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
 
 
 template <int8_t totalRowCount>
-bool Line<totalRowCount>::updateLineStep(uint8_t rowIndex, RowLinePosition & position) {
+int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & position) {
 
-  if (!currentStep) {
-    steps.firstStep.initStep(
-        0,
-        rowIndex,
-        position);
-    currentStep = &steps.firstStep;
-    return true;
+  if (lineBottomRowIndex < 0) {
+    setLineBottom(rowIndex, position.getLinePosition());
+    startEdge.init(position.getLineSegmentStart(), position.getLinePosition());
+    endEdge.init(position.getLineSegmentEnd(),position.getLinePosition());
+    return position.getLinePosition();
 
   } else {
-    if (currentStep->isPartOfStep(position)) {
-      currentStep->update(rowIndex, position);
-      if (currentStep != &steps.firstStep) {
-        currentStep->calculateTopSlope(*previousStep);
+    if (areSegmentsTouching(position)) {
+      startEdge.update(position.getLineSegmentStart());
+      endEdge.update(position.getLineSegmentEnd());
+
+      if (startEdge.isContinues() && endEdge.isContinues()) {
+        startEdge.calculateLinePositionToEdge(position.getLinePosition());
+        endEdge.calculateLinePositionToEdge(position.getLinePosition());
+        return position.getLinePosition();
+      } else if (startEdge.isContinues()) {
+        return startEdge.getLinePositionFromEdge();
+      } else if (endEdge.isContinues()) {
+        return endEdge.getLinePositionFromEdge();
+      } else {
+        return RowLinePosition::lineNotFound;
       }
-      return true;
 
     } else {
-      if (currentStep->isTopSlopeValid()) {
-        checkSlopeForMinMax(currentStep->topSlope);
-      }
-
-      LineStep * nextStep = getNextStep();
-
-      nextStep->initStep(
-          ((position.getLinePosition() - currentStep->linePos) < 0) ? (int8_t)-1 : (int8_t)1,
-          rowIndex,
-          position);
-
-      // Step start position slope can be calculated starting from third step.
-      // Second step is the first one with fully visible bottom.
-      if (nextStep > &steps.secondStep) {
-        nextStep->calculateBottomSlope(*currentStep);
-        if (currentStep == &steps.secondStep) {
-          checkSlopeForMinMax(nextStep->bottomSlope);
-        }
-      }
-
-      if (nextStep->isStepConnected(*currentStep) && !isTurn(*nextStep)) {
-        previousStep = currentStep;
-        currentStep = nextStep;
-        return true;
-      } else {
-        return false;
-      }
+      return RowLinePosition::lineNotFound;
     }
   }
 }
 
 
-
 template <int8_t totalRowCount>
-bool Line<totalRowCount>::isTurn(LineStep & nextStep) {
-  if (nextStep.isBottomSlopeValid() && !isSlopeInRange(nextStep.bottomSlope)) {
-    return true;
-  }
-  if (currentStep->isTopSlopeValid() && !isSlopeInRange(currentStep->topSlope)) {
-    return true;
-  }
-  return false;
-}
-
-template <int8_t totalRowCount>
-bool Line<totalRowCount>::isSlopeInRange(int16_t slope) {
-  return (slope + D_SLOPE >= slopeMax)
-         && (slope - D_SLOPE <= slopeMin);
-}
-
-
-
-
-template <int8_t totalRowCount>
-LineStep * Line<totalRowCount>::getNextStep() {
-  if (currentStep == &steps.stepBufferLast) {
-    return &steps.step2;
-  } else {
-    return currentStep + 1;
-  }
-}
-
-
-
-template <int8_t totalRowCount>
-void Line<totalRowCount>::checkSlopeForMinMax(int16_t slope) {
-  if (slope > slopeMax) {
-    slopeMax = slope;
-  }
-  if (slope < slopeMin) {
-    slopeMin = slope;
-  }
+bool Line<totalRowCount>::areSegmentsTouching(RowLinePosition & position) {
+  return ((position.getLineSegmentEnd() - startEdge.currentStepPosition >= -2)
+          && (endEdge.currentStepPosition - position.getLineSegmentStart() >= -2));
 }
 
 
 
 
 
-
-
+template <int8_t totalRowCount>
+void Line<totalRowCount>::setLineBottom(uint8_t rowIndex, int8_t position) {
+  lineBottomRowIndex = rowIndex;
+  lineBottomPosition = position;
+}
 
 
 template <int8_t totalRowCount>
-void Line<totalRowCount>::setLastStep(LineStep * step) {
-  lastStep = step;
+void Line<totalRowCount>::setLineTop(uint8_t rowIndex, int8_t position) {
+  lineTopRowIndex = rowIndex;
+  lineTopPosition = position;
 }
 
 
@@ -229,43 +168,31 @@ int8_t Line<totalRowCount>::getTotalRowCount() {
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isLineIdentified() {
-  return lastStep != nullptr;
+  return lineTopRowIndex >= 0;
 }
 
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getLineFirstRowIndex() {
-  return steps.firstStep.rowIndexStart;
+  return  lineBottomRowIndex;
 }
 
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getLineFirstPosition() {
-  return steps.firstStep.linePos;
+  return lineBottomPosition;
 }
 
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getLineLastRowIndex() {
-  return lastStep->rowIndexEnd;
+  return lineTopRowIndex;
 }
 
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getLineLastPosition() {
-  return lastStep->linePos;
-}
-
-
-template <int8_t totalRowCount>
-LineStep * Line<totalRowCount>::getPreviousStep() {
-  return previousStep;
-}
-
-
-template <int8_t totalRowCount>
-LineStep * Line<totalRowCount>::getCurrentStep() {
-  return currentStep;
+  return lineTopPosition;
 }
 
 

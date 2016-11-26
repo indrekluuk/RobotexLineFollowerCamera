@@ -1,0 +1,21 @@
+//
+// Created by indrek on 26.11.2016.
+//
+
+#ifndef ROBOTEXLINEFOLLOWERCAMERA_TESTSCREENPROCESSOR_H
+#define ROBOTEXLINEFOLLOWERCAMERA_TESTSCREENPROCESSOR_H
+
+
+
+
+class TestScreenProcessor {
+
+
+public:
+    TestScreenProcessor();
+
+
+};
+
+
+#endif //ROBOTEXLINEFOLLOWERCAMERA_TESTSCREENPROCESSOR_H

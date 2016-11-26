@@ -89,7 +89,7 @@ TEST(LineTest, testLineTurnsInSlantDirection) {
   line.setRowBitmap(12, 0b01100000, 0b00000000);
   line.setRowBitmap(13, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(8, line.getLineLastRowIndex());
+  ASSERT_EQ(9, line.getLineLastRowIndex());
   ASSERT_EQ(6, line.getLineLastPosition());
 }
 
