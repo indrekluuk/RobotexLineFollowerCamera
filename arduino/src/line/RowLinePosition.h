@@ -30,6 +30,7 @@ public:
 
     inline static const bool isInRange(int8_t linePos) __attribute__((always_inline));
     inline static const bool isLineNotFound(int8_t linePos) __attribute__((always_inline));
+    inline static bool isOnEdge(int8_t position) __attribute__((always_inline));
     inline bool isLineNotFound() __attribute__((always_inline));
     inline int8_t getLinePosition() __attribute__((always_inline));
     inline int8_t getLineSegmentStart() __attribute__((always_inline));
@@ -89,6 +90,10 @@ bool RowLinePosition::isLineNotFound() {
 
 const bool RowLinePosition::isLineNotFound(int8_t linePos) {
   return linePos == lineNotFound;
+}
+
+bool RowLinePosition::isOnEdge(int8_t position) {
+  return position == 0 || position == rowRange;
 }
 
 int8_t RowLinePosition::getLinePosition() {

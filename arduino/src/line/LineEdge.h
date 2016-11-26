@@ -7,12 +7,14 @@
 
 
 #include <Arduino.h>
+#include "RowLinePosition.h"
 
 
 
 struct LineEdge{
 
     int8_t firstStepCount;
+    int8_t firstStepPosition;
 
     int8_t currentStepCount;
     int8_t currentStepPosition;
@@ -27,7 +29,7 @@ struct LineEdge{
     bool stepLengthInvalid;
 
     inline void init(int8_t edgePos, int8_t linePos) __attribute__((always_inline));
-    inline void update(int8_t position) __attribute__((always_inline));
+    inline void update(int8_t edgePos) __attribute__((always_inline));
     inline void calculateLinePositionToEdge(int8_t linePos) __attribute__((always_inline));
     inline void calculateLinePositionToEdgeDecreaseOnly(int8_t linePos) __attribute__((always_inline));
     inline int8_t getLinePositionFromEdge() __attribute__((always_inline));
@@ -35,13 +37,13 @@ struct LineEdge{
 
 private:
     inline int8_t calculateAllowedDifference(int8_t stepCount) __attribute__((always_inline));
-
 };
 
 
 
 void LineEdge::init(int8_t edgePos, int8_t linePos) {
   firstStepCount = -1;
+  firstStepPosition = -1;
 
   currentStepCount = 1;
   currentStepPosition = edgePos;
@@ -70,6 +72,7 @@ void LineEdge::update(int8_t edgePos) {
 
     if (firstStepCount < 0) {
       firstStepCount = currentStepCount;
+      firstStepPosition = currentStepPosition;
       validStepDirection = direction;
     } else {
 
@@ -78,13 +81,16 @@ void LineEdge::update(int8_t edgePos) {
       }
 
       if (validStepCount < 0) {
-        validStepCount = firstStepCount > currentStepCount ? firstStepCount : currentStepCount;
+        validStepCount = !RowLinePosition::isOnEdge(firstStepPosition) && firstStepCount > currentStepCount ?
+                         firstStepCount : currentStepCount;
         allowedStepDifference = calculateAllowedDifference(validStepCount);
       }
 
-      if ((currentStepCount > validStepCount + allowedStepDifference)
-          || (currentStepCount < validStepCount - allowedStepDifference)) {
-        stepLengthInvalid = true;
+      if (validStepCount >= 0) {
+        if ((currentStepCount > validStepCount + allowedStepDifference)
+            || (currentStepCount < validStepCount - allowedStepDifference)) {
+          stepLengthInvalid = true;
+        }
       }
     }
 
