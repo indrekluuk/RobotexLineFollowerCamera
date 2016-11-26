@@ -9,7 +9,9 @@
 #include <Arduino.h>
 
 
-#define MESSAGE_START 0xF0
+#define MESSAGE_START 0x80
+#define MESSAGE_COMMAND_MASK 0x70
+#define MESSAGE_COUNT_MASK 0x0F
 #define MESSAGE_DATA_MASK 0x7F
 
 class DataBufferSender {
@@ -20,7 +22,7 @@ private:
 
 public:
     DataBufferSender();
-    void sendMessage(uint8_t * buf, uint8_t count);
+    void sendMessage(uint8_t commandCode, uint8_t * buf, uint8_t count);
     inline void sendByte(uint8_t byte) __attribute__((always_inline));
 
 

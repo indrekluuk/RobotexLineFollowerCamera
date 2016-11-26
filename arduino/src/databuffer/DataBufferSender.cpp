@@ -17,8 +17,8 @@ DataBufferSender::DataBufferSender() {
 
 
 
-void DataBufferSender::sendMessage(uint8_t * buf, uint8_t count) {
-  sendByte(count | MESSAGE_START);
+void DataBufferSender::sendMessage(uint8_t commandCode, uint8_t * buf, uint8_t count) {
+  sendByte(MESSAGE_START | (commandCode & MESSAGE_COMMAND_MASK) | (count & MESSAGE_COUNT_MASK));
   uint8_t * bufEnd = buf + count;
   for (; buf < bufEnd; buf++) {
     sendByte((*buf) & MESSAGE_DATA_MASK);

@@ -17,6 +17,13 @@
 #include "MonochromeBufferMask.h"
 
 
+
+const uint8_t COMMAND_FRAME_CAPTURE = 0x70;
+const uint8_t COMMAND_LINE_SEGMENT = 0x10;
+
+#define FRAME_CAPTURE_MODE 0
+
+
 Camera camera;
 Screen screen;
 Line<camera.getRowCount()> line;
@@ -32,6 +39,7 @@ inline void processMonochromePixel(const uint8_t &rowIndex, int8_t &i, uint8_t &
 
 
 
+bool isLineMessageSent;
 
 uint8_t frameMin;
 uint8_t frameMax;
@@ -52,9 +60,11 @@ void run() {
   screen.init();
 
   noInterrupts();
+
   while(true) {
     frameMin = 0xFF;
     frameMax = 0x00;
+    isLineMessageSent = false;
     line.resetLine();
     camera.readFrame(processLine);
     frameSpreadThreshold = ((frameMax - frameMin) >> 1) ;
@@ -72,12 +82,25 @@ void processLine(const uint8_t lineIndex) {
   processMonochrome(lineIndex, ((linePosition  * 5) >> 1) + 2);
   screen.screenLineEnd();
 
+#if FRAME_CAPTURE_MODE == 1
   uint8_t messageBuffer[4];
   messageBuffer[0] = lineIndex;
   messageBuffer[1] = ((monochromeLineHigh >> 6) & 0x02) | (monochromeLineLow >> 7);
   messageBuffer[2] = monochromeLineHigh;
   messageBuffer[3] = monochromeLineLow;
-  dataBufferSender.sendMessage(messageBuffer, 4);
+  dataBufferSender.sendMessage(COMMAND_FRAME_CAPTURE, messageBuffer, 4);
+#else
+  if (!isLineMessageSent && line.isLineIdentified()) {
+    uint8_t messageBuffer[4];
+    messageBuffer[0] = (uint8_t)line.getLineFirstRowIndex();
+    messageBuffer[1] = (uint8_t)line.getLineFirstPosition();
+    messageBuffer[2] = (uint8_t)line.getLineLastRowIndex();
+    messageBuffer[3] = (uint8_t)line.getLineLastPosition();
+    dataBufferSender.sendMessage(COMMAND_LINE_SEGMENT, messageBuffer, 4);
+    isLineMessageSent = true;
+  }
+#endif
+
 }
 
 
