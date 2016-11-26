@@ -15,10 +15,10 @@
 #include "utils/Utils.h"
 #include "ByteInversionTable.h"
 #include "MonochromeBufferMask.h"
+#include "capture/FrameCapture.h"
 
 
 
-const uint8_t COMMAND_FRAME_CAPTURE = 0x70;
 const uint8_t COMMAND_LINE_SEGMENT = 0x10;
 
 #define FRAME_CAPTURE_MODE 0
@@ -27,7 +27,9 @@ const uint8_t COMMAND_LINE_SEGMENT = 0x10;
 Camera camera;
 Screen screen;
 Line<camera.getRowCount()> line;
+FrameCapture<camera.getRowCount()> frameCapture;
 DataBufferSender dataBufferSender;
+
 
 
 
@@ -55,7 +57,7 @@ uint8_t lineMax;
 
 
 void run() {
-  Serial.begin(9600);
+  Serial.begin(250000);
   camera.init();
   screen.init();
 
@@ -68,6 +70,10 @@ void run() {
     line.resetLine();
     camera.readFrame(processLine);
     frameSpreadThreshold = ((frameMax - frameMin) >> 1) ;
+
+#if FRAME_CAPTURE_MODE == 1
+    frameCapture.sendCapturedFrame();
+#endif
   }
 }
 
@@ -83,13 +89,9 @@ void processLine(const uint8_t lineIndex) {
   screen.screenLineEnd();
 
 #if FRAME_CAPTURE_MODE == 1
-  uint8_t messageBuffer[4];
-  messageBuffer[0] = lineIndex;
-  messageBuffer[1] = ((monochromeLineHigh >> 6) & 0x02) | (monochromeLineLow >> 7);
-  messageBuffer[2] = monochromeLineHigh;
-  messageBuffer[3] = monochromeLineLow;
-  dataBufferSender.sendMessage(COMMAND_FRAME_CAPTURE, messageBuffer, 4);
-#else
+  frameCapture.addRow(lineIndex, monochromeLineHigh, monochromeLineLow);
+#endif
+
   if (!isLineMessageSent && line.isLineIdentified()) {
     uint8_t messageBuffer[4];
     messageBuffer[0] = (uint8_t)line.getLineFirstRowIndex();
@@ -99,8 +101,6 @@ void processLine(const uint8_t lineIndex) {
     dataBufferSender.sendMessage(COMMAND_LINE_SEGMENT, messageBuffer, 4);
     isLineMessageSent = true;
   }
-#endif
-
 }
 
 
