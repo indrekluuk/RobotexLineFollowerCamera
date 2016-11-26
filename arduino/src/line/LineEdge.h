@@ -47,6 +47,10 @@ void LineEdge::init(int8_t edgePos, int8_t linePos) {
   validStepCount = -1;
   validStepDirection = 0;
   allowedStepDifference = -1;
+
+  directionReversed = false;
+  positionJump = false;
+  stepLengthInvalid = false;
 }
 
 
