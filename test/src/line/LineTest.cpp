@@ -341,3 +341,62 @@ TEST(LineTest, testParallelLinesWithoutSteps) {
 }
 
 
+
+
+
+
+TEST(LineTest, twoStepLine) {
+  Line<5> line;
+  line.setRowBitmap( 0, 0b00000000, 0b00001100);
+  line.setRowBitmap( 1, 0b00000000, 0b00011000);
+  line.setRowBitmap( 2, 0b00000000, 0b00000000);
+  line.setRowBitmap( 3, 0b00000000, 0b00000000);
+  line.setRowBitmap( 4, 0b00000000, 0b00000000);
+  line.setRowBitmap( 5, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(1, line.getLineLastRowIndex());
+  ASSERT_EQ(7, line.getLineLastPosition());
+}
+
+
+
+
+
+TEST(LineTest, testReUseLine) {
+  Line<5> line;
+  line.setRowBitmap( 0, 0b00000000, 0b00011000);
+  line.setRowBitmap( 1, 0b00000000, 0b00011000);
+  line.setRowBitmap( 2, 0b00000000, 0b00011000);
+  line.setRowBitmap( 3, 0b00000000, 0b00011000);
+  line.setRowBitmap( 4, 0b00000000, 0b00011000);
+  line.setRowBitmap( 5, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(4, line.getLineLastRowIndex());
+  ASSERT_EQ(7, line.getLineLastPosition());
+
+  line.resetLine();
+  line.setRowBitmap( 0, 0b01100000, 0b00000000);
+  line.setRowBitmap( 1, 0b00110000, 0b00000000);
+  line.setRowBitmap( 2, 0b00011000, 0b00000000);
+  line.setRowBitmap( 3, 0b00001100, 0b00000000);
+  line.setRowBitmap( 4, 0b00000000, 0b00000000);
+  line.setRowBitmap( 5, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(3, line.getLineLastRowIndex());
+  ASSERT_EQ(21, line.getLineLastPosition());
+
+  line.resetLine();
+  line.setRowBitmap( 0, 0b00000000, 0b00001100);
+  line.setRowBitmap( 1, 0b00000000, 0b00011000);
+  line.setRowBitmap( 2, 0b00000000, 0b00000000);
+  line.setRowBitmap( 3, 0b00000000, 0b00000000);
+  line.setRowBitmap( 4, 0b00000000, 0b00000000);
+  line.setRowBitmap( 5, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(1, line.getLineLastRowIndex());
+  ASSERT_EQ(7, line.getLineLastPosition());
+}
+
+
+
+
