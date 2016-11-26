@@ -90,7 +90,7 @@ TEST(LineTest, testLineTurnsInSlantDirection) {
   line.setRowBitmap(13, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(9, line.getLineLastRowIndex());
-  ASSERT_EQ(6, line.getLineLastPosition());
+  ASSERT_EQ(8, line.getLineLastPosition());
 }
 
 
@@ -241,7 +241,7 @@ TEST(LineTest, testActiveLinePosEdge1) {
   pos = line.setRowBitmap(3, 0b00000000, 0b00000001);
   ASSERT_EQ(0, pos);
   pos = line.setRowBitmap(4, 0b00000000, 0b00000011);
-  ASSERT_EQ(0, pos);
+  ASSERT_EQ(1, pos);
   pos = line.setRowBitmap(5, 0b00000000, 0b00000010);
   ASSERT_EQ(2, pos);
   pos = line.setRowBitmap(6, 0b00000000, 0b00000000);
@@ -263,7 +263,7 @@ TEST(LineTest, testActiveLinePosEdge2) {
   pos = line.setRowBitmap(3, 0b10000000, 0b00000000);
   ASSERT_EQ(30, pos);
   pos = line.setRowBitmap(4, 0b11000000, 0b00000000);
-  ASSERT_EQ(30, pos);
+  ASSERT_EQ(29, pos);
   pos = line.setRowBitmap(5, 0b01000000, 0b00000000);
   ASSERT_EQ(28, pos);
   pos = line.setRowBitmap(6, 0b00000000, 0b00000000);
@@ -314,8 +314,8 @@ TEST(LineTest, testLineConnectedHorizonatllyDoubleLine) {
   line.setRowBitmap(12, 0b00000000, 0b00000000);
 
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(5, line.getLineLastRowIndex());
-  ASSERT_EQ(8, line.getLineLastPosition());
+  ASSERT_EQ(7, line.getLineLastRowIndex());
+  ASSERT_EQ(10, line.getLineLastPosition());
 }
 
 

@@ -29,6 +29,7 @@ struct LineEdge{
     inline void init(int8_t edgePos, int8_t linePos) __attribute__((always_inline));
     inline void update(int8_t position) __attribute__((always_inline));
     inline void calculateLinePositionToEdge(int8_t linePos) __attribute__((always_inline));
+    inline void calculateLinePositionToEdgeDecreaseOnly(int8_t linePos) __attribute__((always_inline));
     inline int8_t getLinePositionFromEdge() __attribute__((always_inline));
     inline bool isContinues() __attribute__((always_inline));
 
@@ -90,6 +91,11 @@ void LineEdge::update(int8_t edgePos) {
 
 void LineEdge::calculateLinePositionToEdge(int8_t linePos) {
   currentLinePositionToEdge = currentStepPosition - linePos;
+}
+
+void LineEdge::calculateLinePositionToEdgeDecreaseOnly(int8_t linePos) {
+  int8_t newDiff = currentStepPosition - linePos;
+  if (abs(newDiff) < abs(currentLinePositionToEdge)) currentLinePositionToEdge = newDiff;
 }
 
 

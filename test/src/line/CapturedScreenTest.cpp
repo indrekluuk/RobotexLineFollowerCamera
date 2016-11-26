@@ -30,8 +30,8 @@ TEST(CapturedScreenTest, testCapture2) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_2);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(82, line.getLineLastRowIndex());
-  ASSERT_EQ(11, line.getLineLastPosition());
+  ASSERT_EQ(86, line.getLineLastRowIndex());
+  ASSERT_EQ(10, line.getLineLastPosition());
 }
 
 

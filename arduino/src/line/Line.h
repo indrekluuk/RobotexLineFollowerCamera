@@ -127,8 +127,10 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & posit
         endEdge.calculateLinePositionToEdge(position.getLinePosition());
         return position.getLinePosition();
       } else if (startEdge.isContinues()) {
+        startEdge.calculateLinePositionToEdgeDecreaseOnly(position.getLinePosition());
         return startEdge.getLinePositionFromEdge();
       } else if (endEdge.isContinues()) {
+        endEdge.calculateLinePositionToEdgeDecreaseOnly(position.getLinePosition());
         return endEdge.getLinePositionFromEdge();
       } else {
         return RowLinePosition::lineNotFound;
