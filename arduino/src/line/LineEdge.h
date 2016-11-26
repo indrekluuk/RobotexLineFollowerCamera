@@ -37,6 +37,8 @@ struct LineEdge{
 
 private:
     inline int8_t calculateAllowedDifference(int8_t stepCount) __attribute__((always_inline));
+    inline void validateCurrentStepCount() __attribute__((always_inline));
+    inline void validateCurrentStepCountBlowLimit() __attribute__((always_inline));
 };
 
 
@@ -45,7 +47,7 @@ void LineEdge::init(int8_t edgePos, int8_t linePos) {
   firstStepCount = -1;
   firstStepPosition = -1;
 
-  currentStepCount = 1;
+  currentStepCount = RowLinePosition::isOnEdge(edgePos) ? -1 : 1;
   currentStepPosition = edgePos;
   calculateLinePositionToEdge(linePos);
 
@@ -61,36 +63,36 @@ void LineEdge::init(int8_t edgePos, int8_t linePos) {
 
 void LineEdge::update(int8_t edgePos) {
   if (currentStepPosition == edgePos) {
-    currentStepCount++;
+    if (currentStepCount >= 0) {
+      currentStepCount++;
+      validateCurrentStepCountBlowLimit();
+    }
   } else {
-
     if (abs(currentStepPosition - edgePos) > 2) {
       positionJump = true;
     }
 
-    int8_t direction = (edgePos > currentStepPosition) ? 1 : -1;
+    if (currentStepCount >= 0) {
 
-    if (firstStepCount < 0) {
-      firstStepCount = currentStepCount;
-      firstStepPosition = currentStepPosition;
-      validStepDirection = direction;
-    } else {
+      int8_t direction = (edgePos > currentStepPosition) ? 1 : -1;
 
-      if (validStepDirection != direction) {
-        directionReversed = true;
-      }
+      if (firstStepCount < 0) {
+        firstStepCount = currentStepCount;
+        firstStepPosition = currentStepPosition;
+        validStepDirection = direction;
+      } else {
 
-      if (validStepCount < 0) {
-        validStepCount = !RowLinePosition::isOnEdge(firstStepPosition) && firstStepCount > currentStepCount ?
-                         firstStepCount : currentStepCount;
-        allowedStepDifference = calculateAllowedDifference(validStepCount);
-      }
-
-      if (validStepCount >= 0) {
-        if ((currentStepCount > validStepCount + allowedStepDifference)
-            || (currentStepCount < validStepCount - allowedStepDifference)) {
-          stepLengthInvalid = true;
+        if (validStepDirection != direction) {
+          directionReversed = true;
         }
+
+        if (validStepCount < 0) {
+          validStepCount = !RowLinePosition::isOnEdge(firstStepPosition) && firstStepCount > currentStepCount ?
+                           firstStepCount : currentStepCount;
+          allowedStepDifference = calculateAllowedDifference(validStepCount);
+        }
+
+        validateCurrentStepCount();
       }
     }
 
@@ -104,6 +106,26 @@ int8_t LineEdge::calculateAllowedDifference(int8_t stepCount) {
   int8_t allowedDifference = stepCount >> 2;
   if (allowedDifference < 2) allowedDifference = 2;
   return allowedDifference;
+}
+
+
+
+void LineEdge::validateCurrentStepCount() {
+  if (validStepCount >= 0) {
+    if ((currentStepCount > validStepCount + allowedStepDifference)
+        || (currentStepCount < validStepCount - allowedStepDifference)) {
+      stepLengthInvalid = true;
+    }
+  }
+}
+
+
+void LineEdge::validateCurrentStepCountBlowLimit() {
+  if (validStepCount >= 0) {
+    if ((currentStepCount > validStepCount + allowedStepDifference)) {
+      stepLengthInvalid = true;
+    }
+  }
 }
 
 
