@@ -16,6 +16,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 
 # fake arduino headers
 include_directories(test/fake)
+# testing utils
+include_directories(test/utils)
 # project headers
 include_directories(arduino/src)
 # gtest headers

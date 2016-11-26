@@ -32,12 +32,17 @@ public:
     void resetLine();
     int8_t setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
 
-    static int8_t getTotalRowCount();
+    constexpr static int8_t getTotalRowCount();
     bool isLineIdentified();
     int8_t getLineFirstRowIndex();
     int8_t getLineFirstPosition();
     int8_t getLineLastRowIndex();
     int8_t getLineLastPosition();
+
+    int8_t getStartEdgeStepCount();
+    int8_t getEndEdgeStepCount();
+    bool isStartEdgeContinues();
+    bool isEndEdgeContinues();
 
 
 private:
@@ -161,7 +166,7 @@ void Line<totalRowCount>::setLineTop(uint8_t rowIndex, int8_t position) {
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getTotalRowCount() {
+constexpr int8_t Line<totalRowCount>::getTotalRowCount() {
   return totalRowCount;
 }
 
@@ -193,6 +198,30 @@ int8_t Line<totalRowCount>::getLineLastRowIndex() {
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getLineLastPosition() {
   return lineTopPosition;
+}
+
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getStartEdgeStepCount() {
+  return startEdge.currentStepCount;
+}
+
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getEndEdgeStepCount() {
+  return endEdge.currentStepCount;
+}
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isStartEdgeContinues() {
+  return startEdge.isContinues();
+}
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isEndEdgeContinues() {
+  return endEdge.isContinues();
 }
 
 
