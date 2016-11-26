@@ -78,6 +78,12 @@ void Line<totalRowCount>::resetLine() {
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
+
+  // ignore first line
+  if (rowIndex == 0) {
+    return RowLinePosition::lineNotFound;
+  }
+
   if (lineTopRowIndex <0) {
     RowLinePosition position(bitmapHigh, bitmapLow, lineSeekPosition);
     int8_t currentDetectedLinePosition = RowLinePosition::lineNotFound;
