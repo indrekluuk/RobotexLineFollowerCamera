@@ -33,6 +33,9 @@ struct LineEdge{
     inline int8_t getLinePositionFromEdge() __attribute__((always_inline));
     inline bool isContinues() __attribute__((always_inline));
 
+private:
+    inline int8_t calculateAllowedDifference(int8_t stepCount) __attribute__((always_inline));
+
 };
 
 
@@ -75,14 +78,13 @@ void LineEdge::update(int8_t edgePos) {
       }
 
       if (validStepCount < 0) {
-        validStepCount = currentStepCount;
-        allowedStepDifference = validStepCount >> 2;
-        if (allowedStepDifference < 2) allowedStepDifference = 2;
-      } else {
-        if ((currentStepCount > validStepCount + allowedStepDifference)
-            || (currentStepCount < validStepCount - allowedStepDifference)) {
-          stepLengthInvalid = true;
-        }
+        validStepCount = firstStepCount > currentStepCount ? firstStepCount : currentStepCount;
+        allowedStepDifference = calculateAllowedDifference(validStepCount);
+      }
+
+      if ((currentStepCount > validStepCount + allowedStepDifference)
+          || (currentStepCount < validStepCount - allowedStepDifference)) {
+        stepLengthInvalid = true;
       }
     }
 
@@ -91,6 +93,12 @@ void LineEdge::update(int8_t edgePos) {
   }
 }
 
+
+int8_t LineEdge::calculateAllowedDifference(int8_t stepCount) {
+  int8_t allowedDifference = stepCount >> 2;
+  if (allowedDifference < 2) allowedDifference = 2;
+  return allowedDifference;
+}
 
 
 void LineEdge::calculateLinePositionToEdge(int8_t linePos) {

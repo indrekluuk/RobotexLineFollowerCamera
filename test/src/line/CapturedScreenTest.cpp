@@ -12,6 +12,9 @@
 #include "screencapture/Capture4.h"
 #include "screencapture/Capture5.h"
 #include "screencapture/Capture6.h"
+#include "screencapture/Capture7.h"
+
+
 
 
 
@@ -26,6 +29,7 @@ TEST(CapturedScreenTest, testCapture1) {
 }
 
 
+
 TEST(CapturedScreenTest, testCapture2) {
   Line<120> line;
   TestScreenProcessor<120> screenProcessor(line);
@@ -34,6 +38,7 @@ TEST(CapturedScreenTest, testCapture2) {
   ASSERT_EQ(86, line.getLineLastRowIndex());
   ASSERT_EQ(10, line.getLineLastPosition());
 }
+
 
 
 TEST(CapturedScreenTest, testCapture3) {
@@ -46,6 +51,7 @@ TEST(CapturedScreenTest, testCapture3) {
 }
 
 
+
 TEST(CapturedScreenTest, testCapture4) {
   Line<120> line;
   TestScreenProcessor<120> screenProcessor(line);
@@ -56,6 +62,7 @@ TEST(CapturedScreenTest, testCapture4) {
 }
 
 
+
 TEST(CapturedScreenTest, testCapture5) {
   Line<120> line;
   TestScreenProcessor<120> screenProcessor(line);
@@ -64,8 +71,6 @@ TEST(CapturedScreenTest, testCapture5) {
   ASSERT_EQ(88, line.getLineLastRowIndex());
   ASSERT_EQ(4, line.getLineLastPosition());
 }
-
-
 
 
 
@@ -87,3 +92,11 @@ TEST(CapturedScreenTest, testCapture6_reuseLine) {
 
 
 
+TEST(CapturedScreenTest, testCapture7) {
+  Line<120> line;
+  TestScreenProcessor<120> screenProcessor(line);
+  screenProcessor.process(capture_7);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(81, line.getLineLastRowIndex());
+  ASSERT_EQ(25, line.getLineLastPosition());
+}
