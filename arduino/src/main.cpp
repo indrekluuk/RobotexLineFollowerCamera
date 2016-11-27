@@ -162,7 +162,6 @@ void processMonochrome(const uint8_t & rowIndex, int8_t linePosition) {
     lineEnd = linePosition +1;
   }
 
-  //uint8_t pixelPos = (uint8_t)map(rowPos, -13, 13, 0, 80);
   for (int8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
     processMonochromePixel(rowIndex, i, monochromeLineLow, lineStart, lineEnd);
   }

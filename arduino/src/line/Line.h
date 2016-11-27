@@ -82,7 +82,6 @@ void Line<totalRowCount>::resetLine() {
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
 
-  // ignore first lines
   if (rowIndex < ignoreFirstRows) {
     return RowLinePosition::lineNotFound;
   }
