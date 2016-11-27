@@ -10,7 +10,7 @@
 
 
 uint8_t shiftIndex(uint8_t index) {
-  return Line<120>::ignoreFirstRows + index;
+  return RowLinePosition::getIgnoreRowCount() + index;
 }
 
 
@@ -239,19 +239,19 @@ TEST(LineTest, testJaggedLine) {
 TEST(LineTest, testActiveLinePosEdge1) {
   Line<120> line;
   int8_t pos;
-  pos = line.setRowBitmap(shiftIndex(0), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(60, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
-  pos = line.setRowBitmap(shiftIndex(1), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(61, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
-  pos = line.setRowBitmap(shiftIndex(2), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(62, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
-  pos = line.setRowBitmap(shiftIndex(3), 0b00000000, 0b00000001);
+  pos = line.setRowBitmap(63, 0b00000000, 0b00000001);
   ASSERT_EQ(0, pos);
-  pos = line.setRowBitmap(shiftIndex(4), 0b00000000, 0b00000011);
+  pos = line.setRowBitmap(64, 0b00000000, 0b00000011);
   ASSERT_EQ(1, pos);
-  pos = line.setRowBitmap(shiftIndex(5), 0b00000000, 0b00000010);
+  pos = line.setRowBitmap(65, 0b00000000, 0b00000010);
   ASSERT_EQ(2, pos);
-  pos = line.setRowBitmap(shiftIndex(6), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(66, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
 }
 
@@ -261,19 +261,19 @@ TEST(LineTest, testActiveLinePosEdge1) {
 TEST(LineTest, testActiveLinePosEdge2) {
   Line<120> line;
   int8_t pos;
-  pos = line.setRowBitmap(shiftIndex(0), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(60, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
-  pos = line.setRowBitmap(shiftIndex(1), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(61, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
-  pos = line.setRowBitmap(shiftIndex(2), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(62, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
-  pos = line.setRowBitmap(shiftIndex(3), 0b10000000, 0b00000000);
+  pos = line.setRowBitmap(63, 0b10000000, 0b00000000);
   ASSERT_EQ(30, pos);
-  pos = line.setRowBitmap(shiftIndex(4), 0b11000000, 0b00000000);
+  pos = line.setRowBitmap(64, 0b11000000, 0b00000000);
   ASSERT_EQ(29, pos);
-  pos = line.setRowBitmap(shiftIndex(5), 0b01000000, 0b00000000);
+  pos = line.setRowBitmap(65, 0b01000000, 0b00000000);
   ASSERT_EQ(28, pos);
-  pos = line.setRowBitmap(shiftIndex(6), 0b00000000, 0b00000000);
+  pos = line.setRowBitmap(66, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, pos);
 }
 

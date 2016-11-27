@@ -12,6 +12,14 @@
 
 class RowLinePosition {
 
+
+    static const uint8_t ignoreRows = 5;
+    static const uint8_t ignore2pixelsOnCornersRows = 10;
+    static const uint8_t ignore1pixelOnCornersRows = 25;
+
+
+
+    uint8_t rowIndex;
     uint8_t bitmapHigh;
     uint8_t bitmapLow;
     int8_t lineSegmentStart;
@@ -26,7 +34,7 @@ public:
     static const int8_t lineNotFound = -1;
 
 
-    RowLinePosition(uint8_t bitmapHigh, uint8_t bitmapLow, int8_t seekPos);
+    RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t seekPos);
 
     inline static const bool isInRange(int8_t linePos) __attribute__((always_inline));
     inline static const bool isLineNotFound(int8_t linePos) __attribute__((always_inline));
@@ -36,11 +44,14 @@ public:
     inline int8_t getLineSegmentStart() __attribute__((always_inline));
     inline int8_t getLineSegmentEnd() __attribute__((always_inline));
 
+    static uint8_t getIgnoreRowCount() {return ignoreRows;}
+
     inline static int8_t getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
 
 private:
     inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart) __attribute__((always_inline));
     inline void processLineSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
+    inline bool isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
 
 };
 
@@ -64,11 +75,26 @@ void RowLinePosition::processPixel(bool isActive, uint8_t index, int8_t &segment
 
 
 void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd) {
-  int8_t newLinePos = getLinePositionForSegment(segmentStart, segmentEnd);
-  if (linePos == lineNotFound || (abs(lineSeekPos-newLinePos) < abs(lineSeekPos-linePos))) {
-    linePos = newLinePos;
-    lineSegmentStart = segmentStart;
-    lineSegmentEnd = segmentEnd;
+  if (!isIgnoreSegment(segmentStart, segmentEnd)) {
+    int8_t newLinePos = getLinePositionForSegment(segmentStart, segmentEnd);
+    if (linePos == lineNotFound || (abs(lineSeekPos-newLinePos) < abs(lineSeekPos-linePos))) {
+      linePos = newLinePos;
+      lineSegmentStart = segmentStart;
+      lineSegmentEnd = segmentEnd;
+    }
+  }
+}
+
+
+bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
+  if (rowIndex < ignore2pixelsOnCornersRows) {
+    return (segmentStart <= 2 || segmentStart >= rowRange - 2)
+        && (segmentEnd <= 2 || segmentEnd >= rowRange - 2);
+  } else if (rowIndex < ignore1pixelOnCornersRows) {
+    return (segmentStart == 0 || segmentStart == rowRange)
+           && (segmentEnd == 0 || segmentEnd == rowRange);
+  } else {
+    return false;
   }
 }
 
