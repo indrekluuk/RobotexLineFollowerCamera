@@ -200,6 +200,21 @@ void processMonochromePixel(const uint8_t &rowIndex, int8_t &i, uint8_t &monochr
   } else {
     screen.sendPixelByte(i > lineEnd ? 0 : 0xFF);
   }
+
+
+  /*
+  // 16 pixel lines
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  asm volatile("nop");
+  screen.sendPixelByte((rowIndex & 0x0F) == 0 ? 0xFF: 0);
+   */
+
 }
 
 
