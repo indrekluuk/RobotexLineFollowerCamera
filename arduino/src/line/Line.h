@@ -66,7 +66,7 @@ Line<totalRowCount>::Line() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
-  lineSeekPosition = RowLinePosition::rowRangeMidPoint;
+  lineSeekPosition = RowLinePosition::lineNotFound;
   previousDetectedLinePosition = RowLinePosition::rowRangeMidPoint;
   startEdge.init(-1, -1);
   endEdge.init(-1, -1);

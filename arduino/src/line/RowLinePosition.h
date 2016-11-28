@@ -87,6 +87,9 @@ void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd)
 
 
 bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
+  if (lineSeekPos != lineNotFound) {
+    return false;
+  }
   if (rowIndex < ignore2pixelsOnCornersRows) {
     return (segmentStart <= 2 || segmentStart >= rowRange - 2)
         && (segmentEnd <= 2 || segmentEnd >= rowRange - 2);

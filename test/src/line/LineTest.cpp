@@ -406,4 +406,40 @@ TEST(LineTest, testReUseLine) {
 
 
 
+TEST(LineTest, ignoreLineInCorner) {
+  Line<120> line;
+  line.setRowBitmap(shiftIndex( 0), 0b00000000, 0b00000011);
+  line.setRowBitmap(shiftIndex( 1), 0b00000000, 0b00000011);
+  line.setRowBitmap(shiftIndex( 2), 0b00000000, 0b00000011);
+  line.setRowBitmap(shiftIndex( 3), 0b00000000, 0b00000110);
+  line.setRowBitmap(shiftIndex( 4), 0b00000000, 0b00000110);
+  line.setRowBitmap(shiftIndex( 5), 0b00000000, 0b00000110);
+  line.setRowBitmap(shiftIndex( 6), 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(shiftIndex(3), line.getLineFirstRowIndex());
+  ASSERT_EQ(3, line.getLineFirstPosition());
+  ASSERT_EQ(shiftIndex(5), line.getLineLastRowIndex());
+  ASSERT_EQ(3, line.getLineLastPosition());
+}
+
+
+TEST(LineTest, doNotIgnoreLineIfAlreadyDiscoverdBeforeCorner) {
+  Line<120> line;
+  line.setRowBitmap(shiftIndex( 0), 0b00000000, 0b00000001);
+  line.setRowBitmap(shiftIndex( 1), 0b00000000, 0b00000001);
+  line.setRowBitmap(shiftIndex( 2), 0b00000000, 0b00000111);
+  line.setRowBitmap(shiftIndex( 3), 0b00000000, 0b00000001);
+  line.setRowBitmap(shiftIndex( 4), 0b00000000, 0b00000001);
+  line.setRowBitmap(shiftIndex( 5), 0b00000000, 0b00000001);
+  line.setRowBitmap(shiftIndex( 6), 0b00000000, 0b00000010);
+  line.setRowBitmap(shiftIndex( 7), 0b00000000, 0b00000010);
+  line.setRowBitmap(shiftIndex( 8), 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(shiftIndex(2), line.getLineFirstRowIndex());
+  ASSERT_EQ(2, line.getLineFirstPosition());
+  ASSERT_EQ(shiftIndex(7), line.getLineLastRowIndex());
+  ASSERT_EQ(2, line.getLineLastPosition());
+}
+
+
 
