@@ -123,7 +123,7 @@ void processGrayscale() {
 
   uint8_t lineSpread = lineMax - lineMin;
   if (lineSpread > frameSpreadThreshold) {
-    lineThreshold = lineMin + (lineSpread >> 2);
+    lineThreshold = lineMin + (lineSpread >> 1);
   }
   if (frameMin < lineMin) frameMin = lineMin;
   if (frameMax > lineMax) frameMax = lineMax;
