@@ -123,7 +123,7 @@ TEST(CapturedScreenTest, testCapture9) {
   screenProcessor.process(capture_9);
   ASSERT_TRUE(line.isLineIdentified());
   ASSERT_EQ(45, line.getLineLastRowIndex());
-  ASSERT_EQ(29, line.getLineLastPosition());
+  ASSERT_EQ(30, line.getLineLastPosition());
 }
 
 

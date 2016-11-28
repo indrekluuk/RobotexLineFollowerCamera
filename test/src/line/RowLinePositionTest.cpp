@@ -95,7 +95,7 @@ TEST(RowLinePositionTest, ignoreBottomCorners2pixels) {
 
   RowLinePosition linePosition2(7, 0b11100000, 0b00000000, RowLinePosition::lineNotFound);
   int8_t linePos2 = linePosition2.getLinePosition();
-  ASSERT_EQ(28, linePos2);
+  ASSERT_EQ(30, linePos2);
 }
 
 
@@ -107,7 +107,7 @@ TEST(RowLinePositionTest, ignoreBottomCorners1pixels) {
 
   RowLinePosition linePosition2(18, 0b0000000, 0b00000011, RowLinePosition::lineNotFound);
   int8_t linePos2 = linePosition2.getLinePosition();
-  ASSERT_EQ(1, linePos2);
+  ASSERT_EQ(0, linePos2);
 
   RowLinePosition linePosition3(30, 0b00000000, 0b00000001, RowLinePosition::lineNotFound);
   int8_t linePos3 = linePosition3.getLinePosition();

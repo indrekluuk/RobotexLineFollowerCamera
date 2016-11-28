@@ -103,7 +103,16 @@ bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
 
 
 int8_t RowLinePosition::getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) {
-  return (int8_t)((segmentEnd + segmentStart) >> 1);
+  if ((segmentStart != 0 && segmentEnd != rowRange)
+      || (segmentStart == 0 && segmentEnd == rowRange)) {
+    return (int8_t)((segmentEnd + segmentStart) >> 1);
+  } else {
+    if (segmentStart == 0) {
+      return segmentStart;
+    } else {
+      return segmentEnd;
+    }
+  }
 }
 
 
