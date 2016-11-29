@@ -10,9 +10,12 @@ struct LineSegmentMessageBuffer {
     uint8_t lineBottomPosition : 5;
     uint8_t isEndOfLine : 1;
     uint8_t isSharpTurn : 1;
-    uint8_t sharpTurnDirection : 1;
+    uint8_t unusable1 : 1;
     uint8_t lineTopIndex;
-    uint8_t lineTopPosition;
+    uint8_t lineTopPosition : 5;
+    uint8_t sharpTurnDirection : 1;
+    uint8_t reserved : 1;
+    uint8_t unusable2 : 1;
 };
 
 

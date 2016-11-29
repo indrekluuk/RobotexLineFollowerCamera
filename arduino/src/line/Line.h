@@ -126,14 +126,13 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
         setLineBottom(rowIndex, position.getLinePosition());
       }
 
-      processBeforeAndAfterSegments(rowIndex, position);
-
       currentDetectedLinePosition = updateLine(rowIndex, position);
       if (currentDetectedLinePosition == lineTurn) {
         setLineTop(rowIndex - 1, previousDetectedLinePosition, false);
       } else if (currentDetectedLinePosition == lineEnd) {
         setLineTop(rowIndex - 1, previousDetectedLinePosition, true);
       } else {
+        processBeforeAndAfterSegments(rowIndex, position);
         if (rowIndex == totalRowCount - 1) {
           setLineTop(rowIndex, position.getLinePosition(), true);
         }
@@ -328,11 +327,11 @@ bool Line<totalRowCount>::isSharpTurn() {
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::getSharpTurnDirection() {
-  if (getMergedBeforePosition() == -1) {
-    return true;
-  }
-  if (getMergedAfterPosition() == -1) {
+  if (!isMergedAfter()) {
     return false;
+  }
+  if (!isMergedBefore()) {
+    return true;
   }
   return (abs(getLineTopPosition() - getMergedBeforePosition())
           > abs(getLineTopPosition() - getMergedAfterPosition())) ? false : true;
