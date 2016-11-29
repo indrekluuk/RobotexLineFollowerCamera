@@ -127,7 +127,7 @@ void LineEdge::update(int8_t edgePos) {
 
 
 int8_t LineEdge::calculateAllowedDifference(int8_t stepCount) {
-  int8_t allowedDifference = stepCount >> 1;
+  int8_t allowedDifference = stepCount >> 2;
   if (allowedDifference < 5) allowedDifference = 5;
   return allowedDifference;
 }
