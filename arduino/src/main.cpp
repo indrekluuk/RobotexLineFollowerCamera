@@ -100,8 +100,8 @@ void processLine(const uint8_t lineIndex) {
     message.lineTopIndex = (uint8_t)line.getLineTopRowIndex();
     message.lineTopPosition = (uint8_t)line.getLineTopPosition();
     message.isEndOfLine = (uint8_t)line.getIsEndOfLine();
-    message.isSharpTurn = (uint8_t)false;
-    message.sharpTurnDirection = (uint8_t)false;
+    message.isSharpTurn = (uint8_t)line.isSharpTurn();
+    message.sharpTurnDirection = (uint8_t)line.getSharpTurnDirection();
     dataBufferSender.sendMessage(COMMAND_LINE_SEGMENT, (uint8_t *)&message, sizeof(message));
     isLineMessageSent = true;
   }

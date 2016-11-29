@@ -479,3 +479,90 @@ TEST(LineTest, testMoveLineToEdgeIfSegmentTouchesEdge) {
 
 }
 
+
+
+
+
+TEST(LineTest, testMergeLineFromBefore) {
+  Line<120> line;
+  line.setRowBitmap(61, 0b00001100, 0b00000000);
+  line.setRowBitmap(62, 0b00001100, 0b00111000);
+  line.setRowBitmap(63, 0b00001101, 0b11100000);
+  line.setRowBitmap(64, 0b00001111, 0b00000000);
+  line.setRowBitmap(65, 0b00000110, 0b00000000);
+  line.setRowBitmap(66, 0b00000110, 0b00000000);
+  line.setRowBitmap(67, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(66, line.getLineTopRowIndex());
+  ASSERT_EQ(19, line.getLineTopPosition());
+  ASSERT_TRUE(line.isMergedBefore());
+  ASSERT_EQ(6, line.getMergedBeforePosition());
+  ASSERT_FALSE(line.isMergedAfter());
+}
+
+
+
+
+
+TEST(LineTest, testMergeLineFromAfter) {
+  Line<120> line;
+  line.setRowBitmap(60, 0b00000000, 0b00011000);
+  line.setRowBitmap(61, 0b00000000, 0b00011000);
+  line.setRowBitmap(62, 0b00000000, 0b00011000);
+  line.setRowBitmap(63, 0b00000000, 0b00011000);
+  line.setRowBitmap(64, 0b00000000, 0b00011000);
+  line.setRowBitmap(65, 0b00000000, 0b00011000);
+  line.setRowBitmap(66, 0b01111111, 0b00011000);
+  line.setRowBitmap(67, 0b00000011, 0b11111000);
+  line.setRowBitmap(68, 0b00000000, 0b00011000);
+  line.setRowBitmap(69, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(68, line.getLineTopRowIndex());
+  ASSERT_EQ(7, line.getLineTopPosition());
+  ASSERT_FALSE(line.isMergedBefore());
+  ASSERT_TRUE(line.isMergedAfter());
+  ASSERT_EQ(28, line.getMergedAfterPosition());
+}
+
+
+
+
+
+TEST(LineTest, testMergeLineSharpTurnPickLongest_after) {
+  Line<120> line;
+  line.setRowBitmap(60, 0b00000011, 0b00000000);
+  line.setRowBitmap(60, 0b01110011, 0b00110000);
+  line.setRowBitmap(60, 0b00011111, 0b11100000);
+  line.setRowBitmap(60, 0b00000011, 0b00000000);
+  line.setRowBitmap(60, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isMergedBefore());
+  ASSERT_TRUE(line.isMergedAfter());
+  ASSERT_TRUE(line.isSharpTurn());
+  ASSERT_TRUE(line.getSharpTurnDirection());
+}
+
+
+
+TEST(LineTest, testMergeLineSharpTurnPickLongest_before) {
+  Line<120> line;
+  line.setRowBitmap(60, 0b00000011, 0b00000000);
+  line.setRowBitmap(60, 0b01110011, 0b00111111);
+  line.setRowBitmap(60, 0b00011111, 0b11100000);
+  line.setRowBitmap(60, 0b00000011, 0b00000000);
+  line.setRowBitmap(60, 0b00000000, 0b00000000);
+  ASSERT_TRUE(line.isMergedBefore());
+  ASSERT_TRUE(line.isMergedAfter());
+  ASSERT_TRUE(line.isSharpTurn());
+  ASSERT_FALSE(line.getSharpTurnDirection());
+}
+
+
+
+
+
+
+
+
+
+
+

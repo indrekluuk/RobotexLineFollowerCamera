@@ -24,6 +24,13 @@ class Line {
     int8_t previousDetectedLinePosition;
     int8_t lineSeekPosition;
 
+    int8_t segmentBeforeStart;
+    int8_t segmentBeforeEnd;
+    bool segmentBeforeMerged;
+
+    int8_t segmentAfterStart;
+    int8_t segmentAfterEnd;
+    bool segmentAfterMerged;
 
     int8_t lineBottomRowIndex;
     int8_t lineBottomPosition;
@@ -46,6 +53,14 @@ public:
     int8_t getLineTopPosition();
     bool getIsEndOfLine();
 
+
+    bool isSharpTurn();
+    bool getSharpTurnDirection();
+    bool isMergedBefore();
+    int8_t getMergedBeforePosition();
+    bool isMergedAfter();
+    int8_t getMergedAfterPosition();
+
     int8_t getStartEdgeStepCount();
     int8_t getEndEdgeStepCount();
     bool isStartEdgeContinues();
@@ -54,7 +69,9 @@ public:
 
 private:
     int8_t updateLine(uint8_t rowIndex, RowLinePosition & position);
+    void processBeforeAndAfterSegments(uint8_t rowIndex, RowLinePosition & position);
     inline bool areSegmentsTouching(RowLinePosition & position) __attribute__((always_inline));
+    inline bool areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) __attribute__((always_inline));
     inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineTop(uint8_t rowIndex, int8_t position, bool isEnd) __attribute__((always_inline));
 };
@@ -76,6 +93,15 @@ void Line<totalRowCount>::resetLine() {
   previousDetectedLinePosition = RowLinePosition::rowRangeMidPoint;
   startEdge.reset();
   endEdge.reset();
+
+  segmentBeforeStart = -1;
+  segmentBeforeEnd = -1;
+  segmentBeforeMerged = false;
+
+  segmentAfterStart = -1;
+  segmentAfterEnd = -1;
+  segmentAfterMerged = false;
+
   lineBottomRowIndex = -1;
   lineBottomPosition = -1;
   lineTopRowIndex = -1;
@@ -99,6 +125,8 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
       if (lineBottomRowIndex < 0) {
         setLineBottom(rowIndex, position.getLinePosition());
       }
+
+      processBeforeAndAfterSegments(rowIndex, position);
 
       currentDetectedLinePosition = updateLine(rowIndex, position);
       if (currentDetectedLinePosition == lineTurn) {
@@ -162,10 +190,71 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & posit
 }
 
 
+
+template <int8_t totalRowCount>
+void Line<totalRowCount>::processBeforeAndAfterSegments(uint8_t rowIndex, RowLinePosition & position) {
+
+  if (!segmentBeforeMerged) {
+    if (segmentBeforeStart != -1 && areSegmentsTouching(
+        segmentBeforeStart, segmentBeforeEnd,
+        position.getLineSegmentStart(), position.getLineSegmentEnd()
+    )) {
+      segmentBeforeMerged = true;
+    } else {
+      if (position.isLineBefore()) {
+        if (segmentBeforeStart == -1 || !areSegmentsTouching(
+            segmentBeforeStart, segmentBeforeEnd,
+            position.getLineBeforeSegmentStart(), position.getLineBeforeSegmentEnd()
+        )) {
+          segmentBeforeStart = position.getLineBeforeSegmentStart();
+        }
+        segmentBeforeEnd = position.getLineBeforeSegmentEnd();
+      } else {
+        segmentBeforeStart = -1;
+        segmentBeforeEnd = -1;
+      }
+    }
+  }
+
+
+  if (!segmentAfterMerged) {
+    if (segmentAfterStart != -1 && areSegmentsTouching(
+        segmentAfterStart, segmentAfterEnd,
+        position.getLineSegmentStart(), position.getLineSegmentEnd()
+    )) {
+      segmentAfterMerged = true;
+    } else {
+      if (position.isLineAfter()) {
+        segmentAfterStart = position.getLineAfterSegmentStart();
+        if (segmentAfterStart == -1 || !areSegmentsTouching(
+            segmentAfterStart, segmentAfterEnd,
+            position.getLineAfterSegmentStart(), position.getLineAfterSegmentEnd()
+        )) {
+          segmentAfterEnd = position.getLineAfterSegmentEnd();
+        }
+      } else {
+        segmentAfterStart = -1;
+        segmentAfterEnd = -1;
+      }
+    }
+  }
+
+}
+
+
+
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::areSegmentsTouching(RowLinePosition & position) {
-  return ((position.getLineSegmentEnd() - startEdge.currentStepPosition >= -2)
-          && (endEdge.currentStepPosition - position.getLineSegmentStart() >= -2));
+  return areSegmentsTouching(
+      position.getLineSegmentStart(),
+      position.getLineSegmentEnd(),
+      startEdge.currentStepPosition,
+      endEdge.currentStepPosition);
+}
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) {
+  return ((end1 - start2 >= -2) && (end2- start1 >= -2));
 }
 
 
@@ -227,6 +316,52 @@ template <int8_t totalRowCount>
 bool Line<totalRowCount>::getIsEndOfLine() {
   return isEndOfLine;
 }
+
+
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isSharpTurn() {
+  return isMergedAfter() || isMergedBefore();
+}
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::getSharpTurnDirection() {
+  if (getMergedBeforePosition() == -1) {
+    return true;
+  }
+  if (getMergedAfterPosition() == -1) {
+    return false;
+  }
+  return (abs(getLineTopPosition() - getMergedBeforePosition())
+          > abs(getLineTopPosition() - getMergedAfterPosition())) ? false : true;
+}
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isMergedBefore() {
+  return segmentBeforeMerged;
+}
+
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getMergedBeforePosition() {
+  return segmentBeforeStart;
+}
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isMergedAfter() {
+  return segmentAfterMerged;
+}
+
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getMergedAfterPosition() {
+  return segmentAfterEnd;
+}
+
 
 
 template <int8_t totalRowCount>
