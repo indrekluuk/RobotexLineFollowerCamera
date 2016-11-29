@@ -531,10 +531,10 @@ TEST(LineTest, testMergeLineFromAfter) {
 TEST(LineTest, testMergeLineSharpTurnPickLongest_after) {
   Line<120> line;
   line.setRowBitmap(60, 0b00000011, 0b00000000);
-  line.setRowBitmap(60, 0b01110011, 0b00110000);
-  line.setRowBitmap(60, 0b00011111, 0b11100000);
-  line.setRowBitmap(60, 0b00000011, 0b00000000);
-  line.setRowBitmap(60, 0b00000000, 0b00000000);
+  line.setRowBitmap(61, 0b01110011, 0b00110000);
+  line.setRowBitmap(62, 0b00011011, 0b01100000);
+  line.setRowBitmap(63, 0b00000111, 0b10000000);
+  line.setRowBitmap(64, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isMergedBefore());
   ASSERT_TRUE(line.isMergedAfter());
   ASSERT_TRUE(line.isSharpTurn());
@@ -546,14 +546,39 @@ TEST(LineTest, testMergeLineSharpTurnPickLongest_after) {
 TEST(LineTest, testMergeLineSharpTurnPickLongest_before) {
   Line<120> line;
   line.setRowBitmap(60, 0b00000011, 0b00000000);
-  line.setRowBitmap(60, 0b01110011, 0b00111111);
-  line.setRowBitmap(60, 0b00011111, 0b11100000);
-  line.setRowBitmap(60, 0b00000011, 0b00000000);
-  line.setRowBitmap(60, 0b00000000, 0b00000000);
+  line.setRowBitmap(61, 0b01110011, 0b00111111);
+  line.setRowBitmap(62, 0b00011011, 0b01100000);
+  line.setRowBitmap(63, 0b00001111, 0b10000000);
+  line.setRowBitmap(64, 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isMergedBefore());
   ASSERT_TRUE(line.isMergedAfter());
   ASSERT_TRUE(line.isSharpTurn());
   ASSERT_FALSE(line.getSharpTurnDirection());
+}
+
+
+
+
+
+TEST(LineTest, testSharpTurnWithLongSegment) {
+  Line<120> line;
+  line.setRowBitmap(60, 0b00000000, 0b00011000);
+  line.setRowBitmap(61, 0b00000000, 0b00011000);
+  line.setRowBitmap(62, 0b00111111, 0b11111000);
+  line.setRowBitmap(63, 0b00000000, 0b00011000);
+  line.setRowBitmap(64, 0b00000000, 0b0000000);
+  ASSERT_TRUE(line.isSharpTurn());
+  ASSERT_TRUE(line.getSharpTurnDirection());
+
+  line.resetLine();
+  line.setRowBitmap(60, 0b11000000, 0b00000000);
+  line.setRowBitmap(61, 0b11000000, 0b00000000);
+  line.setRowBitmap(62, 0b11111111, 0b11110000);
+  line.setRowBitmap(63, 0b11000000, 0b00000000);
+  line.setRowBitmap(64, 0b00000000, 0b0000000);
+  ASSERT_TRUE(line.isSharpTurn());
+  ASSERT_FALSE(line.getSharpTurnDirection());
+
 }
 
 

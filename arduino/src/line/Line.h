@@ -16,6 +16,7 @@ template <int8_t totalRowCount>
 class Line {
 
     static const int8_t turnDetectionFromLine = 50;
+    static const int8_t sharpTurnSegmentLengthJump = 8;
     static const int8_t lineEnd = -1;
     static const int8_t lineTurn = -2;
 
@@ -31,6 +32,9 @@ class Line {
     int8_t segmentAfterStart;
     int8_t segmentAfterEnd;
     bool segmentAfterMerged;
+
+    int8_t lineSegmentLengthJumpStart;
+    int8_t lineSegmentLengthJumpEnd;
 
     int8_t lineBottomRowIndex;
     int8_t lineBottomPosition;
@@ -102,6 +106,9 @@ void Line<totalRowCount>::resetLine() {
   segmentAfterEnd = -1;
   segmentAfterMerged = false;
 
+  lineSegmentLengthJumpStart = 0;
+  lineSegmentLengthJumpEnd = 0;
+
   lineBottomRowIndex = -1;
   lineBottomPosition = -1;
   lineTopRowIndex = -1;
@@ -158,6 +165,16 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & posit
     return position.getLinePosition();
   } else {
     if (areSegmentsTouching(position)) {
+
+
+      int8_t jumpToStart = startEdge.currentStepPosition - position.getLineSegmentStart();
+      if (jumpToStart > lineSegmentLengthJumpStart) {
+        lineSegmentLengthJumpStart = jumpToStart;
+      }
+      int8_t jumpToEnd = position.getLineSegmentEnd() - endEdge.currentStepPosition;
+      if (jumpToEnd > lineSegmentLengthJumpEnd) {
+        lineSegmentLengthJumpEnd = jumpToEnd;
+      }
 
       if (rowIndex < turnDetectionFromLine) {
         startEdge.resetFirstStepTo(position.getLineSegmentStart(), position.getLinePosition());
@@ -321,20 +338,24 @@ bool Line<totalRowCount>::getIsEndOfLine() {
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isSharpTurn() {
-  return isMergedAfter() || isMergedBefore();
+  return isMergedAfter() || isMergedBefore() || (lineSegmentLengthJumpStart > sharpTurnSegmentLengthJump) || (lineSegmentLengthJumpEnd > sharpTurnSegmentLengthJump);
 }
 
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::getSharpTurnDirection() {
-  if (!isMergedAfter()) {
-    return false;
+  if (isMergedAfter() || isMergedBefore()) {
+    if (!isMergedAfter()) {
+      return false;
+    }
+    if (!isMergedBefore()) {
+      return true;
+    }
+    return (abs(getLineTopPosition() - getMergedBeforePosition())
+            > abs(getLineTopPosition() - getMergedAfterPosition())) ? false : true;
+  } else {
+    return lineSegmentLengthJumpStart > lineSegmentLengthJumpEnd ? false : true;
   }
-  if (!isMergedBefore()) {
-    return true;
-  }
-  return (abs(getLineTopPosition() - getMergedBeforePosition())
-          > abs(getLineTopPosition() - getMergedAfterPosition())) ? false : true;
 }
 
 
