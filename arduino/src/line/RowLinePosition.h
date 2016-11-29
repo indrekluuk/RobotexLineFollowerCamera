@@ -22,10 +22,20 @@ class RowLinePosition {
     uint8_t rowIndex;
     uint8_t bitmapHigh;
     uint8_t bitmapLow;
+
     int8_t lineSegmentStart;
     int8_t lineSegmentEnd;
-    int8_t lineSeekPos;
     int8_t linePos;
+
+    int8_t lineBeforeSegmentStart;
+    int8_t lineBeforeSegmentEnd;
+    int8_t lineBeforePos;
+
+    int8_t lineAfterSegmentStart;
+    int8_t lineAfterSegmentEnd;
+    int8_t lineAfterPos;
+
+    int8_t lineSeekPos;
 
 public:
 
@@ -39,10 +49,22 @@ public:
     inline static const bool isInRange(int8_t linePos) __attribute__((always_inline));
     inline static const bool isLineNotFound(int8_t linePos) __attribute__((always_inline));
     inline static bool isOnEdge(int8_t position) __attribute__((always_inline));
+
     inline bool isLineNotFound() __attribute__((always_inline));
     inline int8_t getLinePosition() __attribute__((always_inline));
     inline int8_t getLineSegmentStart() __attribute__((always_inline));
     inline int8_t getLineSegmentEnd() __attribute__((always_inline));
+
+    inline bool isLineBefore() __attribute__((always_inline));
+    inline int8_t getLineBeforePosition() __attribute__((always_inline));
+    inline int8_t getLineBeforeSegmentStart() __attribute__((always_inline));
+    inline int8_t getLineBeforeSegmentEnd() __attribute__((always_inline));
+
+    inline bool isLineAfter() __attribute__((always_inline));
+    inline int8_t getLineAfterPosition() __attribute__((always_inline));
+    inline int8_t getLineAfterSegmentStart() __attribute__((always_inline));
+    inline int8_t getLineAfterSegmentEnd() __attribute__((always_inline));
+
 
     static uint8_t getIgnoreRowCount() {return ignoreRows;}
 
@@ -77,10 +99,24 @@ void RowLinePosition::processPixel(bool isActive, uint8_t index, int8_t &segment
 void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd) {
   if (!isIgnoreSegment(segmentStart, segmentEnd)) {
     int8_t newLinePos = getLinePositionForSegment(segmentStart, segmentEnd);
-    if (linePos == lineNotFound || (abs(lineSeekPos-newLinePos) < abs(lineSeekPos-linePos))) {
+    if (linePos == lineNotFound) {
       linePos = newLinePos;
       lineSegmentStart = segmentStart;
       lineSegmentEnd = segmentEnd;
+    } else {
+      if (abs(lineSeekPos-newLinePos) < abs(lineSeekPos-linePos)) {
+        lineBeforeSegmentStart = lineSegmentStart;
+        lineBeforeSegmentEnd = lineSegmentEnd;
+        lineBeforePos = linePos;
+
+        linePos = newLinePos;
+        lineSegmentStart = segmentStart;
+        lineSegmentEnd = segmentEnd;
+      } else if (lineAfterPos == lineNotFound) {
+        lineAfterPos = newLinePos;
+        lineAfterSegmentStart = segmentStart;
+        lineAfterSegmentEnd = segmentEnd;
+      }
     }
   }
 }
@@ -151,6 +187,40 @@ int8_t RowLinePosition::getLineSegmentEnd() {
   return lineSegmentEnd;
 }
 
+
+bool RowLinePosition::isLineBefore() {
+  return !isLineNotFound(lineBeforePos);
+}
+
+int8_t RowLinePosition::getLineBeforePosition() {
+  return lineBeforePos;
+}
+
+int8_t RowLinePosition::getLineBeforeSegmentStart() {
+  return lineBeforeSegmentStart;
+}
+
+int8_t RowLinePosition::getLineBeforeSegmentEnd() {
+  return lineBeforeSegmentEnd;
+}
+
+
+
+bool RowLinePosition::isLineAfter() {
+  return !isLineNotFound(lineAfterPos);
+}
+
+int8_t RowLinePosition::getLineAfterPosition() {
+  return lineAfterPos;
+}
+
+int8_t RowLinePosition::getLineAfterSegmentStart() {
+  return lineAfterSegmentStart;
+}
+
+int8_t RowLinePosition::getLineAfterSegmentEnd() {
+  return lineAfterSegmentEnd;
+}
 
 
 

@@ -16,8 +16,14 @@ RowLinePosition::RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t b
       bitmapLow(bitmapLow),
       lineSegmentStart(lineNotFound),
       lineSegmentEnd(lineNotFound),
-      lineSeekPos(seekPos),
-      linePos(lineNotFound)
+      linePos(lineNotFound),
+      lineBeforeSegmentStart(lineNotFound),
+      lineBeforeSegmentEnd(lineNotFound),
+      lineBeforePos(lineNotFound),
+      lineAfterSegmentStart(lineNotFound),
+      lineAfterSegmentEnd(lineNotFound),
+      lineAfterPos(lineNotFound),
+      lineSeekPos(seekPos)
 {
   int8_t segmentStart = lineNotFound;
   if (rowIndex >= ignoreRows) {

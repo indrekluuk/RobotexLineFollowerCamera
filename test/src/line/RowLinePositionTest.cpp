@@ -119,3 +119,54 @@ TEST(RowLinePositionTest, ignoreBottomCorners1pixels) {
 
 
 
+TEST(RowLinePositionTest, testSegmentBeforeAndAfter) {
+  RowLinePosition linePosition1(60, 0b00000111, 0b00000000, RowLinePosition::lineNotFound);
+  ASSERT_EQ(18, linePosition1.getLinePosition());
+  ASSERT_FALSE(linePosition1.isLineBefore());
+  ASSERT_FALSE(linePosition1.isLineAfter());
+
+  // only before
+  RowLinePosition linePosition2(60, 0b00000111, 0b00000110, 15);
+  ASSERT_EQ(18, linePosition2.getLinePosition());
+  ASSERT_TRUE(linePosition2.isLineBefore());
+  ASSERT_EQ(3, linePosition2.getLineBeforePosition());
+  ASSERT_EQ(2, linePosition2.getLineBeforeSegmentStart());
+  ASSERT_EQ(4, linePosition2.getLineBeforeSegmentEnd());
+  ASSERT_FALSE(linePosition2.isLineAfter());
+
+  // before and after
+  RowLinePosition linePosition3(60, 0b11110111, 0b00000110, 15);
+  ASSERT_EQ(18, linePosition3.getLinePosition());
+  ASSERT_TRUE(linePosition3.isLineBefore());
+  ASSERT_EQ(3, linePosition3.getLineBeforePosition());
+  ASSERT_EQ(2, linePosition3.getLineBeforeSegmentStart());
+  ASSERT_EQ(4, linePosition3.getLineBeforeSegmentEnd());
+  ASSERT_TRUE(linePosition3.isLineAfter());
+  ASSERT_EQ(30, linePosition3.getLineAfterPosition());
+  ASSERT_EQ(24, linePosition3.getLineAfterSegmentStart());
+  ASSERT_EQ(30, linePosition3.getLineAfterSegmentEnd());
+
+  // two before
+  RowLinePosition linePosition4(60, 0b00111000, 0b01100111, 24);
+  ASSERT_EQ(24, linePosition4.getLinePosition());
+  ASSERT_TRUE(linePosition4.isLineBefore());
+  ASSERT_EQ(11, linePosition4.getLineBeforePosition());
+  ASSERT_EQ(10, linePosition4.getLineBeforeSegmentStart());
+  ASSERT_EQ(12, linePosition4.getLineBeforeSegmentEnd());
+  ASSERT_FALSE(linePosition4.isLineAfter());
+
+  // two after
+  RowLinePosition linePosition5(60, 0b00111000, 0b01100111, 2);
+  ASSERT_EQ(0, linePosition5.getLinePosition());
+  ASSERT_FALSE(linePosition5.isLineBefore());
+  ASSERT_TRUE(linePosition5.isLineAfter());
+  ASSERT_EQ(11, linePosition5.getLineAfterPosition());
+  ASSERT_EQ(10, linePosition5.getLineAfterSegmentStart());
+  ASSERT_EQ(12, linePosition5.getLineAfterSegmentEnd());
+}
+
+
+
+
+
+
