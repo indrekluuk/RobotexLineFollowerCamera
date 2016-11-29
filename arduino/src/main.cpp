@@ -12,6 +12,7 @@
 #include "Screen.h"
 #include "line/Line.h"
 #include "databuffer/DataBufferSender.h"
+#include "databuffer/messagebuffer/LineSegmentMessageBuffer.h"
 #include "utils/Utils.h"
 #include "ByteInversionTable.h"
 #include "MonochromeBufferMask.h"
@@ -93,12 +94,15 @@ void processLine(const uint8_t lineIndex) {
 #endif
 
   if (!isLineMessageSent && line.isLineIdentified()) {
-    uint8_t messageBuffer[4];
-    messageBuffer[0] = (uint8_t)line.getLineFirstRowIndex();
-    messageBuffer[1] = (uint8_t)line.getLineFirstPosition();
-    messageBuffer[2] = (uint8_t)line.getLineLastRowIndex();
-    messageBuffer[3] = (uint8_t)line.getLineLastPosition();
-    dataBufferSender.sendMessage(COMMAND_LINE_SEGMENT, messageBuffer, 4);
+    LineSegmentMessageBuffer message;
+    message.lineBottomIndex = (uint8_t)line.getLineBottomRowIndex();
+    message.lineBottomPosition = (uint8_t)line.getLineBottomPosition();
+    message.lineTopIndex = (uint8_t)line.getLineTopRowIndex();
+    message.lineTopPosition = (uint8_t)line.getLineTopPosition();
+    message.isEndOfLine = (uint8_t)line.getIsEndOfLine();
+    message.isSharpTurn = (uint8_t)false;
+    message.sharpTurnDirection = (uint8_t)false;
+    dataBufferSender.sendMessage(COMMAND_LINE_SEGMENT, (uint8_t *)&message, sizeof(message));
     isLineMessageSent = true;
   }
 }

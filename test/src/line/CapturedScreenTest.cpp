@@ -26,8 +26,8 @@ TEST(CapturedScreenTest, testCapture1) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_1);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(104, line.getLineLastRowIndex());
-  ASSERT_EQ(11, line.getLineLastPosition());
+  ASSERT_EQ(104, line.getLineTopRowIndex());
+  ASSERT_EQ(11, line.getLineTopPosition());
 }
 
 
@@ -37,8 +37,8 @@ TEST(CapturedScreenTest, testCapture2) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_2);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(86, line.getLineLastRowIndex());
-  ASSERT_EQ(10, line.getLineLastPosition());
+  ASSERT_EQ(86, line.getLineTopRowIndex());
+  ASSERT_EQ(10, line.getLineTopPosition());
 }
 
 
@@ -48,8 +48,8 @@ TEST(CapturedScreenTest, testCapture3) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_3);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(87, line.getLineLastRowIndex());
-  ASSERT_EQ(6, line.getLineLastPosition());
+  ASSERT_EQ(87, line.getLineTopRowIndex());
+  ASSERT_EQ(6, line.getLineTopPosition());
 }
 
 
@@ -59,8 +59,8 @@ TEST(CapturedScreenTest, testCapture4) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_4);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(79, line.getLineLastRowIndex());
-  ASSERT_EQ(4, line.getLineLastPosition());
+  ASSERT_EQ(79, line.getLineTopRowIndex());
+  ASSERT_EQ(4, line.getLineTopPosition());
 }
 
 
@@ -70,8 +70,8 @@ TEST(CapturedScreenTest, testCapture5) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_5);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(88, line.getLineLastRowIndex());
-  ASSERT_EQ(4, line.getLineLastPosition());
+  ASSERT_EQ(88, line.getLineTopRowIndex());
+  ASSERT_EQ(4, line.getLineTopPosition());
 }
 
 
@@ -82,14 +82,14 @@ TEST(CapturedScreenTest, testCapture6_reuseLine) {
 
   screenProcessor.process(capture_6);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(77, line.getLineLastRowIndex());
-  ASSERT_EQ(20, line.getLineLastPosition());
+  ASSERT_EQ(77, line.getLineTopRowIndex());
+  ASSERT_EQ(20, line.getLineTopPosition());
 
   line.resetLine();
   screenProcessor.process(capture_6);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(77, line.getLineLastRowIndex());
-  ASSERT_EQ(20, line.getLineLastPosition());
+  ASSERT_EQ(77, line.getLineTopRowIndex());
+  ASSERT_EQ(20, line.getLineTopPosition());
 }
 
 
@@ -99,8 +99,8 @@ TEST(CapturedScreenTest, testCapture7) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_7);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(81, line.getLineLastRowIndex());
-  ASSERT_EQ(25, line.getLineLastPosition());
+  ASSERT_EQ(81, line.getLineTopRowIndex());
+  ASSERT_EQ(25, line.getLineTopPosition());
 }
 
 
@@ -110,8 +110,8 @@ TEST(CapturedScreenTest, testCapture8) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_8);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(72, line.getLineLastRowIndex());
-  ASSERT_EQ(27, line.getLineLastPosition());
+  ASSERT_EQ(72, line.getLineTopRowIndex());
+  ASSERT_EQ(27, line.getLineTopPosition());
 }
 
 
@@ -122,8 +122,8 @@ TEST(CapturedScreenTest, testCapture9) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_9);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(119, line.getLineLastRowIndex());
-  ASSERT_EQ(30, line.getLineLastPosition());
+  ASSERT_EQ(119, line.getLineTopRowIndex());
+  ASSERT_EQ(30, line.getLineTopPosition());
 }
 
 
@@ -134,8 +134,8 @@ TEST(CapturedScreenTest, testCapture10) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_10);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(119, line.getLineLastRowIndex());
-  ASSERT_EQ(30, line.getLineLastPosition());
+  ASSERT_EQ(119, line.getLineTopRowIndex());
+  ASSERT_EQ(30, line.getLineTopPosition());
 }
 
 

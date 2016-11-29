@@ -16,6 +16,8 @@ template <int8_t totalRowCount>
 class Line {
 
     static const int8_t turnDetectionFromLine = 50;
+    static const int8_t lineEnd = -1;
+    static const int8_t lineTurn = -2;
 
     LineEdge startEdge;
     LineEdge endEdge;
@@ -27,6 +29,7 @@ class Line {
     int8_t lineBottomPosition;
     int8_t lineTopRowIndex;
     int8_t lineTopPosition;
+    bool isEndOfLine;
 
 public:
 
@@ -37,10 +40,11 @@ public:
 
     constexpr static int8_t getTotalRowCount();
     bool isLineIdentified();
-    int8_t getLineFirstRowIndex();
-    int8_t getLineFirstPosition();
-    int8_t getLineLastRowIndex();
-    int8_t getLineLastPosition();
+    int8_t getLineBottomRowIndex();
+    int8_t getLineBottomPosition();
+    int8_t getLineTopRowIndex();
+    int8_t getLineTopPosition();
+    bool getIsEndOfLine();
 
     int8_t getStartEdgeStepCount();
     int8_t getEndEdgeStepCount();
@@ -52,7 +56,7 @@ private:
     int8_t updateLine(uint8_t rowIndex, RowLinePosition & position);
     inline bool areSegmentsTouching(RowLinePosition & position) __attribute__((always_inline));
     inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
-    inline void setLineTop(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
+    inline void setLineTop(uint8_t rowIndex, int8_t position, bool isEnd) __attribute__((always_inline));
 };
 
 
@@ -76,6 +80,7 @@ void Line<totalRowCount>::resetLine() {
   lineBottomPosition = -1;
   lineTopRowIndex = -1;
   lineTopPosition = -1;
+  isEndOfLine = false;
 }
 
 
@@ -88,7 +93,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
 
     if (position.isLineNotFound()) {
       if (lineBottomRowIndex >= 0) {
-        setLineTop(rowIndex-1, previousDetectedLinePosition);
+        setLineTop(rowIndex-1, previousDetectedLinePosition, true);
       }
     } else {
       if (lineBottomRowIndex < 0) {
@@ -96,11 +101,13 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
       }
 
       currentDetectedLinePosition = updateLine(rowIndex, position);
-      if (RowLinePosition::isLineNotFound(currentDetectedLinePosition)) {
-        setLineTop(rowIndex - 1, previousDetectedLinePosition);
+      if (currentDetectedLinePosition == lineTurn) {
+        setLineTop(rowIndex - 1, previousDetectedLinePosition, false);
+      } else if (currentDetectedLinePosition == lineEnd) {
+        setLineTop(rowIndex - 1, previousDetectedLinePosition, true);
       } else {
         if (rowIndex == totalRowCount - 1) {
-          setLineTop(rowIndex, position.getLinePosition());
+          setLineTop(rowIndex, position.getLinePosition(), true);
         }
       }
     }
@@ -145,11 +152,11 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & posit
         endEdge.calculateLinePositionToEdgeDecreaseOnly(position.getLinePosition());
         return endEdge.getLinePositionFromEdge();
       } else {
-        return RowLinePosition::lineNotFound;
+        return lineTurn;
       }
 
     } else {
-      return RowLinePosition::lineNotFound;
+      return lineEnd;
     }
   }
 }
@@ -173,9 +180,10 @@ void Line<totalRowCount>::setLineBottom(uint8_t rowIndex, int8_t position) {
 
 
 template <int8_t totalRowCount>
-void Line<totalRowCount>::setLineTop(uint8_t rowIndex, int8_t position) {
+void Line<totalRowCount>::setLineTop(uint8_t rowIndex, int8_t position, bool isEnd) {
   lineTopRowIndex = rowIndex;
   lineTopPosition = position;
+  isEndOfLine = isEnd;
 }
 
 
@@ -192,26 +200,32 @@ bool Line<totalRowCount>::isLineIdentified() {
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getLineFirstRowIndex() {
+int8_t Line<totalRowCount>::getLineBottomRowIndex() {
   return  lineBottomRowIndex;
 }
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getLineFirstPosition() {
+int8_t Line<totalRowCount>::getLineBottomPosition() {
   return lineBottomPosition;
 }
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getLineLastRowIndex() {
+int8_t Line<totalRowCount>::getLineTopRowIndex() {
   return lineTopRowIndex;
 }
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getLineLastPosition() {
+int8_t Line<totalRowCount>::getLineTopPosition() {
   return lineTopPosition;
+}
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::getIsEndOfLine() {
+  return isEndOfLine;
 }
 
 
