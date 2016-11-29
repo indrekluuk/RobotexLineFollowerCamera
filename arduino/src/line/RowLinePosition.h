@@ -30,7 +30,7 @@ class RowLinePosition {
 public:
 
     static const int8_t rowRange = 30;
-    static const int8_t rowRangeMidPoint = rowRange / 2;
+    static const int8_t rowRangeMidPoint = rowRange >> 1;
     static const int8_t lineNotFound = -1;
 
 
@@ -46,7 +46,7 @@ public:
 
     static uint8_t getIgnoreRowCount() {return ignoreRows;}
 
-    inline static int8_t getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
+    inline int8_t getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
 
 private:
     inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart) __attribute__((always_inline));
@@ -103,9 +103,14 @@ bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
 
 
 int8_t RowLinePosition::getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) {
-  if ((segmentStart != 0 && segmentEnd != rowRange)
-      || (segmentStart == 0 && segmentEnd == rowRange)) {
+  if (segmentStart != 0 && segmentEnd != rowRange) {
     return (int8_t)((segmentEnd + segmentStart) >> 1);
+  } else if (segmentStart == 0 && segmentEnd == rowRange) {
+    if (lineSeekPos == lineNotFound) {
+      return rowRangeMidPoint;
+    } else {
+      return lineSeekPos > rowRangeMidPoint ? segmentEnd : segmentStart;
+    }
   } else {
     if (segmentStart == 0) {
       return segmentStart;

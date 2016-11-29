@@ -28,7 +28,10 @@ struct LineEdge{
     bool positionJump;
     bool stepLengthInvalid;
 
+    inline void reset() __attribute__((always_inline));
+    inline bool isInitialized() __attribute__((always_inline));
     inline void init(int8_t edgePos, int8_t linePos) __attribute__((always_inline));
+    inline void resetFirstStepTo(int8_t edgePos, int8_t linePos) __attribute__((always_inline));
     inline void update(int8_t edgePos) __attribute__((always_inline));
     inline void calculateLinePositionToEdge(int8_t linePos) __attribute__((always_inline));
     inline void calculateLinePositionToEdgeDecreaseOnly(int8_t linePos) __attribute__((always_inline));
@@ -41,6 +44,17 @@ private:
     inline void validateCurrentStepCountBlowLimit() __attribute__((always_inline));
 };
 
+
+
+
+void LineEdge::reset() {
+  init(-1, -1);
+}
+
+
+bool LineEdge::isInitialized() {
+  return currentStepPosition >= 0;
+}
 
 
 void LineEdge::init(int8_t edgePos, int8_t linePos) {
@@ -59,6 +73,16 @@ void LineEdge::init(int8_t edgePos, int8_t linePos) {
   positionJump = false;
   stepLengthInvalid = false;
 }
+
+
+
+
+void LineEdge::resetFirstStepTo(int8_t edgePos, int8_t linePos) {
+  if (currentStepPosition != edgePos) {
+    init(edgePos, linePos);
+  }
+}
+
 
 
 void LineEdge::update(int8_t edgePos) {
@@ -103,8 +127,8 @@ void LineEdge::update(int8_t edgePos) {
 
 
 int8_t LineEdge::calculateAllowedDifference(int8_t stepCount) {
-  int8_t allowedDifference = stepCount >> 2;
-  if (allowedDifference < 2) allowedDifference = 2;
+  int8_t allowedDifference = stepCount >> 1;
+  if (allowedDifference < 5) allowedDifference = 5;
   return allowedDifference;
 }
 

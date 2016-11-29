@@ -75,6 +75,13 @@ TEST(LineEdgeTest, testLastStepExceedsLimit) {
   lineEdge.update(3);
   lineEdge.update(3);
   lineEdge.update(3);
+  lineEdge.update(3);
+  lineEdge.update(3);
+  lineEdge.update(3);
+  lineEdge.update(3);
+  lineEdge.update(3);
+  lineEdge.update(3);
+  lineEdge.update(3);
   ASSERT_TRUE(lineEdge.stepLengthInvalid);
 }
 

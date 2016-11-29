@@ -15,6 +15,8 @@
 template <int8_t totalRowCount>
 class Line {
 
+    static const int8_t turnDetectionFromLine = 50;
+
     LineEdge startEdge;
     LineEdge endEdge;
     int8_t previousDetectedLinePosition;
@@ -68,8 +70,8 @@ template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
   lineSeekPosition = RowLinePosition::lineNotFound;
   previousDetectedLinePosition = RowLinePosition::rowRangeMidPoint;
-  startEdge.init(-1, -1);
-  endEdge.init(-1, -1);
+  startEdge.reset();
+  endEdge.reset();
   lineBottomRowIndex = -1;
   lineBottomPosition = -1;
   lineTopRowIndex = -1;
@@ -89,6 +91,10 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
         setLineTop(rowIndex-1, previousDetectedLinePosition);
       }
     } else {
+      if (lineBottomRowIndex < 0) {
+        setLineBottom(rowIndex, position.getLinePosition());
+      }
+
       currentDetectedLinePosition = updateLine(rowIndex, position);
       if (RowLinePosition::isLineNotFound(currentDetectedLinePosition)) {
         setLineTop(rowIndex - 1, previousDetectedLinePosition);
@@ -112,15 +118,19 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & position) {
-
-  if (lineBottomRowIndex < 0) {
-    setLineBottom(rowIndex, position.getLinePosition());
+  if (!startEdge.isInitialized()) {
     startEdge.init(position.getLineSegmentStart(), position.getLinePosition());
     endEdge.init(position.getLineSegmentEnd(),position.getLinePosition());
     return position.getLinePosition();
-
   } else {
     if (areSegmentsTouching(position)) {
+
+      if (rowIndex < turnDetectionFromLine) {
+        startEdge.resetFirstStepTo(position.getLineSegmentStart(), position.getLinePosition());
+        endEdge.resetFirstStepTo(position.getLineSegmentEnd(), position.getLinePosition());
+        return position.getLinePosition();
+      }
+
       startEdge.update(position.getLineSegmentStart());
       endEdge.update(position.getLineSegmentEnd());
 
