@@ -139,16 +139,3 @@ TEST(CapturedScreenTest, testCapture10) {
   ASSERT_EQ(30, line.getLineTopPosition());
 }
 
-
-TEST(CapturedScreenTest, testCapture11) {
-  Line<120> line;
-  TestScreenProcessor<120> screenProcessor(line);
-  screenProcessor.process(capture_11);
-  ASSERT_TRUE(line.isMergedBefore());
-  ASSERT_FALSE(line.isMergedAfter());
-  ASSERT_TRUE(line.isSharpTurn());
-  ASSERT_FALSE(line.getSharpTurnDirection());
-}
-
-
-
