@@ -19,28 +19,37 @@ class RowBitmapLineSegmentFinder {
     static const uint8_t ignore2pixelsOnCornersRows = 10;
     static const uint8_t ignore1pixelOnCornersRows = 25;
 
-    uint8_t rowIndex;
-    uint8_t bitmapHigh;
-    uint8_t bitmapLow;
+    uint8_t currentRowIndex;
 
-    LineSegment lineSegment1;
-    LineSegment lineSegment2;
-    LineSegment * lineSeekSegment;
+
+    LineSegment firstLineSegment;
+    LineSegment firstLineSegmentPreviousRow;
+
+    LineSegment secondLineSegment;
+    LineSegment secondLineSegmentPreviousRow;
+
 
 public:
 
 
-    RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, LineSegment * lineSeekSegment);
+    RowBitmapLineSegmentFinder();
+
+    void reset();
+    void nextRow(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, LineSegment seekSegment);
+    void nextRow(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
+
 
     inline bool isLineFound() __attribute__((always_inline));
-    inline LineSegment & getFoundLineSegment() __attribute__((always_inline));
+    inline bool isLineSplit() __attribute__((always_inline));
+    inline LineSegment & getFirstLine() __attribute__((always_inline));
+    inline LineSegment & getSecondLine() __attribute__((always_inline));
+
     static uint8_t getIgnoreRowCount() {return ignoreRows;}
 
 
 private:
     inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart) __attribute__((always_inline));
     inline void processLineSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
-    inline bool isHigherPrioritySegment(LineSegment & lineSegment) __attribute__((always_inline));
     inline bool isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
 
 };
@@ -68,14 +77,30 @@ void RowBitmapLineSegmentFinder::processPixel(bool isActive, uint8_t index, int8
 
 void RowBitmapLineSegmentFinder::processLineSegment(int8_t segmentStart, int8_t segmentEnd) {
   if (!isIgnoreSegment(segmentStart, segmentEnd)) {
-    LineSegment newLineSegment(segmentStart, segmentEnd, lineSeekSegment);
+    LineSegment newLineSegment(segmentStart, segmentEnd);
 
-    if (lineSegment1.isLineNotFound()) {
-      lineSegment1 = newLineSegment;
-    } else {
-      if (isHigherPrioritySegment(newLineSegment)) {
-        lineSegment1 = newLineSegment;
+    if (!firstLineSegmentPreviousRow.isLineFound()) {
+
+      // for the first line find closest to the mid-point
+      if (!firstLineSegment.isLineFound() ||
+          (abs(LineSegment::rowRangeMidPoint-newLineSegment.getCenter())
+           < abs(LineSegment::rowRangeMidPoint-firstLineSegment.getCenter()))) {
+        firstLineSegment = newLineSegment;
       }
+
+    } else {
+
+      if (newLineSegment.touchesSegment(firstLineSegmentPreviousRow)) {
+        if (!firstLineSegment.isLineFound()) {
+          firstLineSegment = newLineSegment;
+        } else if (!secondLineSegmentPreviousRow.isLineFound() && !secondLineSegment.isLineFound()) {
+          secondLineSegment = newLineSegment;
+        }
+      }
+      if (secondLineSegmentPreviousRow.isLineFound() && newLineSegment.touchesSegment(secondLineSegmentPreviousRow)) {
+        secondLineSegment = newLineSegment;
+      }
+
     }
   }
 }
@@ -84,16 +109,16 @@ void RowBitmapLineSegmentFinder::processLineSegment(int8_t segmentStart, int8_t 
 
 
 bool RowBitmapLineSegmentFinder::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
-  // if seek range is set then no need to ignore
-  if (lineSeekSegment != nullptr) {
+  // if line is already found no need to ignore. next segment must be attached to previous one
+  if (firstLineSegmentPreviousRow.isLineFound()) {
     return false;
   }
 
   // ignore segments that start and end in the corner
-  if (rowIndex < ignore2pixelsOnCornersRows) {
+  if (currentRowIndex < ignore2pixelsOnCornersRows) {
     return (segmentStart <= 2 || segmentStart >= LineSegment::rowRange - 2)
         && (segmentEnd <= 2 || segmentEnd >= LineSegment::rowRange - 2);
-  } else if (rowIndex < ignore1pixelOnCornersRows) {
+  } else if (currentRowIndex < ignore1pixelOnCornersRows) {
     return (segmentStart == 0 || segmentStart == LineSegment::rowRange)
            && (segmentEnd == 0 || segmentEnd == LineSegment::rowRange);
   } else {
@@ -105,35 +130,23 @@ bool RowBitmapLineSegmentFinder::isIgnoreSegment(int8_t segmentStart, int8_t seg
 
 
 
-bool RowBitmapLineSegmentFinder::isHigherPrioritySegment(LineSegment & lineSegment) {
-  // 1. Segments touching
-  // 2. if both segment touching then the one closest to mid-screen
-  // 3. if neither segment touching then closest to last seek point
-
-  if (lineSegment1.isTouchingSeekSegment() != lineSegment.isTouchingSeekSegment()) {
-    return lineSegment.isTouchingSeekSegment();
-  } else {
-    if (lineSegment.isTouchingSeekSegment()) {
-      return (abs(LineSegment::rowRangeMidPoint-lineSegment.getLinePosition())
-              < abs(LineSegment::rowRangeMidPoint-lineSegment1.getLinePosition()));
-    } else {
-      int8_t pos = lineSeekSegment == nullptr ? LineSegment::rowRangeMidPoint : lineSeekSegment->getCenter();
-      return (abs(pos-lineSegment.getLinePosition())
-              < abs(pos-lineSegment1.getLinePosition()));
-    }
-  }
-}
-
-
-
-
 bool RowBitmapLineSegmentFinder::isLineFound() {
-  return !lineSegment1.isLineNotFound();
+  return firstLineSegment.isLineFound();
 }
 
 
-LineSegment & RowBitmapLineSegmentFinder::getFoundLineSegment() {
-  return lineSegment1;
+bool RowBitmapLineSegmentFinder::isLineSplit() {
+  return secondLineSegment.isLineFound();
+}
+
+
+LineSegment & RowBitmapLineSegmentFinder::getFirstLine() {
+  return firstLineSegment;
+}
+
+
+LineSegment & RowBitmapLineSegmentFinder::getSecondLine() {
+  return secondLineSegment;
 }
 
 

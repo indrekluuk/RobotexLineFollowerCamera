@@ -5,17 +5,34 @@
 #include "RowBitmapLineSegmentFinder.h"
 
 
+RowBitmapLineSegmentFinder::RowBitmapLineSegmentFinder() {
+
+}
 
 
 
+void RowBitmapLineSegmentFinder::reset() {
+  currentRowIndex = -1;
+  firstLineSegmentPreviousRow = LineSegment();
+  secondLineSegmentPreviousRow = LineSegment();
+}
 
-RowBitmapLineSegmentFinder::RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, LineSegment * lineSeekSegment)
-    :
-      rowIndex(rowIndex),
-      bitmapHigh(bitmapHigh),
-      bitmapLow(bitmapLow),
-      lineSeekSegment(lineSeekSegment)
-{
+
+
+void RowBitmapLineSegmentFinder::nextRow(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, LineSegment previousLineSegment) {
+  firstLineSegment = previousLineSegment;
+  nextRow(rowIndex, bitmapHigh, bitmapLow);
+}
+
+
+
+void RowBitmapLineSegmentFinder::nextRow(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
+  currentRowIndex = rowIndex;
+  firstLineSegmentPreviousRow = firstLineSegment;
+  secondLineSegmentPreviousRow = secondLineSegment;
+  firstLineSegment = LineSegment();
+  secondLineSegment = LineSegment();
+
   int8_t segmentStart = LineSegment::lineNotFound;
   if (rowIndex >= ignoreRows) {
     processPixel(bitmapLow  & (uint8_t)0b00000001,  0, segmentStart);
@@ -37,6 +54,13 @@ RowBitmapLineSegmentFinder::RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t
 
     if (segmentStart != LineSegment::lineNotFound) {
       processLineSegment(segmentStart, 30);
+    }
+
+    if (firstLineSegment.isLineFound()) {
+      firstLineSegment.evaluateLinePosition(firstLineSegmentPreviousRow);
+    }
+    if (secondLineSegment.isLineFound()) {
+      firstLineSegment.evaluateLinePosition(secondLineSegmentPreviousRow);
     }
   }
 };

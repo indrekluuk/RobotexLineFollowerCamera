@@ -20,7 +20,7 @@
 #include "screencapture/Capture12.h"
 #include "screencapture/Capture13.h"
 #include "screencapture/Capture14.h"
-
+#include "screencapture/Capture15.h"
 
 
 
@@ -191,6 +191,17 @@ TEST(CapturedScreenTest, testCapture14) {
   ASSERT_EQ(20, line.getLineTopPosition());
 }
 
+
+
+
+
+TEST(CapturedScreenTest, testCapture15) {
+  Line<120> line;
+  TestScreenProcessor<120> screenProcessor(line);
+  screenProcessor.process(capture_15);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(20, line.getLineTopPosition());
+}
 
 
 
