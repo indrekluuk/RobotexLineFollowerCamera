@@ -10,7 +10,7 @@
 
 
 
-class RowLinePosition {
+class RowBitmapLineSegmentFinder {
 
 
     static const uint8_t ignoreRows = 5;
@@ -47,7 +47,7 @@ public:
     static const int8_t lineNotFound = -1;
 
 
-    RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t lineSeekStart, int8_t lineSeekEnd);
+    RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t lineSeekStart, int8_t lineSeekEnd);
 
     inline static const bool isInRange(int8_t linePos) __attribute__((always_inline));
     inline static const bool isLineNotFound(int8_t linePos) __attribute__((always_inline));
@@ -87,7 +87,7 @@ private:
 
 
 
-void RowLinePosition::processPixel(bool isActive, uint8_t index, int8_t &segmentStart) {
+void RowBitmapLineSegmentFinder::processPixel(bool isActive, uint8_t index, int8_t &segmentStart) {
   if (isActive) {
     if (segmentStart == lineNotFound) {
       segmentStart = index;
@@ -103,7 +103,7 @@ void RowLinePosition::processPixel(bool isActive, uint8_t index, int8_t &segment
 
 
 
-void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd) {
+void RowBitmapLineSegmentFinder::processLineSegment(int8_t segmentStart, int8_t segmentEnd) {
   if (!isIgnoreSegment(segmentStart, segmentEnd)) {
     int8_t newLinePos = getLinePositionForSegment(segmentStart, segmentEnd);
     bool newSegmentTouchesSeekSegment = areSegmentsTouching(segmentStart, segmentEnd, lineSeekStart,lineSeekEnd);
@@ -133,7 +133,7 @@ void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd)
 }
 
 
-bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
+bool RowBitmapLineSegmentFinder::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
   if (lineSeekStart != lineNotFound) {
     return false;
   }
@@ -150,7 +150,7 @@ bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
 
 
 
-bool RowLinePosition::isHigherPrioritySegment(int8_t newLinePos, bool isNewSegmentTouchingSeekSegment) {
+bool RowBitmapLineSegmentFinder::isHigherPrioritySegment(int8_t newLinePos, bool isNewSegmentTouchingSeekSegment) {
 
   // 1. Segments touching
   // 2. if both segment touching then the one closest to mid-screen
@@ -170,14 +170,14 @@ bool RowLinePosition::isHigherPrioritySegment(int8_t newLinePos, bool isNewSegme
 
 
 
-bool RowLinePosition::areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) {
+bool RowBitmapLineSegmentFinder::areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) {
   return ((end1 - start2 >= -2) && (end2- start1 >= -2));
 }
 
 
 
 
-int8_t RowLinePosition::getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) {
+int8_t RowBitmapLineSegmentFinder::getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) {
   if (segmentStart > 0 && segmentEnd < rowRange) {
     return (int8_t)((segmentEnd + segmentStart) >> 1);
   } else if (segmentStart == 0 && segmentEnd == rowRange) {
@@ -198,66 +198,66 @@ int8_t RowLinePosition::getLinePositionForSegment(int8_t segmentStart, int8_t se
 
 
 
-const bool RowLinePosition::isInRange(int8_t linePos) {
+const bool RowBitmapLineSegmentFinder::isInRange(int8_t linePos) {
   return linePos >= 0 && linePos <= rowRange;
 }
 
-bool RowLinePosition::isLineNotFound() {
+bool RowBitmapLineSegmentFinder::isLineNotFound() {
   return isLineNotFound(linePos);
 }
 
-const bool RowLinePosition::isLineNotFound(int8_t linePos) {
+const bool RowBitmapLineSegmentFinder::isLineNotFound(int8_t linePos) {
   return linePos == lineNotFound;
 }
 
-bool RowLinePosition::isOnEdge(int8_t position) {
+bool RowBitmapLineSegmentFinder::isOnEdge(int8_t position) {
   return position == 0 || position == rowRange;
 }
 
-int8_t RowLinePosition::getLinePosition() {
+int8_t RowBitmapLineSegmentFinder::getLinePosition() {
   return linePos;
 }
 
-int8_t RowLinePosition::getLineSegmentStart() {
+int8_t RowBitmapLineSegmentFinder::getLineSegmentStart() {
   return lineSegmentStart;
 }
 
-int8_t RowLinePosition::getLineSegmentEnd() {
+int8_t RowBitmapLineSegmentFinder::getLineSegmentEnd() {
   return lineSegmentEnd;
 }
 
 
-bool RowLinePosition::isLineBefore() {
+bool RowBitmapLineSegmentFinder::isLineBefore() {
   return !isLineNotFound(lineBeforePos);
 }
 
-int8_t RowLinePosition::getLineBeforePosition() {
+int8_t RowBitmapLineSegmentFinder::getLineBeforePosition() {
   return lineBeforePos;
 }
 
-int8_t RowLinePosition::getLineBeforeSegmentStart() {
+int8_t RowBitmapLineSegmentFinder::getLineBeforeSegmentStart() {
   return lineBeforeSegmentStart;
 }
 
-int8_t RowLinePosition::getLineBeforeSegmentEnd() {
+int8_t RowBitmapLineSegmentFinder::getLineBeforeSegmentEnd() {
   return lineBeforeSegmentEnd;
 }
 
 
 
-bool RowLinePosition::isLineAfter() {
+bool RowBitmapLineSegmentFinder::isLineAfter() {
   return !isLineNotFound(lineAfterPos);
 }
 
-int8_t RowLinePosition::getLineAfterPosition() {
+int8_t RowBitmapLineSegmentFinder::getLineAfterPosition() {
   return lineAfterPos;
 }
 
-int8_t RowLinePosition::getLineAfterSegmentStart() {
+int8_t RowBitmapLineSegmentFinder::getLineAfterSegmentStart() {
   return lineAfterSegmentStart;
 }
 
-int8_t RowLinePosition::getLineAfterSegmentEnd() {
+int8_t RowBitmapLineSegmentFinder::getLineAfterSegmentEnd() {
   return lineAfterSegmentEnd;
 }
 

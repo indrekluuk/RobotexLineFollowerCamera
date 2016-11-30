@@ -27,8 +27,8 @@ add_executable(runTests
         test/fake/Arduino.cpp
 
         arduino/src/line/Line.h
-        arduino/src/line/RowLinePosition.h
-        arduino/src/line/RowLinePosition.cpp
+        arduino/src/line/RowBitmapLineSegmentFinder.h
+        arduino/src/line/RowBitmapLineSegmentFinder.cpp
 
         test/src/line/RowLinePositionTest.cpp
         test/src/line/LineTest.cpp

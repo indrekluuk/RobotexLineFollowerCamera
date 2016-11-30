@@ -7,7 +7,7 @@
 
 
 #include "LineEdge.h"
-#include "RowLinePosition.h"
+#include "RowBitmapLineSegmentFinder.h"
 #include <Arduino.h>
 
 
@@ -53,9 +53,9 @@ public:
 
 
 private:
-    int8_t updateLine(uint8_t rowIndex, RowLinePosition & position);
-    void processBeforeAndAfterSegments(uint8_t rowIndex, RowLinePosition & position);
-    inline bool doesPositionTouchLine(RowLinePosition & position) __attribute__((always_inline));
+    int8_t updateLine(uint8_t rowIndex, RowBitmapLineSegmentFinder & position);
+    void processBeforeAndAfterSegments(uint8_t rowIndex, RowBitmapLineSegmentFinder & position);
+    inline bool doesPositionTouchLine(RowBitmapLineSegmentFinder & position) __attribute__((always_inline));
     inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineTop(uint8_t rowIndex, int8_t position, bool isEnd) __attribute__((always_inline));
 };
@@ -73,9 +73,9 @@ Line<totalRowCount>::Line() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
-  lineSeekStart = RowLinePosition::lineNotFound;
-  lineSeekEnd = RowLinePosition::lineNotFound;
-  previousDetectedLinePosition = RowLinePosition::rowRangeMidPoint;
+  lineSeekStart = RowBitmapLineSegmentFinder::lineNotFound;
+  lineSeekEnd = RowBitmapLineSegmentFinder::lineNotFound;
+  previousDetectedLinePosition = RowBitmapLineSegmentFinder::rowRangeMidPoint;
   startEdge.reset();
   endEdge.reset();
 
@@ -91,8 +91,8 @@ template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
 
   if (lineTopRowIndex <0) {
-    RowLinePosition position(rowIndex, bitmapHigh, bitmapLow, lineSeekStart, lineSeekEnd);
-    int8_t currentDetectedLinePosition = RowLinePosition::lineNotFound;
+    RowBitmapLineSegmentFinder position(rowIndex, bitmapHigh, bitmapLow, lineSeekStart, lineSeekEnd);
+    int8_t currentDetectedLinePosition = RowBitmapLineSegmentFinder::lineNotFound;
 
     if (position.isLineNotFound()) {
       if (lineBottomRowIndex >= 0) {
@@ -120,7 +120,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
     previousDetectedLinePosition = currentDetectedLinePosition;
     return currentDetectedLinePosition;
   } else {
-    return RowLinePosition::lineNotFound;
+    return RowBitmapLineSegmentFinder::lineNotFound;
   }
 }
 
@@ -128,7 +128,7 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & position) {
+int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowBitmapLineSegmentFinder & position) {
   if (!startEdge.isInitialized()) {
     startEdge.init(position.getLineSegmentStart(), position.getLinePosition());
     endEdge.init(position.getLineSegmentEnd(),position.getLinePosition());
@@ -169,8 +169,8 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & posit
 
 
 template <int8_t totalRowCount>
-bool Line<totalRowCount>::doesPositionTouchLine(RowLinePosition & position) {
-  return RowLinePosition::areSegmentsTouching(
+bool Line<totalRowCount>::doesPositionTouchLine(RowBitmapLineSegmentFinder & position) {
+  return RowBitmapLineSegmentFinder::areSegmentsTouching(
       position.getLineSegmentStart(),
       position.getLineSegmentEnd(),
       startEdge.currentStepPosition,

@@ -3,7 +3,7 @@
 //
 
 
-#include "line/RowLinePosition.h"
+#include "line/RowBitmapLineSegmentFinder.h"
 #include "gtest/gtest.h"
 
 
@@ -11,77 +11,77 @@
 
 
 TEST(RowLinePositionTest, testLineNotFound) {
-  RowLinePosition linePosition(60, 0b00000000, 0b00000000, RowLinePosition::rowRangeMidPoint, RowLinePosition::rowRangeMidPoint);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00000000, 0b00000000, RowBitmapLineSegmentFinder::rowRangeMidPoint, RowBitmapLineSegmentFinder::rowRangeMidPoint);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_TRUE(linePosition.isLineNotFound(linePos));
 }
 
 
 TEST(RowLinePositionTest, testLineInTheMiddle) {
-  RowLinePosition linePosition(60, 0b00000001, 0b10000000, RowLinePosition::rowRangeMidPoint, RowLinePosition::rowRangeMidPoint);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00000001, 0b10000000, RowBitmapLineSegmentFinder::rowRangeMidPoint, RowBitmapLineSegmentFinder::rowRangeMidPoint);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(15, linePos);
 }
 
 
 TEST(RowLinePositionTest, testLineOnTheEdge1) {
-  RowLinePosition linePosition(60, 0b10000000, 0b00000000, RowLinePosition::rowRangeMidPoint, RowLinePosition::rowRangeMidPoint);
+  RowBitmapLineSegmentFinder linePosition(60, 0b10000000, 0b00000000, RowBitmapLineSegmentFinder::rowRangeMidPoint, RowBitmapLineSegmentFinder::rowRangeMidPoint);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(30, linePos);
 }
 
 
 TEST(RowLinePositionTest, testLineOnTheEdge2) {
-  RowLinePosition linePosition(60, 0b00000000, 0b00000001, RowLinePosition::rowRangeMidPoint, RowLinePosition::rowRangeMidPoint);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00000000, 0b00000001, RowBitmapLineSegmentFinder::rowRangeMidPoint, RowBitmapLineSegmentFinder::rowRangeMidPoint);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(0, linePos);
 }
 
 
 TEST(RowLinePositionTest, testOhterLineBeforeCenterLine) {
-  RowLinePosition linePosition(60, 0b00000010, 0b00000110, RowLinePosition::rowRangeMidPoint, RowLinePosition::rowRangeMidPoint);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00000010, 0b00000110, RowBitmapLineSegmentFinder::rowRangeMidPoint, RowBitmapLineSegmentFinder::rowRangeMidPoint);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(18, linePos);
 }
 
 
 TEST(RowLinePositionTest, testOhterLineAfterCenterLine) {
-  RowLinePosition linePosition(60, 0b00110010, 0b00000000, RowLinePosition::rowRangeMidPoint, RowLinePosition::rowRangeMidPoint);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00110010, 0b00000000, RowBitmapLineSegmentFinder::rowRangeMidPoint, RowBitmapLineSegmentFinder::rowRangeMidPoint);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(18, linePos);
 }
 
 
 TEST(RowLinePositionTest, testWideLine) {
-  RowLinePosition linePosition(60, 0b00000111, 0b11000000, RowLinePosition::rowRangeMidPoint, RowLinePosition::rowRangeMidPoint);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00000111, 0b11000000, RowBitmapLineSegmentFinder::rowRangeMidPoint, RowBitmapLineSegmentFinder::rowRangeMidPoint);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(16, linePos);
 }
 
 
 TEST(RowLinePositionTest, testShiftedSeekPoint1) {
-  RowLinePosition linePosition(60, 0b00010001, 0b11000110, 22, 23);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00010001, 0b11000110, 22, 23);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(24, linePos);
 }
 
 
 TEST(RowLinePositionTest, testShiftedSeekPoint2) {
-  RowLinePosition linePosition(60, 0b00010001, 0b11000110, 4, 6);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00010001, 0b11000110, 4, 6);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(3, linePos);
 }
 
 
 TEST(RowLinePositionTest, testTwoNegatwesSeekRight) {
-  RowLinePosition linePosition(60, 0b00000000, 0b01100100, 11, 12);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00000000, 0b01100100, 11, 12);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(11, linePos);
 }
 
 
 TEST(RowLinePositionTest, testTwoNegatwesSeekLeft) {
-  RowLinePosition linePosition(60, 0b00000000, 0b01100100, 4, 5);
+  RowBitmapLineSegmentFinder linePosition(60, 0b00000000, 0b01100100, 4, 5);
   int8_t linePos = linePosition.getLinePosition();
   ASSERT_EQ(4, linePos);
 }
@@ -89,11 +89,11 @@ TEST(RowLinePositionTest, testTwoNegatwesSeekLeft) {
 
 
 TEST(RowLinePositionTest, ignoreBottomCorners2pixels) {
-  RowLinePosition linePosition1(7, 0b11000000, 0b00000000, RowLinePosition::lineNotFound, RowLinePosition::lineNotFound);
+  RowBitmapLineSegmentFinder linePosition1(7, 0b11000000, 0b00000000, RowBitmapLineSegmentFinder::lineNotFound, RowBitmapLineSegmentFinder::lineNotFound);
   int8_t linePos1 = linePosition1.getLinePosition();
   ASSERT_TRUE(linePosition1.isLineNotFound(linePos1));
 
-  RowLinePosition linePosition2(7, 0b11100000, 0b00000000, RowLinePosition::lineNotFound, RowLinePosition::lineNotFound);
+  RowBitmapLineSegmentFinder linePosition2(7, 0b11100000, 0b00000000, RowBitmapLineSegmentFinder::lineNotFound, RowBitmapLineSegmentFinder::lineNotFound);
   int8_t linePos2 = linePosition2.getLinePosition();
   ASSERT_EQ(30, linePos2);
 }
@@ -101,15 +101,15 @@ TEST(RowLinePositionTest, ignoreBottomCorners2pixels) {
 
 
 TEST(RowLinePositionTest, ignoreBottomCorners1pixels) {
-  RowLinePosition linePosition1(18, 0b00000000, 0b00000001, RowLinePosition::lineNotFound, RowLinePosition::lineNotFound);
+  RowBitmapLineSegmentFinder linePosition1(18, 0b00000000, 0b00000001, RowBitmapLineSegmentFinder::lineNotFound, RowBitmapLineSegmentFinder::lineNotFound);
   int8_t linePos1 = linePosition1.getLinePosition();
   ASSERT_TRUE(linePosition1.isLineNotFound(linePos1));
 
-  RowLinePosition linePosition2(18, 0b0000000, 0b00000011, RowLinePosition::lineNotFound, RowLinePosition::lineNotFound);
+  RowBitmapLineSegmentFinder linePosition2(18, 0b0000000, 0b00000011, RowBitmapLineSegmentFinder::lineNotFound, RowBitmapLineSegmentFinder::lineNotFound);
   int8_t linePos2 = linePosition2.getLinePosition();
   ASSERT_EQ(0, linePos2);
 
-  RowLinePosition linePosition3(30, 0b00000000, 0b00000001, RowLinePosition::lineNotFound, RowLinePosition::lineNotFound);
+  RowBitmapLineSegmentFinder linePosition3(30, 0b00000000, 0b00000001, RowBitmapLineSegmentFinder::lineNotFound, RowBitmapLineSegmentFinder::lineNotFound);
   int8_t linePos3 = linePosition3.getLinePosition();
   ASSERT_EQ(0, linePos3);
 }
@@ -120,13 +120,13 @@ TEST(RowLinePositionTest, ignoreBottomCorners1pixels) {
 
 
 TEST(RowLinePositionTest, testSegmentBeforeAndAfter) {
-  RowLinePosition linePosition1(60, 0b00000111, 0b00000000, RowLinePosition::lineNotFound, RowLinePosition::lineNotFound);
+  RowBitmapLineSegmentFinder linePosition1(60, 0b00000111, 0b00000000, RowBitmapLineSegmentFinder::lineNotFound, RowBitmapLineSegmentFinder::lineNotFound);
   ASSERT_EQ(18, linePosition1.getLinePosition());
   ASSERT_FALSE(linePosition1.isLineBefore());
   ASSERT_FALSE(linePosition1.isLineAfter());
 
   // only before
-  RowLinePosition linePosition2(60, 0b00000111, 0b00000110, 15, 16);
+  RowBitmapLineSegmentFinder linePosition2(60, 0b00000111, 0b00000110, 15, 16);
   ASSERT_EQ(18, linePosition2.getLinePosition());
   ASSERT_TRUE(linePosition2.isLineBefore());
   ASSERT_EQ(3, linePosition2.getLineBeforePosition());
@@ -135,7 +135,7 @@ TEST(RowLinePositionTest, testSegmentBeforeAndAfter) {
   ASSERT_FALSE(linePosition2.isLineAfter());
 
   // before and after
-  RowLinePosition linePosition3(60, 0b11110111, 0b00000110, 15, 16);
+  RowBitmapLineSegmentFinder linePosition3(60, 0b11110111, 0b00000110, 15, 16);
   ASSERT_EQ(18, linePosition3.getLinePosition());
   ASSERT_TRUE(linePosition3.isLineBefore());
   ASSERT_EQ(3, linePosition3.getLineBeforePosition());
@@ -147,7 +147,7 @@ TEST(RowLinePositionTest, testSegmentBeforeAndAfter) {
   ASSERT_EQ(30, linePosition3.getLineAfterSegmentEnd());
 
   // two before
-  RowLinePosition linePosition4(60, 0b00111000, 0b01100111, 24, 25);
+  RowBitmapLineSegmentFinder linePosition4(60, 0b00111000, 0b01100111, 24, 25);
   ASSERT_EQ(24, linePosition4.getLinePosition());
   ASSERT_TRUE(linePosition4.isLineBefore());
   ASSERT_EQ(11, linePosition4.getLineBeforePosition());
@@ -156,7 +156,7 @@ TEST(RowLinePositionTest, testSegmentBeforeAndAfter) {
   ASSERT_FALSE(linePosition4.isLineAfter());
 
   // two after
-  RowLinePosition linePosition5(60, 0b00111000, 0b01100111, 2, 3);
+  RowBitmapLineSegmentFinder linePosition5(60, 0b00111000, 0b01100111, 2, 3);
   ASSERT_EQ(0, linePosition5.getLinePosition());
   ASSERT_FALSE(linePosition5.isLineBefore());
   ASSERT_TRUE(linePosition5.isLineAfter());
@@ -170,15 +170,15 @@ TEST(RowLinePositionTest, testSegmentBeforeAndAfter) {
 
 TEST(RowLinePositionTest, testCooseCorrectPathOnSplit) {
   // all segments touching seek segment. Choose closest to middle of the screen
-  RowLinePosition linePosition1(60, 0b11001100, 0b00001111, 2, 28);
+  RowBitmapLineSegmentFinder linePosition1(60, 0b11001100, 0b00001111, 2, 28);
   ASSERT_EQ(21, linePosition1.getLinePosition());
 
   // all segments touching seek segment. Choose closest to middle of the screen
-  RowLinePosition linePosition2(60, 0b00000011, 0b01100000, 0, 16);
+  RowBitmapLineSegmentFinder linePosition2(60, 0b00000011, 0b01100000, 0, 16);
   ASSERT_EQ(17, linePosition2.getLinePosition());
 
   // No segments touching seek segment. Choose closest to seek position
-  RowLinePosition linePosition3(60, 0b01100000, 0b11000000, 23, 24);
+  RowBitmapLineSegmentFinder linePosition3(60, 0b01100000, 0b11000000, 23, 24);
   ASSERT_EQ(27, linePosition3.getLinePosition());
 }
 

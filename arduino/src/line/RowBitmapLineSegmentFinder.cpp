@@ -2,14 +2,14 @@
 // Created by indrek on 16.11.2016.
 //
 
-#include "RowLinePosition.h"
+#include "RowBitmapLineSegmentFinder.h"
 
 
 
 
 
 
-RowLinePosition::RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t lineSeekStart, int8_t lineSeekEnd)
+RowBitmapLineSegmentFinder::RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t lineSeekStart, int8_t lineSeekEnd)
     :
       rowIndex(rowIndex),
       bitmapHigh(bitmapHigh),

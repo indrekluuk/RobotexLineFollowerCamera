@@ -10,7 +10,7 @@
 
 
 uint8_t shiftIndex(uint8_t index) {
-  return RowLinePosition::getIgnoreRowCount() + index;
+  return RowBitmapLineSegmentFinder::getIgnoreRowCount() + index;
 }
 
 
