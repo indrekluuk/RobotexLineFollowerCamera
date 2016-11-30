@@ -9,7 +9,7 @@
 
 
 
-RowLinePosition::RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t seekPos)
+RowLinePosition::RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t lineSeekStart, int8_t lineSeekEnd)
     :
       rowIndex(rowIndex),
       bitmapHigh(bitmapHigh),
@@ -17,13 +17,16 @@ RowLinePosition::RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t b
       lineSegmentStart(lineNotFound),
       lineSegmentEnd(lineNotFound),
       linePos(lineNotFound),
+      lineTouchesSeekSegment(false),
       lineBeforeSegmentStart(lineNotFound),
       lineBeforeSegmentEnd(lineNotFound),
       lineBeforePos(lineNotFound),
       lineAfterSegmentStart(lineNotFound),
       lineAfterSegmentEnd(lineNotFound),
       lineAfterPos(lineNotFound),
-      lineSeekPos(seekPos)
+      lineSeekStart(lineSeekStart),
+      lineSeekEnd(lineSeekEnd),
+      lineSeekPosition((lineSeekStart + lineSeekEnd) >> 1)
 {
   int8_t segmentStart = lineNotFound;
   if (rowIndex >= ignoreRows) {

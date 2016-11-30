@@ -23,7 +23,8 @@ class Line {
     LineEdge startEdge;
     LineEdge endEdge;
     int8_t previousDetectedLinePosition;
-    int8_t lineSeekPosition;
+    int8_t lineSeekStart;
+    int8_t lineSeekEnd;
 
     int8_t lineBottomRowIndex;
     int8_t lineBottomPosition;
@@ -55,8 +56,7 @@ public:
 private:
     int8_t updateLine(uint8_t rowIndex, RowLinePosition & position);
     void processBeforeAndAfterSegments(uint8_t rowIndex, RowLinePosition & position);
-    inline bool areSegmentsTouching(RowLinePosition & position) __attribute__((always_inline));
-    inline bool areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) __attribute__((always_inline));
+    inline bool doesPositionTouchLine(RowLinePosition & position) __attribute__((always_inline));
     inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineTop(uint8_t rowIndex, int8_t position, bool isEnd) __attribute__((always_inline));
 };
@@ -74,7 +74,8 @@ Line<totalRowCount>::Line() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
-  lineSeekPosition = RowLinePosition::lineNotFound;
+  lineSeekStart = RowLinePosition::lineNotFound;
+  lineSeekEnd = RowLinePosition::lineNotFound;
   previousDetectedLinePosition = RowLinePosition::rowRangeMidPoint;
   startEdge.reset();
   endEdge.reset();
@@ -91,7 +92,7 @@ template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
 
   if (lineTopRowIndex <0) {
-    RowLinePosition position(rowIndex, bitmapHigh, bitmapLow, lineSeekPosition);
+    RowLinePosition position(rowIndex, bitmapHigh, bitmapLow, lineSeekStart, lineSeekEnd);
     int8_t currentDetectedLinePosition = RowLinePosition::lineNotFound;
 
     if (position.isLineNotFound()) {
@@ -110,12 +111,13 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
         setLineTop(rowIndex - 1, previousDetectedLinePosition, true);
       } else {
         if (rowIndex == totalRowCount - 1) {
-          setLineTop(rowIndex, position.getLinePosition(), true);
+          setLineTop(rowIndex, currentDetectedLinePosition, true);
         }
       }
     }
 
-    lineSeekPosition = position.getLinePosition();
+    lineSeekStart = position.getLineSegmentStart();
+    lineSeekEnd = position.getLineSegmentEnd();
     previousDetectedLinePosition = currentDetectedLinePosition;
     return currentDetectedLinePosition;
   } else {
@@ -133,7 +135,7 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & posit
     endEdge.init(position.getLineSegmentEnd(),position.getLinePosition());
     return position.getLinePosition();
   } else {
-    if (areSegmentsTouching(position)) {
+    if (doesPositionTouchLine(position)) {
 
       if (rowIndex < turnDetectionFromLine) {
         startEdge.resetFirstStepTo(position.getLineSegmentStart(), position.getLinePosition());
@@ -168,19 +170,13 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowLinePosition & posit
 
 
 template <int8_t totalRowCount>
-bool Line<totalRowCount>::areSegmentsTouching(RowLinePosition & position) {
-  return areSegmentsTouching(
+bool Line<totalRowCount>::doesPositionTouchLine(RowLinePosition & position) {
+  return RowLinePosition::areSegmentsTouching(
       position.getLineSegmentStart(),
       position.getLineSegmentEnd(),
       startEdge.currentStepPosition,
       endEdge.currentStepPosition);
 }
-
-template <int8_t totalRowCount>
-bool Line<totalRowCount>::areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) {
-  return ((end1 - start2 >= -2) && (end2- start1 >= -2));
-}
-
 
 
 

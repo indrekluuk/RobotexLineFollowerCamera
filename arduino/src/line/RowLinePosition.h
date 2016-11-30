@@ -26,6 +26,7 @@ class RowLinePosition {
     int8_t lineSegmentStart;
     int8_t lineSegmentEnd;
     int8_t linePos;
+    bool  lineTouchesSeekSegment;
 
     int8_t lineBeforeSegmentStart;
     int8_t lineBeforeSegmentEnd;
@@ -35,7 +36,9 @@ class RowLinePosition {
     int8_t lineAfterSegmentEnd;
     int8_t lineAfterPos;
 
-    int8_t lineSeekPos;
+    int8_t lineSeekStart;
+    int8_t lineSeekEnd;
+    int8_t lineSeekPosition;
 
 public:
 
@@ -44,7 +47,7 @@ public:
     static const int8_t lineNotFound = -1;
 
 
-    RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t seekPos);
+    RowLinePosition(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t lineSeekStart, int8_t lineSeekEnd);
 
     inline static const bool isInRange(int8_t linePos) __attribute__((always_inline));
     inline static const bool isLineNotFound(int8_t linePos) __attribute__((always_inline));
@@ -70,10 +73,14 @@ public:
 
     inline int8_t getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
 
+    inline static bool areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) __attribute__((always_inline));
+
 private:
     inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart) __attribute__((always_inline));
     inline void processLineSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
+    inline bool isHigherPrioritySegment(int8_t newLinePos, bool isNewSegmentTouchingSeekSegment) __attribute__((always_inline));
     inline bool isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
+
 
 };
 
@@ -99,12 +106,15 @@ void RowLinePosition::processPixel(bool isActive, uint8_t index, int8_t &segment
 void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd) {
   if (!isIgnoreSegment(segmentStart, segmentEnd)) {
     int8_t newLinePos = getLinePositionForSegment(segmentStart, segmentEnd);
+    bool newSegmentTouchesSeekSegment = areSegmentsTouching(segmentStart, segmentEnd, lineSeekStart,lineSeekEnd);
     if (linePos == lineNotFound) {
       linePos = newLinePos;
       lineSegmentStart = segmentStart;
       lineSegmentEnd = segmentEnd;
+      lineTouchesSeekSegment = newSegmentTouchesSeekSegment;
     } else {
-      if (abs(lineSeekPos-newLinePos) < abs(lineSeekPos-linePos)) {
+
+      if (isHigherPrioritySegment(newLinePos, newSegmentTouchesSeekSegment)) {
         lineBeforeSegmentStart = lineSegmentStart;
         lineBeforeSegmentEnd = lineSegmentEnd;
         lineBeforePos = linePos;
@@ -112,6 +122,7 @@ void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd)
         linePos = newLinePos;
         lineSegmentStart = segmentStart;
         lineSegmentEnd = segmentEnd;
+        lineTouchesSeekSegment = newSegmentTouchesSeekSegment;
       } else if (lineAfterPos == lineNotFound) {
         lineAfterPos = newLinePos;
         lineAfterSegmentStart = segmentStart;
@@ -123,7 +134,7 @@ void RowLinePosition::processLineSegment(int8_t segmentStart, int8_t segmentEnd)
 
 
 bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
-  if (lineSeekPos != lineNotFound) {
+  if (lineSeekStart != lineNotFound) {
     return false;
   }
   if (rowIndex < ignore2pixelsOnCornersRows) {
@@ -138,14 +149,42 @@ bool RowLinePosition::isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) {
 }
 
 
+
+bool RowLinePosition::isHigherPrioritySegment(int8_t newLinePos, bool isNewSegmentTouchingSeekSegment) {
+
+  // 1. Segments touching
+  // 2. if both segment touching then the one closest to mid-screen
+  // 3. if neither segment touching then closest to last seek point
+
+  if (lineTouchesSeekSegment != isNewSegmentTouchingSeekSegment) {
+    return isNewSegmentTouchingSeekSegment;
+  } else {
+    if (isNewSegmentTouchingSeekSegment) {
+      return (abs(rowRangeMidPoint-newLinePos) < abs(rowRangeMidPoint-linePos));
+    } else {
+      return (abs(lineSeekPosition-newLinePos) < abs(lineSeekPosition-linePos));
+    }
+  }
+}
+
+
+
+
+bool RowLinePosition::areSegmentsTouching(int8_t start1, int8_t end1, int8_t start2, int8_t end2) {
+  return ((end1 - start2 >= -2) && (end2- start1 >= -2));
+}
+
+
+
+
 int8_t RowLinePosition::getLinePositionForSegment(int8_t segmentStart, int8_t segmentEnd) {
-  if (segmentStart != 0 && segmentEnd != rowRange) {
+  if (segmentStart > 0 && segmentEnd < rowRange) {
     return (int8_t)((segmentEnd + segmentStart) >> 1);
   } else if (segmentStart == 0 && segmentEnd == rowRange) {
-    if (lineSeekPos == lineNotFound) {
+    if (lineSeekStart == lineNotFound) {
       return rowRangeMidPoint;
     } else {
-      return lineSeekPos > rowRangeMidPoint ? segmentEnd : segmentStart;
+      return ((lineSeekStart + lineSeekEnd)>>1) > rowRangeMidPoint ? segmentEnd : segmentStart;
     }
   } else {
     if (segmentStart == 0) {

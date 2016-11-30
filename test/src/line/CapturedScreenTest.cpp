@@ -17,6 +17,7 @@
 #include "screencapture/Capture9.h"
 #include "screencapture/Capture10.h"
 #include "screencapture/Capture11.h"
+#include "screencapture/Capture12.h"
 
 
 
@@ -138,4 +139,29 @@ TEST(CapturedScreenTest, testCapture10) {
   ASSERT_EQ(119, line.getLineTopRowIndex());
   ASSERT_EQ(30, line.getLineTopPosition());
 }
+
+
+
+
+TEST(CapturedScreenTest, testCapture11) {
+  Line<120> line;
+  TestScreenProcessor<120> screenProcessor(line);
+  screenProcessor.process(capture_11);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(9, line.getLineTopPosition());
+}
+
+
+
+
+
+TEST(CapturedScreenTest, testCapture12) {
+  Line<120> line;
+  TestScreenProcessor<120> screenProcessor(line);
+  screenProcessor.process(capture_12);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(12, line.getLineTopPosition());
+}
+
+
 
