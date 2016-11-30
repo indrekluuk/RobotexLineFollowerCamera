@@ -29,8 +29,9 @@ add_executable(runTests
         arduino/src/line/Line.h
         arduino/src/line/RowBitmapLineSegmentFinder.h
         arduino/src/line/RowBitmapLineSegmentFinder.cpp
+        arduino/src/line/LineSegment.cpp
 
-        test/src/line/RowLinePositionTest.cpp
+        test/src/line/RowBitmapLineSegmentFinderTest.cpp
         test/src/line/LineTest.cpp
         test/src/line/CapturedScreenTest.cpp
         test/src/line/LineEdgeTest.cpp

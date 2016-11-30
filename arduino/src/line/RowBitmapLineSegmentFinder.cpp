@@ -9,26 +9,14 @@
 
 
 
-RowBitmapLineSegmentFinder::RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, int8_t lineSeekStart, int8_t lineSeekEnd)
+RowBitmapLineSegmentFinder::RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow, LineSegment * lineSeekSegment)
     :
       rowIndex(rowIndex),
       bitmapHigh(bitmapHigh),
       bitmapLow(bitmapLow),
-      lineSegmentStart(lineNotFound),
-      lineSegmentEnd(lineNotFound),
-      linePos(lineNotFound),
-      lineTouchesSeekSegment(false),
-      lineBeforeSegmentStart(lineNotFound),
-      lineBeforeSegmentEnd(lineNotFound),
-      lineBeforePos(lineNotFound),
-      lineAfterSegmentStart(lineNotFound),
-      lineAfterSegmentEnd(lineNotFound),
-      lineAfterPos(lineNotFound),
-      lineSeekStart(lineSeekStart),
-      lineSeekEnd(lineSeekEnd),
-      lineSeekPosition((lineSeekStart + lineSeekEnd) >> 1)
+      lineSeekSegment(lineSeekSegment)
 {
-  int8_t segmentStart = lineNotFound;
+  int8_t segmentStart = LineSegment::lineNotFound;
   if (rowIndex >= ignoreRows) {
     processPixel(bitmapLow  & (uint8_t)0b00000001,  0, segmentStart);
     processPixel(bitmapLow  & (uint8_t)0b00000010,  2, segmentStart);
@@ -47,7 +35,7 @@ RowBitmapLineSegmentFinder::RowBitmapLineSegmentFinder(uint8_t rowIndex, uint8_t
     processPixel(bitmapHigh & (uint8_t)0b01000000, 28, segmentStart);
     processPixel(bitmapHigh & (uint8_t)0b10000000, 30, segmentStart);
 
-    if (segmentStart != lineNotFound) {
+    if (segmentStart != LineSegment::lineNotFound) {
       processLineSegment(segmentStart, 30);
     }
   }

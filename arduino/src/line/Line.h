@@ -22,8 +22,7 @@ class Line {
     LineEdge startEdge;
     LineEdge endEdge;
     int8_t previousDetectedLinePosition;
-    int8_t lineSeekStart;
-    int8_t lineSeekEnd;
+    LineSegment lineSeekSegment;
 
     int8_t lineBottomRowIndex;
     int8_t lineBottomPosition;
@@ -53,9 +52,7 @@ public:
 
 
 private:
-    int8_t updateLine(uint8_t rowIndex, RowBitmapLineSegmentFinder & position);
-    void processBeforeAndAfterSegments(uint8_t rowIndex, RowBitmapLineSegmentFinder & position);
-    inline bool doesPositionTouchLine(RowBitmapLineSegmentFinder & position) __attribute__((always_inline));
+    int8_t updateLine(uint8_t rowIndex, LineSegment &lineSegment);
     inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineTop(uint8_t rowIndex, int8_t position, bool isEnd) __attribute__((always_inline));
 };
@@ -73,9 +70,8 @@ Line<totalRowCount>::Line() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
-  lineSeekStart = RowBitmapLineSegmentFinder::lineNotFound;
-  lineSeekEnd = RowBitmapLineSegmentFinder::lineNotFound;
-  previousDetectedLinePosition = RowBitmapLineSegmentFinder::rowRangeMidPoint;
+  lineSeekSegment = LineSegment();
+  previousDetectedLinePosition = LineSegment::rowRangeMidPoint;
   startEdge.reset();
   endEdge.reset();
 
@@ -91,19 +87,21 @@ template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
 
   if (lineTopRowIndex <0) {
-    RowBitmapLineSegmentFinder position(rowIndex, bitmapHigh, bitmapLow, lineSeekStart, lineSeekEnd);
-    int8_t currentDetectedLinePosition = RowBitmapLineSegmentFinder::lineNotFound;
+    RowBitmapLineSegmentFinder lineFinder(rowIndex, bitmapHigh, bitmapLow, lineSeekSegment.isLineNotFound() ? nullptr : &lineSeekSegment);
+    int8_t currentDetectedLinePosition = LineSegment::lineNotFound;
 
-    if (position.isLineNotFound()) {
+    if (!lineFinder.isLineFound()) {
       if (lineBottomRowIndex >= 0) {
         setLineTop(rowIndex-1, previousDetectedLinePosition, true);
       }
     } else {
+      LineSegment &lineSegment = lineFinder.getFoundLineSegment();
+
       if (lineBottomRowIndex < 0) {
-        setLineBottom(rowIndex, position.getLinePosition());
+        setLineBottom(rowIndex, lineSegment.getLinePosition());
       }
 
-      currentDetectedLinePosition = updateLine(rowIndex, position);
+      currentDetectedLinePosition = updateLine(rowIndex, lineSegment);
       if (currentDetectedLinePosition == lineTurn) {
         setLineTop(rowIndex - 1, previousDetectedLinePosition, false);
       } else if (currentDetectedLinePosition == lineEnd) {
@@ -115,12 +113,13 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
       }
     }
 
-    lineSeekStart = position.getLineSegmentStart();
-    lineSeekEnd = position.getLineSegmentEnd();
+    if (lineFinder.isLineFound()) {
+      lineSeekSegment = lineFinder.getFoundLineSegment();
+    }
     previousDetectedLinePosition = currentDetectedLinePosition;
     return currentDetectedLinePosition;
   } else {
-    return RowBitmapLineSegmentFinder::lineNotFound;
+    return LineSegment::lineNotFound;
   }
 }
 
@@ -128,32 +127,32 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowBitmapLineSegmentFinder & position) {
+int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, LineSegment &lineSegment) {
   if (!startEdge.isInitialized()) {
-    startEdge.init(position.getLineSegmentStart(), position.getLinePosition());
-    endEdge.init(position.getLineSegmentEnd(),position.getLinePosition());
-    return position.getLinePosition();
+    startEdge.init(lineSegment.getStart(), lineSegment.getLinePosition());
+    endEdge.init(lineSegment.getEnd(),lineSegment.getLinePosition());
+    return lineSegment.getLinePosition();
   } else {
-    if (doesPositionTouchLine(position)) {
+    if (lineSegment.touchesSegment(startEdge.currentStepPosition, endEdge.currentStepPosition)) {
 
       if (rowIndex < turnDetectionFromLine) {
-        startEdge.resetFirstStepTo(position.getLineSegmentStart(), position.getLinePosition());
-        endEdge.resetFirstStepTo(position.getLineSegmentEnd(), position.getLinePosition());
-        return position.getLinePosition();
+        startEdge.resetFirstStepTo(lineSegment.getStart(), lineSegment.getLinePosition());
+        endEdge.resetFirstStepTo(lineSegment.getEnd(), lineSegment.getLinePosition());
+        return lineSegment.getLinePosition();
       }
 
-      startEdge.update(position.getLineSegmentStart());
-      endEdge.update(position.getLineSegmentEnd());
+      startEdge.update(lineSegment.getStart());
+      endEdge.update(lineSegment.getEnd());
 
       if (startEdge.isContinues() && endEdge.isContinues()) {
-        startEdge.calculateLinePositionToEdge(position.getLinePosition());
-        endEdge.calculateLinePositionToEdge(position.getLinePosition());
-        return position.getLinePosition();
+        startEdge.calculateLinePositionToEdge(lineSegment.getLinePosition());
+        endEdge.calculateLinePositionToEdge(lineSegment.getLinePosition());
+        return lineSegment.getLinePosition();
       } else if (startEdge.isContinues()) {
-        startEdge.calculateLinePositionToEdgeDecreaseOnly(position.getLinePosition());
+        startEdge.calculateLinePositionToEdgeDecreaseOnly(lineSegment.getLinePosition());
         return startEdge.getLinePositionFromEdge();
       } else if (endEdge.isContinues()) {
-        endEdge.calculateLinePositionToEdgeDecreaseOnly(position.getLinePosition());
+        endEdge.calculateLinePositionToEdgeDecreaseOnly(lineSegment.getLinePosition());
         return endEdge.getLinePositionFromEdge();
       } else {
         return lineTurn;
@@ -164,19 +163,6 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, RowBitmapLineSegmentFin
     }
   }
 }
-
-
-
-
-template <int8_t totalRowCount>
-bool Line<totalRowCount>::doesPositionTouchLine(RowBitmapLineSegmentFinder & position) {
-  return RowBitmapLineSegmentFinder::areSegmentsTouching(
-      position.getLineSegmentStart(),
-      position.getLineSegmentEnd(),
-      startEdge.currentStepPosition,
-      endEdge.currentStepPosition);
-}
-
 
 
 

@@ -61,7 +61,7 @@ void LineEdge::init(int8_t edgePos, int8_t linePos) {
   firstStepCount = -1;
   firstStepPosition = -1;
 
-  currentStepCount = RowBitmapLineSegmentFinder::isOnEdge(edgePos) ? -1 : 1;
+  currentStepCount = LineSegment::isOnEdge(edgePos) ? -1 : 1;
   currentStepPosition = edgePos;
   calculateLinePositionToEdge(linePos);
 
@@ -111,7 +111,7 @@ void LineEdge::update(int8_t edgePos) {
         }
 
         if (validStepCount < 0) {
-          validStepCount = !RowBitmapLineSegmentFinder::isOnEdge(firstStepPosition) && firstStepCount > currentStepCount ?
+          validStepCount = !LineSegment::isOnEdge(firstStepPosition) && firstStepCount > currentStepCount ?
                            firstStepCount : currentStepCount;
           allowedStepDifference = calculateAllowedDifference(validStepCount);
         }
