@@ -38,10 +38,10 @@ public:
 
 
 private:
-    inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart); // todo __attribute__((always_inline));
-    inline void processLineSegment(int8_t segmentStart, int8_t segmentEnd); // todo __attribute__((always_inline));
-    inline bool isHigherPrioritySegment(LineSegment & lineSegment); // todo __attribute__((always_inline));
-    inline bool isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd); // todo __attribute__((always_inline));
+    inline void processPixel(bool isActive, uint8_t index, int8_t &segmentStart) __attribute__((always_inline));
+    inline void processLineSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
+    inline bool isHigherPrioritySegment(LineSegment & lineSegment) __attribute__((always_inline));
+    inline bool isIgnoreSegment(int8_t segmentStart, int8_t segmentEnd) __attribute__((always_inline));
 
 };
 
