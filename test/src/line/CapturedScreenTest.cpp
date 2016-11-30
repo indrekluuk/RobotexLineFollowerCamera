@@ -18,6 +18,7 @@
 #include "screencapture/Capture10.h"
 #include "screencapture/Capture11.h"
 #include "screencapture/Capture12.h"
+#include "screencapture/Capture13.h"
 
 
 
@@ -124,7 +125,7 @@ TEST(CapturedScreenTest, testCapture9) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_9);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(119, line.getLineTopRowIndex());
+  ASSERT_EQ(48, line.getLineTopRowIndex());
   ASSERT_EQ(30, line.getLineTopPosition());
 }
 
@@ -136,7 +137,7 @@ TEST(CapturedScreenTest, testCapture10) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_10);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(119, line.getLineTopRowIndex());
+  ASSERT_EQ(73, line.getLineTopRowIndex());
   ASSERT_EQ(30, line.getLineTopPosition());
 }
 
@@ -148,7 +149,7 @@ TEST(CapturedScreenTest, testCapture11) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_11);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(9, line.getLineTopPosition());
+  ASSERT_EQ(18, line.getLineTopPosition());
 }
 
 
@@ -160,8 +161,21 @@ TEST(CapturedScreenTest, testCapture12) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_12);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(12, line.getLineTopPosition());
+  ASSERT_EQ(16, line.getLineTopPosition());
 }
+
+
+
+
+
+TEST(CapturedScreenTest, testCapture13) {
+  Line<120> line;
+  TestScreenProcessor<120> screenProcessor(line);
+  screenProcessor.process(capture_13);
+  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_EQ(21, line.getLineTopPosition());
+}
+
 
 
 

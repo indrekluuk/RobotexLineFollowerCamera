@@ -15,8 +15,7 @@
 template <int8_t totalRowCount>
 class Line {
 
-    static const int8_t turnDetectionFromLine = 50;
-    static const int8_t sharpTurnSegmentLengthJump = 8;
+    static const int8_t turnDetectionFromLine = 5;
     static const int8_t lineEnd = -1;
     static const int8_t lineTurn = -2;
 
