@@ -40,6 +40,8 @@ public:
 
 
     inline bool isLineFound() __attribute__((always_inline));
+    inline bool isSingleLineFound() __attribute__((always_inline));
+    inline LineSegment & getSingleLine() __attribute__((always_inline));
     inline bool isLineSplit() __attribute__((always_inline));
     inline LineSegment & getFirstLine() __attribute__((always_inline));
     inline LineSegment & getSecondLine() __attribute__((always_inline));
@@ -128,15 +130,23 @@ bool RowBitmapLineSegmentFinder::isIgnoreSegment(int8_t segmentStart, int8_t seg
 
 
 
-
-
 bool RowBitmapLineSegmentFinder::isLineFound() {
-  return firstLineSegment.isLineFound();
+  return firstLineSegment.isLineFound() || secondLineSegment.isLineFound();
+}
+
+
+bool RowBitmapLineSegmentFinder::isSingleLineFound() {
+  return firstLineSegment.isLineFound() != secondLineSegment.isLineFound();
+}
+
+
+LineSegment & RowBitmapLineSegmentFinder::getSingleLine() {
+  return firstLineSegment.isLineFound() ? firstLineSegment : secondLineSegment;
 }
 
 
 bool RowBitmapLineSegmentFinder::isLineSplit() {
-  return secondLineSegment.isLineFound();
+  return firstLineSegment.isLineFound() && secondLineSegment.isLineFound();
 }
 
 

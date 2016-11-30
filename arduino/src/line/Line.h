@@ -35,7 +35,13 @@ public:
     Line();
 
     void resetLine();
-    int8_t setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
+    void setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
+
+    inline bool isLine() __attribute__((always_inline));
+    inline bool isSplit() __attribute__((always_inline));
+    inline int8_t getLine() __attribute__((always_inline));
+    inline int8_t getFirstLine() __attribute__((always_inline));
+    inline int8_t getSecondLine() __attribute__((always_inline));
 
     constexpr static int8_t getTotalRowCount();
     bool isLineIdentified();
@@ -85,7 +91,7 @@ void Line<totalRowCount>::resetLine() {
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
+void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
 
   if (lineTopRowIndex <0) {
     bitmapLineFinder.nextRow(rowIndex, bitmapHigh, bitmapLow);
@@ -117,9 +123,6 @@ int8_t Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, u
     }
 
     previousDetectedLinePosition = currentDetectedLinePosition;
-    return currentDetectedLinePosition;
-  } else {
-    return LineSegment::lineNotFound;
   }
 }
 
@@ -174,6 +177,38 @@ int8_t Line<totalRowCount>::updateLine(uint8_t rowIndex, LineSegment &lineSegmen
   }
    */
 }
+
+
+
+
+
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isLine() {
+  return bitmapLineFinder.isSingleLineFound();
+}
+
+template <int8_t totalRowCount>
+bool Line<totalRowCount>::isSplit() {
+  return bitmapLineFinder.isLineSplit();
+}
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getLine() {
+  return bitmapLineFinder.getSingleLine().getLinePosition();
+}
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getFirstLine() {
+  return bitmapLineFinder.getFirstLine().getLinePosition();
+}
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getSecondLine() {
+  return bitmapLineFinder.getSecondLine().getLinePosition();
+}
+
+
 
 
 

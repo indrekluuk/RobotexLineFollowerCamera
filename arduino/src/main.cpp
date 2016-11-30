@@ -22,7 +22,7 @@
 
 const uint8_t COMMAND_LINE_SEGMENT = 0x10;
 
-#define FRAME_CAPTURE_MODE 1
+#define FRAME_CAPTURE_MODE 0
 
 
 Camera camera;
@@ -37,8 +37,15 @@ DataBufferSender dataBufferSender;
 void processLine(const uint8_t lineIndex);
 void processGrayscale();
 inline void processGrayScalePixel(int8_t &i, uint8_t &monochromeByte) __attribute__((always_inline));
-void processMonochrome(const uint8_t & rowIndex, int8_t linePosition);
-inline void processMonochromePixel(const uint8_t &rowIndex, int8_t &i, uint8_t &monochromeByte, int8_t lineStart, int8_t lineEnd) __attribute__((always_inline));
+void processMonochrome(const uint8_t & rowIndex, int8_t linePosition, int8_t altLine1, int8_t altLine2);
+inline void processMonochromePixel(
+    const uint8_t &rowIndex,
+    int8_t &i,
+    uint8_t &monochromeByte,
+    int8_t lineStart,
+    int8_t lineEnd,
+    int8_t altLine1,
+    int8_t altLine2) __attribute__((always_inline));
 
 
 
@@ -85,8 +92,15 @@ void run() {
 void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processGrayscale();
-  int8_t linePosition = line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
-  processMonochrome(lineIndex, ((linePosition  * 5) >> 1) + 2);
+  line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
+  int8_t linePosition = line.isLine() ? line.getLine() : -1;
+  int8_t altLine1 = -1;
+  int8_t altLine2 = -1;
+  if (line.isSplit()) {
+    altLine1 = line.getFirstLine();
+    altLine2 = line.getSecondLine();
+  }
+  processMonochrome(lineIndex, ((linePosition  * 5) >> 1) + 2, ((altLine1  * 5) >> 1) + 2, ((altLine2  * 5) >> 1) + 2);
   screen.screenLineEnd();
 
 #if FRAME_CAPTURE_MODE == 1
@@ -153,28 +167,36 @@ void processGrayScalePixel(int8_t &i, uint8_t &monochromeByte) {
 
 
 
-void processMonochrome(const uint8_t & rowIndex, int8_t linePosition) {
+void processMonochrome(const uint8_t & rowIndex, int8_t linePosition, int8_t altLine1, int8_t altLine2) {
   int8_t lineStart;
   int8_t lineEnd;
   if (linePosition < 0) {
     lineStart = -1;
     lineEnd = -1;
   } else {
-    lineStart = linePosition > 1 ? linePosition - 1 : 0;
-    lineEnd = linePosition +1;
+    lineStart = linePosition > 1 ? linePosition - 2 : 0;
+    lineEnd = linePosition +2;
   }
 
   for (int8_t i=0; i<camera.getPixelBufferLength()/2; i++) {
-    processMonochromePixel(rowIndex, i, monochromeLineLow, lineStart, lineEnd);
+    processMonochromePixel(rowIndex, i, monochromeLineLow, lineStart, lineEnd, altLine1, altLine2);
   }
   for (int8_t i=camera.getPixelBufferLength()/2; i<camera.getPixelBufferLength(); i++) {
-    processMonochromePixel(rowIndex, i, monochromeLineHigh, lineStart, lineEnd);
+    processMonochromePixel(rowIndex, i, monochromeLineHigh, lineStart, lineEnd, altLine1, altLine2);
   }
 }
 
 
 
-void processMonochromePixel(const uint8_t &rowIndex, int8_t &i, uint8_t &monochromeByte, int8_t lineStart, int8_t lineEnd) {
+void processMonochromePixel(
+    const uint8_t &rowIndex,
+    int8_t &i,
+    uint8_t &monochromeByte,
+    int8_t lineStart,
+    int8_t lineEnd,
+    int8_t altLine1,
+    int8_t altLine2
+) {
   uint8_t monochromeMask = monochromeBufferMask[i];
   if (monochromeByte & monochromeMask) {
     asm volatile("nop");
@@ -188,25 +210,30 @@ void processMonochromePixel(const uint8_t &rowIndex, int8_t &i, uint8_t &monochr
     screen.sendPixelByte((0xAA & monochromeMask ? 0xFD : 0xFF));
   }
 
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  asm volatile("nop");
-  if (i < lineStart) {
+  if (altLine1 >= 0 || altLine2 >=0) {
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
     asm volatile("nop");
-    screen.sendPixelByte(0);
+    screen.sendPixelByte(altLine2 == i || altLine1 == i ? 0xFF : 0);
   } else {
-    screen.sendPixelByte(i > lineEnd ? 0 : 0xFF);
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    asm volatile("nop");
+    if (i < lineStart) {
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
+      asm volatile("nop");
+      screen.sendPixelByte(0);
+    } else {
+      screen.sendPixelByte(i > lineEnd ? 0 : 0xFF);
+    }
   }
 
 
