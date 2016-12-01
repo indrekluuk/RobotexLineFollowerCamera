@@ -20,6 +20,7 @@ class Line {
     static const int8_t splitDetectionMinimumLineCount = 10;
     static const int8_t lineTurn = -1;
 
+    bool isLineFinderRequested;
     RowBitmapLineSegmentFinder bitmapLineFinder;
     LineEdge startEdge;
     LineEdge endEdge;
@@ -87,6 +88,7 @@ Line<totalRowCount>::Line() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
+  isLineFinderRequested = false;
   bitmapLineFinder.reset();
   startEdge.reset();
   endEdge.reset();
@@ -109,8 +111,10 @@ void Line<totalRowCount>::resetLine() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
+  isLineFinderRequested = false;
 
   if (lineTopRowIndex <0) {
+    isLineFinderRequested = true;
     bitmapLineFinder.nextRow(rowIndex, bitmapHigh, bitmapLow);
     int8_t currentLinePosition = LineSegment::lineNotFound;
     int8_t currentAltLine1Position = LineSegment::lineNotFound;
@@ -226,12 +230,12 @@ bool Line<totalRowCount>::isLastRow(int8_t rowIndex) {
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isLine() {
-  return bitmapLineFinder.isSingleLineFound();
+  return isLineFinderRequested && bitmapLineFinder.isSingleLineFound();
 }
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isSplit() {
-  return bitmapLineFinder.isLineSplit();
+  return isLineFinderRequested && bitmapLineFinder.isLineSplit();
 }
 
 template <int8_t totalRowCount>
