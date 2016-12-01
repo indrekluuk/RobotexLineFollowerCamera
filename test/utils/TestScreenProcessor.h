@@ -14,8 +14,9 @@
 
 struct LineData {
     uint16_t pixelData;
-    int8_t linePos1;
-    int8_t linePos2;
+    int8_t singleLinePos;
+    int8_t altLine1Pos;
+    int8_t altLine2Pos;
     int8_t startEdgeCount;
     int8_t endEdgeCount;
     bool startEdgeOk;
@@ -57,8 +58,11 @@ void TestScreenProcessor<rowCount>::process(uint16_t (&pixelData)[rowCount]) {
     uint16_t screenRow = pixelData[i];
     lineData[i].pixelData = screenRow;
     line.setRowBitmap(rowIndex, (screenRow >> 8) & 0xFF, (screenRow) & 0xFF);
-    lineData[i].linePos1 = line.getFirstLine();
-    lineData[i].linePos2 = line.getSecondLine();
+
+    lineData[i].singleLinePos = line.isLine() ? line.getLine() : -1;
+    lineData[i].altLine1Pos = line.isSplit() ? line.getFirstLine() : -1;
+    lineData[i].altLine2Pos = line.isSplit() ? line.getSecondLine() : -1;
+
     lineData[i].startEdgeCount = line.getStartEdgeStepCount();
     lineData[i].endEdgeCount = line.getEndEdgeStepCount();
     lineData[i].startEdgeOk = line.isStartEdgeContinues();
@@ -78,14 +82,17 @@ void TestScreenProcessor<rowCount>::printScreen(LineData (&lineData)[rowCount]) 
     for (uint32_t mask = 0x8000; mask >= 0x0001; mask >>= 1) {
       screenLine += (data.pixelData & mask ? "  " : "[]");
     }
-    if (data.linePos2 >= 0) {
-      screenLine[31-data.linePos1] = '.';
-      screenLine[30-data.linePos1] = '.';
-      screenLine[31-data.linePos2] = '.';
-      screenLine[30-data.linePos2] = '.';
-    } else if (data.linePos1 >= 0) {
-      screenLine[31-data.linePos1] = '*';
-      screenLine[30-data.linePos1] = '*';
+    if (data.singleLinePos >= 0) {
+      screenLine[31 - data.singleLinePos] = '*';
+      screenLine[30 - data.singleLinePos] = '*';
+    }
+    if (data.altLine1Pos >= 0) {
+      screenLine[31-data.altLine1Pos] = '.';
+      screenLine[30-data.altLine1Pos] = '.';
+    }
+    if (data.altLine2Pos >= 0) {
+      screenLine[31-data.altLine2Pos] = '.';
+      screenLine[30-data.altLine2Pos] = '.';
     }
 
     std::cout
