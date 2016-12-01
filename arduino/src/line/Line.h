@@ -17,14 +17,16 @@ class Line {
 
     static const int8_t ignoreTurnDetectionToLine = 50;
     static const int8_t splitDetectionToLine = 60;
-    static const int8_t splitDetectionMinimumLineCount = 10;
+    static const int8_t splitDetectionMinimumLineCount = 25;
     static const int8_t lineTurn = -1;
 
     bool isLineFinderRequested;
+    int8_t currentRowIndex;
     RowBitmapLineSegmentFinder bitmapLineFinder;
     LineEdge startEdge;
     LineEdge endEdge;
 
+    bool splitDetected;
     int8_t previousLinePosition;
     int8_t previousAltLine1Position;
     int8_t previousAltLine2Position;
@@ -89,10 +91,12 @@ Line<totalRowCount>::Line() {
 template <int8_t totalRowCount>
 void Line<totalRowCount>::resetLine() {
   isLineFinderRequested = false;
+  currentRowIndex = -1;
   bitmapLineFinder.reset();
   startEdge.reset();
   endEdge.reset();
 
+  splitDetected = false;
   previousLinePosition = LineSegment::rowRangeMidPoint;
   previousAltLine1Position = LineSegment::lineNotFound;
   previousAltLine2Position = LineSegment::lineNotFound;
@@ -111,6 +115,7 @@ void Line<totalRowCount>::resetLine() {
 
 template <int8_t totalRowCount>
 void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow) {
+  currentRowIndex = rowIndex;
   isLineFinderRequested = false;
 
   if (lineTopRowIndex <0) {
@@ -129,6 +134,7 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
         }
       }
     } else if (bitmapLineFinder.isLineSplit()) {
+      splitDetected = true;
       // if line split then do nothing until one of the forks has ended
       currentAltLine1Position = bitmapLineFinder.getFirstLine().getLinePosition();
       currentAltLine2Position = bitmapLineFinder.getFirstLine().getLinePosition();
@@ -145,11 +151,10 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
         if ((rowIndex >= splitDetectionToLine)
             && (rowIndex >= (lineTopCandidateRowIndex + splitDetectionMinimumLineCount))) {
 
-          if (previousLinePosition < 0) {
-            // if no previous line position then there was a split
+          if (splitDetected) {
             setLineTop(rowIndex, lineSegment.getLinePosition(), LineSegment::lineNotFound, LineSegment::lineNotFound, false);
           } else {
-            // if previous position was not split then use candidate as line top
+            // if line was not split then use candidate as line top
             setLineTop(lineTopCandidateRowIndex, lineTopCandidatePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
           }
         }
@@ -236,13 +241,13 @@ template <int8_t totalRowCount>
 bool Line<totalRowCount>::isLine() {
   return isLineFinderRequested
          && bitmapLineFinder.isSingleLineFound()
-         && lineTopCandidateRowIndex <= 0;
+         && (lineTopCandidateRowIndex < 0 || currentRowIndex == lineTopCandidateRowIndex + 1);
 }
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isSplit() {
-  return isLineFinderRequested
-         && (bitmapLineFinder.isLineSplit() || lineTopCandidateRowIndex > 0);
+  return isLineFinderRequested // todo think about this mess
+         && (bitmapLineFinder.isLineSplit() || ((lineTopCandidateRowIndex > 0) && (currentRowIndex > lineTopCandidateRowIndex )));
 }
 
 template <int8_t totalRowCount>
