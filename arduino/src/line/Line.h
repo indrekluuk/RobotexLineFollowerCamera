@@ -15,7 +15,7 @@
 template <int8_t totalRowCount>
 class Line {
 
-    static const int8_t ignoreTurnDetectionToLine = 0;
+    static const int8_t ignoreTurnDetectionToLine = 50;
     static const int8_t splitDetectionToLine = 60;
     static const int8_t splitDetectionMinimumLineCount = 25;
     static const int8_t lineTurn = -1;
