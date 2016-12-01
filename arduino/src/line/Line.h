@@ -48,14 +48,14 @@ public:
     void resetLine();
     void setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uint8_t bitmapLow);
 
-    inline bool isLine() __attribute__((always_inline));
-    inline bool isSplit() __attribute__((always_inline));
-    inline int8_t getLine() __attribute__((always_inline));
-    inline int8_t getFirstLine() __attribute__((always_inline));
-    inline int8_t getSecondLine() __attribute__((always_inline));
+    inline bool isIdentifiedLine() __attribute__((always_inline));
+    inline int8_t getIdentifiedLine() __attribute__((always_inline));
+    inline bool isSplitDetectionLine() __attribute__((always_inline));
+    inline int8_t getFirstSplitDetectionLine() __attribute__((always_inline));
+    inline int8_t getSecondSplitDetectionLine() __attribute__((always_inline));
 
     constexpr static int8_t getTotalRowCount();
-    bool isLineIdentified();
+    bool isLineTopFound();
     int8_t getLineBottomRowIndex();
     int8_t getLineBottomPosition();
     int8_t getLineTopRowIndex();
@@ -73,7 +73,7 @@ private:
     inline bool isLastRow(int8_t rowIndex) __attribute__((always_inline));
     inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineFirstTurn(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
-    inline void setLineTopCandiate(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
+    inline void setLineTopCandidate(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineTop(uint8_t rowIndex, int8_t linePosition, int8_t altLine1Position, int8_t altLine2Position, bool isEnd) __attribute__((always_inline));
 };
 
@@ -175,8 +175,8 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
               setLineFirstTurn(rowIndex, previousLinePosition);
             }
           } else {
-            // turn after ignoring zone is line top candidate. Continue a little further to check for line split
-            setLineTopCandiate(rowIndex - 1, previousLinePosition);
+            // turn after ignoring zone is candidate for line top. Continue a little further to check for line split
+            setLineTopCandidate(rowIndex - 1, previousLinePosition);
           }
           currentLinePosition = lineSegment.getLinePosition();
         } else {
@@ -238,25 +238,25 @@ bool Line<totalRowCount>::isLastRow(int8_t rowIndex) {
 
 
 template <int8_t totalRowCount>
-bool Line<totalRowCount>::isLine() {
+bool Line<totalRowCount>::isIdentifiedLine() {
   return isLineFinderRequested
-         && bitmapLineFinder.isSingleLineFound()
-         && (lineTopCandidateRowIndex < 0 || currentRowIndex == lineTopCandidateRowIndex + 1);
+         && bitmapLineFinder.isSingleLineFound();
 }
 
 template <int8_t totalRowCount>
-bool Line<totalRowCount>::isSplit() {
-  return isLineFinderRequested // todo think about this mess
-         && (bitmapLineFinder.isLineSplit() || ((lineTopCandidateRowIndex > 0) && (currentRowIndex > lineTopCandidateRowIndex )));
-}
-
-template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getLine() {
+int8_t Line<totalRowCount>::getIdentifiedLine() {
   return bitmapLineFinder.getSingleLine().getLinePosition();
 }
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getFirstLine() {
+bool Line<totalRowCount>::isSplitDetectionLine() {
+  return isLineFinderRequested
+         && bitmapLineFinder.isLineSplit();
+}
+
+
+template <int8_t totalRowCount>
+int8_t Line<totalRowCount>::getFirstSplitDetectionLine() {
   // if actually not split but checking for possible split then indicate split search line with first line
   return bitmapLineFinder.isLineSplit() ?
          bitmapLineFinder.getFirstLine().getLinePosition() :
@@ -264,7 +264,7 @@ int8_t Line<totalRowCount>::getFirstLine() {
 }
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::getSecondLine() {
+int8_t Line<totalRowCount>::getSecondSplitDetectionLine() {
   return bitmapLineFinder.isLineSplit() ?
          bitmapLineFinder.getSecondLine().getLinePosition() :
          -1;
@@ -289,7 +289,7 @@ void Line<totalRowCount>::setLineFirstTurn(uint8_t rowIndex, int8_t position) {
 
 
 template <int8_t totalRowCount>
-void Line<totalRowCount>::setLineTopCandiate(uint8_t rowIndex, int8_t position) {
+void Line<totalRowCount>::setLineTopCandidate(uint8_t rowIndex, int8_t position) {
   lineTopCandidateRowIndex = rowIndex;
   lineTopCandidatePosition = position;
 }
@@ -319,7 +319,7 @@ constexpr int8_t Line<totalRowCount>::getTotalRowCount() {
 
 
 template <int8_t totalRowCount>
-bool Line<totalRowCount>::isLineIdentified() {
+bool Line<totalRowCount>::isLineTopFound() {
   return lineTopRowIndex >= 0;
 }
 

@@ -93,12 +93,12 @@ void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processGrayscale();
   line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
-  int8_t linePosition = line.isLine() ? line.getLine() : -1;
+  int8_t linePosition = line.isIdentifiedLine() ? line.getIdentifiedLine() : -1;
   int8_t altLine1 = -1;
   int8_t altLine2 = -1;
-  if (line.isSplit()) {
-    altLine1 = line.getFirstLine();
-    altLine2 = line.getSecondLine();
+  if (line.isSplitDetectionLine()) {
+    altLine1 = line.getFirstSplitDetectionLine();
+    altLine2 = line.getSecondSplitDetectionLine();
   }
   processMonochrome(lineIndex, ((linePosition  * 5) >> 1) + 2, ((altLine1  * 5) >> 1) + 2, ((altLine2  * 5) >> 1) + 2);
   screen.screenLineEnd();
@@ -107,7 +107,7 @@ void processLine(const uint8_t lineIndex) {
   frameCapture.addRow(lineIndex, monochromeLineHigh, monochromeLineLow);
 #endif
 
-  if (!isLineMessageSent && line.isLineIdentified()) {
+  if (!isLineMessageSent && line.isLineTopFound()) {
     LineSegmentMessageBuffer message;
     message.lineBottomIndex = (uint8_t)line.getLineBottomRowIndex();
     message.lineBottomPosition = (uint8_t)line.getLineBottomPosition();

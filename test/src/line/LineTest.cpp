@@ -17,7 +17,7 @@ uint8_t shiftIndex(uint8_t index) {
 
 TEST(LineTest, testLineNotFound) {
   Line<120> line;
-  ASSERT_FALSE(line.isLineIdentified());
+  ASSERT_FALSE(line.isLineTopFound());
 }
 
 
@@ -27,7 +27,7 @@ TEST(LineTest, testEndOfLineNotFoundYet) {
   line.setRowBitmap(shiftIndex(0), 0b00010000, 0b00000000);
   line.setRowBitmap(shiftIndex(1), 0b00010000, 0b00000000);
   line.setRowBitmap(shiftIndex(2), 0b00010000, 0b00000000);
-  ASSERT_FALSE(line.isLineIdentified());
+  ASSERT_FALSE(line.isLineTopFound());
 }
 
 
@@ -38,7 +38,7 @@ TEST(LineTest, testLineFound) {
   line.setRowBitmap(shiftIndex(1), 0b00010000, 0b00000000);
   line.setRowBitmap(shiftIndex(2), 0b00010000, 0b00000000);
   line.setRowBitmap(shiftIndex(3), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(24, line.getLineTopPosition());
 }
 
@@ -51,9 +51,9 @@ TEST(LineTest, testLineAcrossTheScreen) {
   line.setRowBitmap(shiftIndex(2), 0b000010000, 0b000000000);
   line.setRowBitmap(shiftIndex(3), 0b000010000, 0b000000000);
   line.setRowBitmap(shiftIndex(4), 0b000010000, 0b000000000);
-  ASSERT_FALSE(line.isLineIdentified());
+  ASSERT_FALSE(line.isLineTopFound());
   line.setRowBitmap(shiftIndex(5), 0b000010000, 0b000000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(24, line.getLineTopPosition());
 }
 
@@ -71,7 +71,7 @@ TEST(LineTest, testSlantedLine) {
   line.setRowBitmap(shiftIndex(6), 0b00001000, 0b00000000);
   line.setRowBitmap(shiftIndex(7), 0b00001000, 0b00000000);
   line.setRowBitmap(shiftIndex(8), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(7), line.getLineTopRowIndex());
   ASSERT_EQ(22, line.getLineTopPosition());
 }
@@ -95,7 +95,7 @@ TEST(LineTest, testLineTurnsInSlantDirection) {
   line.setRowBitmap(71, 0b00111100, 0b00000000);
   line.setRowBitmap(72, 0b01100000, 0b00000000);
   line.setRowBitmap(73, 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(69, line.getLineTopRowIndex());
   ASSERT_EQ(8, line.getLineTopPosition());
 }
@@ -118,7 +118,7 @@ TEST(LineTest, testLineTurnsAwayFromSlantDirection) {
   line.setRowBitmap(10, 0b00000000, 0b00000000);
   line.setRowBitmap(11, 0b00000000, 0b00000000);
   line.setRowBitmap(11, 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(7, line.getLineTopRowIndex());
   ASSERT_EQ(24, line.getLineTopPosition());
 }
@@ -140,7 +140,7 @@ TEST(LineTest, testIgnoreOtherLine) {
   line.setRowBitmap(70, 0b00000000, 0b00001000);
   line.setRowBitmap(71, 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(66, line.getLineTopRowIndex());
   ASSERT_EQ(20, line.getLineTopPosition());
 }
@@ -163,7 +163,7 @@ TEST(LineTest, testIgnoreOtherLineEndsAftercurrentLine) {
   line.setRowBitmap(shiftIndex( 9), 0b10000000, 0b00000000);
   line.setRowBitmap(shiftIndex(10), 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(7), line.getLineTopRowIndex());
   ASSERT_EQ(12, line.getLineTopPosition());
 }
@@ -186,7 +186,7 @@ TEST(LineTest, testIgnoreLineAfter) {
   line.setRowBitmap(shiftIndex(9),  0b00000000, 0b00001000);
   line.setRowBitmap(shiftIndex(10), 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(22, line.getLineTopPosition());
 }
 
@@ -206,7 +206,7 @@ TEST(LineTest, testIgnoreLineAfterGap) {
   line.setRowBitmap(shiftIndex(9),  0b00010000, 0b00000000);
   line.setRowBitmap(shiftIndex(10), 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(4), line.getLineTopRowIndex());
   ASSERT_EQ(20, line.getLineTopPosition());
 }
@@ -227,7 +227,7 @@ TEST(LineTest, testJaggedLine) {
   line.setRowBitmap(68, 0b00000111, 0b11110000);
   line.setRowBitmap(69, 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(68, line.getLineTopRowIndex());
   ASSERT_EQ(9, line.getLineTopPosition());
 }
@@ -239,19 +239,19 @@ TEST(LineTest, testJaggedLine) {
 TEST(LineTest, testActiveLinePosEdge1) {
   Line<120> line;
   line.setRowBitmap(60, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
   line.setRowBitmap(61, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
   line.setRowBitmap(62, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
   line.setRowBitmap(63, 0b00000000, 0b00000001);
-  ASSERT_EQ(0, line.getFirstLine());
+  ASSERT_EQ(0, line.isLineTopFound());
   line.setRowBitmap(64, 0b00000000, 0b00000011);
-  ASSERT_EQ(0, line.getFirstLine());
+  ASSERT_EQ(0, line.isLineTopFound());
   line.setRowBitmap(65, 0b00000000, 0b00000010);
-  ASSERT_EQ(2, line.getFirstLine());
+  ASSERT_EQ(2, line.isLineTopFound());
   line.setRowBitmap(66, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
 }
 
 
@@ -260,19 +260,19 @@ TEST(LineTest, testActiveLinePosEdge1) {
 TEST(LineTest, testActiveLinePosEdge2) {
   Line<120> line;
   line.setRowBitmap(60, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
   line.setRowBitmap(61, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
   line.setRowBitmap(62, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
   line.setRowBitmap(63, 0b10000000, 0b00000000);
-  ASSERT_EQ(30, line.getFirstLine());
+  ASSERT_EQ(30, line.isLineTopFound());
   line.setRowBitmap(64, 0b11000000, 0b00000000);
-  ASSERT_EQ(30, line.getFirstLine());
+  ASSERT_EQ(30, line.isLineTopFound());
   line.setRowBitmap(65, 0b01000000, 0b00000000);
-  ASSERT_EQ(28, line.getFirstLine());
+  ASSERT_EQ(28, line.isLineTopFound());
   line.setRowBitmap(66, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
 }
 
 
@@ -295,7 +295,7 @@ TEST(LineTest, testLineConnectedHorizonatllySingleLine) {
   line.setRowBitmap(71, 0b00010000, 0b00000000);
   line.setRowBitmap(72, 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(67, line.getLineTopRowIndex());
   ASSERT_EQ(10, line.getLineTopPosition());
 }
@@ -318,7 +318,7 @@ TEST(LineTest, testLineConnectedHorizonatllyDoubleLine) {
   line.setRowBitmap(71, 0b00010000, 0b00000000);
   line.setRowBitmap(72, 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(67, line.getLineTopRowIndex());
   ASSERT_EQ(10, line.getLineTopPosition());
 }
@@ -340,7 +340,7 @@ TEST(LineTest, testParallelLinesWithoutSteps) {
   line.setRowBitmap(67, 0b00011000, 0b00000000);
   line.setRowBitmap(68, 0b00000000, 0b00000000);
 
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(64, line.getLineTopRowIndex());
   ASSERT_EQ(7, line.getLineTopPosition());
 }
@@ -358,7 +358,7 @@ TEST(LineTest, twoStepLine) {
   line.setRowBitmap(shiftIndex( 3), 0b00000000, 0b00000000);
   line.setRowBitmap(shiftIndex( 4), 0b00000000, 0b00000000);
   line.setRowBitmap(shiftIndex( 5), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(1), line.getLineTopRowIndex());
   ASSERT_EQ(7, line.getLineTopPosition());
 }
@@ -375,7 +375,7 @@ TEST(LineTest, testReUseLine) {
   line.setRowBitmap(shiftIndex( 3), 0b00000000, 0b00011000);
   line.setRowBitmap(shiftIndex( 4), 0b00000000, 0b00011000);
   line.setRowBitmap(shiftIndex( 5), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(4), line.getLineTopRowIndex());
   ASSERT_EQ(7, line.getLineTopPosition());
 
@@ -386,7 +386,7 @@ TEST(LineTest, testReUseLine) {
   line.setRowBitmap(shiftIndex( 3), 0b00001100, 0b00000000);
   line.setRowBitmap(shiftIndex( 4), 0b00000000, 0b00000000);
   line.setRowBitmap(shiftIndex( 5), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(3), line.getLineTopRowIndex());
   ASSERT_EQ(21, line.getLineTopPosition());
 
@@ -397,7 +397,7 @@ TEST(LineTest, testReUseLine) {
   line.setRowBitmap(shiftIndex( 3), 0b00000000, 0b00000000);
   line.setRowBitmap(shiftIndex( 4), 0b00000000, 0b00000000);
   line.setRowBitmap(shiftIndex( 5), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(1), line.getLineTopRowIndex());
   ASSERT_EQ(7, line.getLineTopPosition());
 }
@@ -413,7 +413,7 @@ TEST(LineTest, testIgnoreLineInCorner) {
   line.setRowBitmap(shiftIndex( 4), 0b00000000, 0b00000110);
   line.setRowBitmap(shiftIndex( 5), 0b00000000, 0b00000110);
   line.setRowBitmap(shiftIndex( 6), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(3), line.getLineBottomRowIndex());
   ASSERT_EQ(3, line.getLineBottomPosition());
   ASSERT_EQ(shiftIndex(5), line.getLineTopRowIndex());
@@ -432,7 +432,7 @@ TEST(LineTest, testDoNotIgnoreLineIfAlreadyDiscoverdBeforeCorner) {
   line.setRowBitmap(shiftIndex( 6), 0b00000000, 0b00000010);
   line.setRowBitmap(shiftIndex( 7), 0b00000000, 0b00000010);
   line.setRowBitmap(shiftIndex( 8), 0b00000000, 0b00000000);
-  ASSERT_TRUE(line.isLineIdentified());
+  ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(2), line.getLineBottomRowIndex());
   ASSERT_EQ(0, line.getLineBottomPosition());
   ASSERT_EQ(shiftIndex(7), line.getLineTopRowIndex());
@@ -444,35 +444,35 @@ TEST(LineTest, testDoNotIgnoreLineIfAlreadyDiscoverdBeforeCorner) {
 TEST(LineTest, testMoveLineToEdgeIfSegmentTouchesEdge) {
   Line<120> line;
   line.setRowBitmap(60, 0b00000000, 0b00000111);
-  ASSERT_EQ(0, line.getFirstLine());
+  ASSERT_EQ(0, line.isLineTopFound());
   line.setRowBitmap(61, 0b00000000, 0b00001110);
-  ASSERT_EQ(4, line.getFirstLine());
+  ASSERT_EQ(4, line.isLineTopFound());
   line.setRowBitmap(62, 0b00000000, 0b00011100);
-  ASSERT_EQ(6, line.getFirstLine());
+  ASSERT_EQ(6, line.isLineTopFound());
   line.setRowBitmap(63, 0b00000000, 0b00111000);
-  ASSERT_EQ(8, line.getFirstLine());
+  ASSERT_EQ(8, line.isLineTopFound());
   line.setRowBitmap(64, 0b00000000, 0b01110000);
-  ASSERT_EQ(10, line.getFirstLine());
+  ASSERT_EQ(10, line.isLineTopFound());
   line.setRowBitmap(65, 0b00000000, 0b11100000);
-  ASSERT_EQ(12, line.getFirstLine());
+  ASSERT_EQ(12, line.isLineTopFound());
   line.setRowBitmap(66, 0b00000001, 0b11000000);
-  ASSERT_EQ(14, line.getFirstLine());
+  ASSERT_EQ(14, line.isLineTopFound());
   line.setRowBitmap(67, 0b00000011, 0b10000000);
-  ASSERT_EQ(16, line.getFirstLine());
+  ASSERT_EQ(16, line.isLineTopFound());
   line.setRowBitmap(68, 0b00000111, 0b00000000);
-  ASSERT_EQ(18, line.getFirstLine());
+  ASSERT_EQ(18, line.isLineTopFound());
   line.setRowBitmap(69, 0b00001110, 0b00000000);
-  ASSERT_EQ(20, line.getFirstLine());
+  ASSERT_EQ(20, line.isLineTopFound());
   line.setRowBitmap(70, 0b00011100, 0b00000000);
-  ASSERT_EQ(22, line.getFirstLine());
+  ASSERT_EQ(22, line.isLineTopFound());
   line.setRowBitmap(71, 0b00111000, 0b00000000);
-  ASSERT_EQ(24, line.getFirstLine());
+  ASSERT_EQ(24, line.isLineTopFound());
   line.setRowBitmap(72, 0b01110000, 0b00000000);
-  ASSERT_EQ(26, line.getFirstLine());
+  ASSERT_EQ(26, line.isLineTopFound());
   line.setRowBitmap(73, 0b11100000, 0b00000000);
-  ASSERT_EQ(30, line.getFirstLine());
+  ASSERT_EQ(30, line.isLineTopFound());
   line.setRowBitmap(74, 0b00000000, 0b00000000);
-  ASSERT_EQ(-1, line.getFirstLine());
+  ASSERT_EQ(-1, line.isLineTopFound());
 
 }
 

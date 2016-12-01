@@ -14,7 +14,7 @@
 
 struct LineData {
     uint16_t pixelData;
-    int8_t singleLinePos;
+    int8_t identifiedLinePos;
     int8_t altLine1Pos;
     int8_t altLine2Pos;
     int8_t startEdgeCount;
@@ -59,9 +59,9 @@ void TestScreenProcessor<rowCount>::process(uint16_t (&pixelData)[rowCount]) {
     lineData[i].pixelData = screenRow;
     line.setRowBitmap(rowIndex, (screenRow >> 8) & 0xFF, (screenRow) & 0xFF);
 
-    lineData[i].singleLinePos = line.isLine() ? line.getLine() : -1;
-    lineData[i].altLine1Pos = line.isSplit() ? line.getFirstLine() : -1;
-    lineData[i].altLine2Pos = line.isSplit() ? line.getSecondLine() : -1;
+    lineData[i].identifiedLinePos = line.isIdentifiedLine() ? line.getIdentifiedLine() : -1;
+    lineData[i].altLine1Pos = line.isSplitDetectionLine() ? line.getFirstSplitDetectionLine() : -1;
+    lineData[i].altLine2Pos = line.isSplitDetectionLine() ? line.getSecondSplitDetectionLine() : -1;
 
     lineData[i].startEdgeCount = line.getStartEdgeStepCount();
     lineData[i].endEdgeCount = line.getEndEdgeStepCount();
@@ -82,9 +82,9 @@ void TestScreenProcessor<rowCount>::printScreen(LineData (&lineData)[rowCount]) 
     for (uint32_t mask = 0x8000; mask >= 0x0001; mask >>= 1) {
       screenLine += (data.pixelData & mask ? "  " : "[]");
     }
-    if (data.singleLinePos >= 0) {
-      screenLine[31 - data.singleLinePos] = '*';
-      screenLine[30 - data.singleLinePos] = '*';
+    if (data.identifiedLinePos >= 0) {
+      screenLine[31 - data.identifiedLinePos] = '*';
+      screenLine[30 - data.identifiedLinePos] = '*';
     }
     if (data.altLine1Pos >= 0) {
       screenLine[31-data.altLine1Pos] = '.';
