@@ -118,7 +118,11 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
 
     if (!bitmapLineFinder.isLineFound()) {
       if (lineBottomRowIndex >= 0) {
-        setLineTop(rowIndex - 1, previousLinePosition, previousAltLine1Position, previousAltLine2Position, true);
+        if (lineTopCandidateRowIndex >= 0) {
+          setLineTop(lineTopCandidateRowIndex, lineTopCandidatePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, true);
+        } else {
+          setLineTop(rowIndex - 1, previousLinePosition, previousAltLine1Position, previousAltLine2Position, true);
+        }
       }
     } else if (bitmapLineFinder.isLineSplit()) {
       // if line split then do nothing until one of the forks has ended
