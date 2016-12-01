@@ -22,7 +22,7 @@
 
 const uint8_t COMMAND_LINE_SEGMENT = 0x10;
 
-#define FRAME_CAPTURE_MODE 1
+#define FRAME_CAPTURE_MODE 0
 
 
 Camera camera;
