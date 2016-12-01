@@ -139,6 +139,8 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
       LineSegment &lineSegment = bitmapLineFinder.getSingleLine();
 
       if (lineTopCandidatePosition >= 0) {
+        currentLinePosition = lineSegment.getLinePosition();
+
         // top line candidate already. check some additional lines to check for possible splits.
         if ((rowIndex >= splitDetectionToLine)
             && (rowIndex >= (lineTopCandidateRowIndex + splitDetectionMinimumLineCount))) {
@@ -228,14 +230,19 @@ bool Line<totalRowCount>::isLastRow(int8_t rowIndex) {
 
 
 
+
+
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isLine() {
-  return isLineFinderRequested && bitmapLineFinder.isSingleLineFound();
+  return isLineFinderRequested
+         && bitmapLineFinder.isSingleLineFound()
+         && lineTopCandidateRowIndex <= 0;
 }
 
 template <int8_t totalRowCount>
 bool Line<totalRowCount>::isSplit() {
-  return isLineFinderRequested && bitmapLineFinder.isLineSplit();
+  return isLineFinderRequested
+         && (bitmapLineFinder.isLineSplit() || lineTopCandidateRowIndex > 0);
 }
 
 template <int8_t totalRowCount>
@@ -245,12 +252,17 @@ int8_t Line<totalRowCount>::getLine() {
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getFirstLine() {
-  return bitmapLineFinder.getFirstLine().getLinePosition();
+  // if actually not split but checking for possible split then indicate split search line with first line
+  return bitmapLineFinder.isLineSplit() ?
+         bitmapLineFinder.getFirstLine().getLinePosition() :
+         bitmapLineFinder.getSingleLine().getLinePosition();
 }
 
 template <int8_t totalRowCount>
 int8_t Line<totalRowCount>::getSecondLine() {
-  return bitmapLineFinder.getSecondLine().getLinePosition();
+  return bitmapLineFinder.isLineSplit() ?
+         bitmapLineFinder.getSecondLine().getLinePosition() :
+         -1;
 }
 
 

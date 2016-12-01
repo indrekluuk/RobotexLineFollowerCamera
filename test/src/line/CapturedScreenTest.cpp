@@ -126,7 +126,7 @@ TEST(CapturedScreenTest, testCapture9) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_9);
   ASSERT_TRUE(line.isLineIdentified());
-  ASSERT_EQ(48, line.getLineTopRowIndex());
+  ASSERT_EQ(49, line.getLineTopRowIndex());
   ASSERT_EQ(30, line.getLineTopPosition());
 }
 
