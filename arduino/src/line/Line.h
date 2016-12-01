@@ -15,7 +15,7 @@
 template <int8_t totalRowCount>
 class Line {
 
-    static const int8_t ignoreTurnDetectionToLine = 50;
+    static const int8_t ignoreTurnDetectionToLine = 0;
     static const int8_t splitDetectionToLine = 60;
     static const int8_t splitDetectionMinimumLineCount = 25;
     static const int8_t lineTurn = -1;
@@ -172,10 +172,16 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
             }
             currentLinePosition = lineSegment.getLinePosition();
           } else {
-            // turn after ignoring zone is candidate for line top. Continue a little further to check for line split
-            setLineTopCandidate(rowIndex - 1, previousLinePosition);
-            // set Alt line since from here we do the split seek
-            currentAltLine1Position = lineSegment.getLinePosition();
+
+            // if line is sufficiently long then do not do the split detection
+            if (lineBottomRowIndex < 10 && (currentRowIndex - lineBottomPosition) > 20) {
+              setLineTop(rowIndex - 1, previousLinePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
+            } else {
+              // turn after ignoring zone is candidate for line top. Continue a little further to check for line split
+              setLineTopCandidate(rowIndex - 1, previousLinePosition);
+              // set Alt line since from here we do the split seek
+              currentAltLine1Position = lineSegment.getLinePosition();
+            }
           }
 
         } else {
