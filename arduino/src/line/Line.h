@@ -136,8 +136,9 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
 
       // first single line after split
       if (splitDetected) {
-        setLineTop(rowIndex, lineSegment.getLinePosition(), LineSegment::lineNotFound, LineSegment::lineNotFound, false);
-        currentLinePosition = lineSegment.getLinePosition();
+        // in case of split always use segment center
+        currentLinePosition = lineSegment.getCenter();
+        setLineTop(rowIndex, currentLinePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
       } else if (lineTopCandidatePosition >= 0) {
         // top line candidate already. check some additional lines to check for possible splits.
         if (rowIndex >= splitDetectionToLine &&
