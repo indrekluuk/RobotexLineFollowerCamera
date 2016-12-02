@@ -46,6 +46,8 @@ private:
 
 
 int8_t LineSegment::evaluateLinePosition() {
+  return center;
+  /*
   if (start == 0 || end == rowRange) {
     if (start != 0) {
       return end;
@@ -57,6 +59,7 @@ int8_t LineSegment::evaluateLinePosition() {
   } else {
     return center;
   }
+   */
 }
 
 

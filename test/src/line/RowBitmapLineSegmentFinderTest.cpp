@@ -106,7 +106,7 @@ TEST(RowBitmapLineSegmentFinderTest, ignoreBottomCorners2pixels) {
   RowBitmapLineSegmentFinder lineFinder2;
   lineFinder2.nextRow(7, 0b11100000, 0b00000000);
   ASSERT_TRUE(lineFinder2.isLineFound());
-  ASSERT_EQ(30, lineFinder2.getFirstLine().getLinePosition());
+  ASSERT_EQ(28, lineFinder2.getFirstLine().getLinePosition());
 }
 
 
@@ -119,7 +119,7 @@ TEST(RowBitmapLineSegmentFinderTest, ignoreBottomCorners1pixels) {
   RowBitmapLineSegmentFinder lineFinder2;
   lineFinder2.nextRow(18, 0b00000000, 0b00000011);
   ASSERT_TRUE(lineFinder2.isLineFound());
-  ASSERT_EQ(0, lineFinder2.getFirstLine().getLinePosition());
+  ASSERT_EQ(1, lineFinder2.getFirstLine().getLinePosition());
 
   RowBitmapLineSegmentFinder lineFinder3;
   lineFinder3.nextRow(30, 0b000000000, 0b00000001);
@@ -136,7 +136,7 @@ TEST(RowBitmapLineSegmentFinderTest, testLine) {
   lineFinder1.nextRow(60, 0b11001100, 0b00001111, LineSegment(2, 28));
   ASSERT_TRUE(lineFinder1.isLineFound());
   ASSERT_TRUE(lineFinder1.isLineSplit());
-  ASSERT_EQ(0, lineFinder1.getFirstLine().getLinePosition());
+  ASSERT_EQ(3, lineFinder1.getFirstLine().getLinePosition());
   ASSERT_EQ(21, lineFinder1.getSecondLine().getLinePosition());
 
   // select only segments that are covered with previous line section

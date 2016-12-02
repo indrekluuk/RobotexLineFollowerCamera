@@ -247,7 +247,7 @@ TEST(LineTest, testActiveLinePosEdge1) {
   line.setRowBitmap(63, 0b00000000, 0b00000001);
   ASSERT_EQ(0, line.getIdentifiedLine());
   line.setRowBitmap(64, 0b00000000, 0b00000011);
-  ASSERT_EQ(0, line.getIdentifiedLine());
+  ASSERT_EQ(1, line.getIdentifiedLine());
   line.setRowBitmap(65, 0b00000000, 0b00000010);
   ASSERT_EQ(2, line.getIdentifiedLine());
   line.setRowBitmap(66, 0b00000000, 0b00000000);
@@ -268,7 +268,7 @@ TEST(LineTest, testActiveLinePosEdge2) {
   line.setRowBitmap(63, 0b10000000, 0b00000000);
   ASSERT_EQ(30, line.getIdentifiedLine());
   line.setRowBitmap(64, 0b11000000, 0b00000000);
-  ASSERT_EQ(30, line.getIdentifiedLine());
+  ASSERT_EQ(29, line.getIdentifiedLine());
   line.setRowBitmap(65, 0b01000000, 0b00000000);
   ASSERT_EQ(28, line.getIdentifiedLine());
   line.setRowBitmap(66, 0b00000000, 0b00000000);
@@ -434,7 +434,7 @@ TEST(LineTest, testDoNotIgnoreLineIfAlreadyDiscoverdBeforeCorner) {
   line.setRowBitmap(shiftIndex( 8), 0b00000000, 0b00000000);
   ASSERT_TRUE(line.isLineTopFound());
   ASSERT_EQ(shiftIndex(2), line.getLineBottomRowIndex());
-  ASSERT_EQ(0, line.getLineBottomPosition());
+  ASSERT_EQ(2, line.getLineBottomPosition());
   ASSERT_EQ(shiftIndex(7), line.getLineTopRowIndex());
   ASSERT_EQ(2, line.getLineTopPosition());
 }
@@ -444,7 +444,7 @@ TEST(LineTest, testDoNotIgnoreLineIfAlreadyDiscoverdBeforeCorner) {
 TEST(LineTest, testMoveLineToEdgeIfSegmentTouchesEdge) {
   Line<120> line;
   line.setRowBitmap(60, 0b00000000, 0b00000111);
-  ASSERT_EQ(0, line.getIdentifiedLine());
+  ASSERT_EQ(2, line.getIdentifiedLine());
   line.setRowBitmap(61, 0b00000000, 0b00001110);
   ASSERT_EQ(4, line.getIdentifiedLine());
   line.setRowBitmap(62, 0b00000000, 0b00011100);
@@ -470,7 +470,7 @@ TEST(LineTest, testMoveLineToEdgeIfSegmentTouchesEdge) {
   line.setRowBitmap(72, 0b01110000, 0b00000000);
   ASSERT_EQ(26, line.getIdentifiedLine());
   line.setRowBitmap(73, 0b11100000, 0b00000000);
-  ASSERT_EQ(30, line.getIdentifiedLine());
+  ASSERT_EQ(28, line.getIdentifiedLine());
   line.setRowBitmap(74, 0b00000000, 0b00000000);
   ASSERT_EQ(-1, line.getIdentifiedLine());
 
