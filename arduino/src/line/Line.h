@@ -161,7 +161,7 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
 
         if (currentLinePosition == lineTurn) {
           // if line is sufficiently long then do not do the split detection
-          if (lineBottomRowIndex < 10 && (currentRowIndex - lineBottomPosition) > 20) {
+          if (lineBottomRowIndex < 10 && (currentRowIndex - lineBottomRowIndex) > 20) {
             setLineTop(rowIndex - 1, previousLinePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
           } else {
             // turn after ignoring zone is candidate for line top. Continue a little further to check for line split
@@ -213,7 +213,9 @@ int8_t Line<totalRowCount>::updateLine(int8_t rowIndex, LineSegment &lineSegment
     } else {
       int8_t pos = lineTurn;
       if (rowIndex < ignoreTurnDetectionToLine) {
-        pos = lineSegment.getLinePosition();
+        if (startEdge.getFailedRowDirection() == endEdge.getFailedRowDirection()) {
+          pos = lineSegment.getLinePosition();
+        }
       }
       startEdge.resetFirstStepTo(lineSegment.getStart(), lineSegment.getLinePosition());
       endEdge.resetFirstStepTo(lineSegment.getEnd(), lineSegment.getLinePosition());

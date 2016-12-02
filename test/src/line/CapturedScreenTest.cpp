@@ -151,7 +151,7 @@ TEST(CapturedScreenTest, testCapture11) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_11);
   ASSERT_TRUE(line.isLineTopFound());
-  ASSERT_EQ(10, line.getLineTopPosition());
+  ASSERT_EQ(18, line.getLineTopPosition());
 }
 
 
@@ -175,7 +175,7 @@ TEST(CapturedScreenTest, testCapture13) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_13);
   ASSERT_TRUE(line.isLineTopFound());
-  ASSERT_EQ(18, line.getLineTopPosition());
+  ASSERT_EQ(21, line.getLineTopPosition());
 }
 
 
@@ -215,7 +215,7 @@ TEST(CapturedScreenTest, testCapture16) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_16);
   ASSERT_TRUE(line.isLineTopFound());
-  ASSERT_EQ(25, line.getLineTopPosition());
+  ASSERT_EQ(18, line.getLineTopPosition());
 }
 
 
