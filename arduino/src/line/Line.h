@@ -32,8 +32,6 @@ class Line {
 
     int8_t lineBottomRowIndex;
     int8_t lineBottomPosition;
-    int8_t lineFirstTurnRowIndex;
-    int8_t lineFirstTurnPosition;
     int8_t lineTopCandidateRowIndex;
     int8_t lineTopCandidatePosition;
     int8_t lineTopRowIndex;
@@ -68,10 +66,9 @@ public:
 
 
 private:
-    int8_t updateLine(LineSegment &lineSegment);
+    int8_t updateLine(int8_t rowIndex, LineSegment &lineSegment);
     inline bool isLastRow(int8_t rowIndex) __attribute__((always_inline));
     inline void setLineBottom(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
-    inline void setLineFirstTurn(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineTopCandidate(uint8_t rowIndex, int8_t position) __attribute__((always_inline));
     inline void setLineTop(uint8_t rowIndex, int8_t linePosition, int8_t altLine1Position, int8_t altLine2Position, bool isEnd) __attribute__((always_inline));
 };
@@ -101,8 +98,6 @@ void Line<totalRowCount>::resetLine() {
 
   lineBottomRowIndex = -1;
   lineBottomPosition = -1;
-  lineFirstTurnRowIndex = -1;
-  lineFirstTurnPosition = -1;
   lineTopCandidateRowIndex = -1;
   lineTopCandidatePosition = -1;
   lineTopRowIndex = -1;
@@ -162,26 +157,17 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
           setLineBottom(rowIndex, lineSegment.getLinePosition());
         }
 
-        currentLinePosition = updateLine(lineSegment);
+        currentLinePosition = updateLine(rowIndex, lineSegment);
 
         if (currentLinePosition == lineTurn) {
-          if (rowIndex < ignoreTurnDetectionToLine) {
-            // if in the ignore turn zone then just store the point as first turn
-            if (lineFirstTurnRowIndex < 0) {
-              setLineFirstTurn(rowIndex, previousLinePosition);
-            }
-            currentLinePosition = lineSegment.getLinePosition();
+          // if line is sufficiently long then do not do the split detection
+          if (lineBottomRowIndex < 10 && (currentRowIndex - lineBottomPosition) > 20) {
+            setLineTop(rowIndex - 1, previousLinePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
           } else {
-
-            // if line is sufficiently long then do not do the split detection
-            if (lineBottomRowIndex < 10 && (currentRowIndex - lineBottomPosition) > 20) {
-              setLineTop(rowIndex - 1, previousLinePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
-            } else {
-              // turn after ignoring zone is candidate for line top. Continue a little further to check for line split
-              setLineTopCandidate(rowIndex - 1, previousLinePosition);
-              // set Alt line since from here we do the split seek
-              currentAltLine1Position = lineSegment.getLinePosition();
-            }
+            // turn after ignoring zone is candidate for line top. Continue a little further to check for line split
+            setLineTopCandidate(rowIndex - 1, previousLinePosition);
+            // set Alt line since from here we do the split seek
+            currentAltLine1Position = lineSegment.getLinePosition();
           }
 
         } else {
@@ -203,15 +189,16 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
 
 
 template <int8_t totalRowCount>
-int8_t Line<totalRowCount>::updateLine(LineSegment &lineSegment) {
+int8_t Line<totalRowCount>::updateLine(int8_t rowIndex, LineSegment &lineSegment) {
+
   if (!startEdge.isInitialized()) {
     startEdge.init(lineSegment.getStart(), lineSegment.getLinePosition());
     endEdge.init(lineSegment.getEnd(),lineSegment.getLinePosition());
     return lineSegment.getLinePosition();
   } else {
 
-    startEdge.update(lineSegment.getStart());
-    endEdge.update(lineSegment.getEnd());
+    startEdge.update(rowIndex, lineSegment.getStart());
+    endEdge.update(rowIndex, lineSegment.getEnd());
 
     if (startEdge.isContinues() && endEdge.isContinues()) {
       startEdge.calculateLinePositionToEdge(lineSegment.getLinePosition());
@@ -224,9 +211,14 @@ int8_t Line<totalRowCount>::updateLine(LineSegment &lineSegment) {
       endEdge.calculateLinePositionToEdgeDecreaseOnly(lineSegment.getLinePosition());
       return endEdge.getLinePositionFromEdge();
     } else {
+      int8_t pos = lineTurn;
+      if (rowIndex < ignoreTurnDetectionToLine) {
+        pos = lineSegment.getLinePosition();
+      }
       startEdge.resetFirstStepTo(lineSegment.getStart(), lineSegment.getLinePosition());
       endEdge.resetFirstStepTo(lineSegment.getEnd(), lineSegment.getLinePosition());
-      return lineTurn;
+
+      return pos;
     }
   }
 }
@@ -276,13 +268,6 @@ template <int8_t totalRowCount>
 void Line<totalRowCount>::setLineBottom(uint8_t rowIndex, int8_t position) {
   lineBottomRowIndex = rowIndex;
   lineBottomPosition = position;
-}
-
-
-template <int8_t totalRowCount>
-void Line<totalRowCount>::setLineFirstTurn(uint8_t rowIndex, int8_t position) {
-  lineFirstTurnRowIndex = rowIndex;
-  lineFirstTurnPosition = position;
 }
 
 

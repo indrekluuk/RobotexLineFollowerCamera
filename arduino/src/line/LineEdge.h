@@ -27,21 +27,24 @@ struct LineEdge{
     bool directionReversed;
     bool positionJump;
     bool stepLengthInvalid;
+    int8_t stepFailedAtRow;
 
     inline void reset() __attribute__((always_inline));
     inline bool isInitialized() __attribute__((always_inline));
     inline void init(int8_t edgePos, int8_t linePos) __attribute__((always_inline));
     inline void resetFirstStepTo(int8_t edgePos, int8_t linePos) __attribute__((always_inline));
-    inline void update(int8_t edgePos) __attribute__((always_inline));
+    inline void update(int8_t rowIndex, int8_t edgePos) __attribute__((always_inline));
     inline void calculateLinePositionToEdge(int8_t linePos) __attribute__((always_inline));
     inline void calculateLinePositionToEdgeDecreaseOnly(int8_t linePos) __attribute__((always_inline));
     inline int8_t getLinePositionFromEdge() __attribute__((always_inline));
+    inline void setStepFailed(int8_t rowIndex, bool isDirectionRevers, bool isPositionJump, bool isStepLengthInvalid) __attribute__((always_inline));
     inline bool isContinues() __attribute__((always_inline));
+    inline int8_t getFailedAtRow() __attribute__((always_inline));
 
 private:
     inline int8_t calculateAllowedDifference(int8_t stepCount) __attribute__((always_inline));
-    inline void validateCurrentStepCount() __attribute__((always_inline));
-    inline void validateCurrentStepCountBlowLimit() __attribute__((always_inline));
+    inline bool isCurrentStepCountValid() __attribute__((always_inline));
+    inline bool isCurrentStepCountBlowLimit() __attribute__((always_inline));
 };
 
 
@@ -72,6 +75,7 @@ void LineEdge::init(int8_t edgePos, int8_t linePos) {
   directionReversed = false;
   positionJump = false;
   stepLengthInvalid = false;
+  stepFailedAtRow = -1;
 }
 
 
@@ -85,15 +89,17 @@ void LineEdge::resetFirstStepTo(int8_t edgePos, int8_t linePos) {
 
 
 
-void LineEdge::update(int8_t edgePos) {
+void LineEdge::update(int8_t rowIndex, int8_t edgePos) {
   if (currentStepPosition == edgePos) {
     if (currentStepCount >= 0) {
       currentStepCount++;
-      validateCurrentStepCountBlowLimit();
+      if (!isCurrentStepCountBlowLimit()) {
+        setStepFailed(rowIndex, false, false, true);
+      }
     }
   } else {
     if (abs(currentStepPosition - edgePos) > 2) {
-      positionJump = true;
+      setStepFailed(rowIndex, false, true, false);
     }
 
     if (currentStepCount >= 0) {
@@ -107,7 +113,7 @@ void LineEdge::update(int8_t edgePos) {
       } else {
 
         if (validStepDirection != direction) {
-          directionReversed = true;
+          setStepFailed(rowIndex, true, false, false);
         }
 
         if (validStepCount < 0) {
@@ -116,7 +122,9 @@ void LineEdge::update(int8_t edgePos) {
           allowedStepDifference = calculateAllowedDifference(validStepCount);
         }
 
-        validateCurrentStepCount();
+        if (!isCurrentStepCountValid()) {
+          setStepFailed(rowIndex, false, false, true);
+        }
       }
     }
 
@@ -134,22 +142,24 @@ int8_t LineEdge::calculateAllowedDifference(int8_t stepCount) {
 
 
 
-void LineEdge::validateCurrentStepCount() {
+bool LineEdge::isCurrentStepCountValid() {
   if (validStepCount >= 0) {
     if ((currentStepCount > validStepCount + allowedStepDifference)
         || (currentStepCount < validStepCount - allowedStepDifference)) {
-      stepLengthInvalid = true;
+      return false;
     }
   }
+  return true;
 }
 
 
-void LineEdge::validateCurrentStepCountBlowLimit() {
+bool LineEdge::isCurrentStepCountBlowLimit() {
   if (validStepCount >= 0) {
     if ((currentStepCount > validStepCount + allowedStepDifference)) {
-      stepLengthInvalid = true;
+      return false;
     }
   }
+  return true;
 }
 
 
@@ -168,10 +178,24 @@ int8_t LineEdge::getLinePositionFromEdge() {
 }
 
 
-bool LineEdge::isContinues() {
-  return !directionReversed && !positionJump && !stepLengthInvalid;
+void LineEdge::setStepFailed(int8_t rowIndex, bool isDirectionRevers, bool isPositionJump, bool isStepLengthInvalid) {
+  if (stepFailedAtRow <0) {
+    stepFailedAtRow = rowIndex;
+    directionReversed = isDirectionRevers;
+    positionJump = isPositionJump;
+    stepLengthInvalid = isStepLengthInvalid;
+  }
 }
 
+
+bool LineEdge::isContinues() {
+  return stepFailedAtRow < 0;
+}
+
+
+int8_t LineEdge::getFailedAtRow() {
+  return stepFailedAtRow;
+}
 
 
 
