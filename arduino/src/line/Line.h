@@ -134,18 +134,15 @@ void Line<totalRowCount>::setRowBitmap(uint8_t rowIndex, uint8_t bitmapHigh, uin
     } else {
       LineSegment &lineSegment = bitmapLineFinder.getSingleLine();
 
-      if (splitDetected || lineTopCandidatePosition >= 0) {
+      // first single line after split
+      if (splitDetected) {
+        setLineTop(rowIndex, lineSegment.getLinePosition(), LineSegment::lineNotFound, LineSegment::lineNotFound, false);
+        currentLinePosition = lineSegment.getLinePosition();
+      } else if (lineTopCandidatePosition >= 0) {
         // top line candidate already. check some additional lines to check for possible splits.
-        if ((rowIndex >= splitDetectionToLine)
-            && (rowIndex >= (lineTopCandidateRowIndex + splitDetectionMinimumLineCount))) {
-
-          if (splitDetected) {
-            setLineTop(rowIndex, lineSegment.getLinePosition(), LineSegment::lineNotFound, LineSegment::lineNotFound, false);
-          } else {
-            // if line was not split then use candidate as line top
-            setLineTop(lineTopCandidateRowIndex, lineTopCandidatePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
-          }
-          currentLinePosition = lineSegment.getLinePosition();
+        if (rowIndex >= splitDetectionToLine &&
+            (rowIndex >= (lineTopCandidateRowIndex + splitDetectionMinimumLineCount))) {
+          setLineTop(lineTopCandidateRowIndex, lineTopCandidatePosition, LineSegment::lineNotFound, LineSegment::lineNotFound, false);
         } else {
           currentAltLine1Position = lineSegment.getLinePosition();
         }

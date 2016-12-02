@@ -165,7 +165,7 @@ TEST(CapturedScreenTest, testCapture12) {
   TestScreenProcessor<120> screenProcessor(line);
   screenProcessor.process(capture_12);
   ASSERT_TRUE(line.isLineTopFound());
-  ASSERT_EQ(15, line.getLineTopPosition());
+  ASSERT_EQ(16, line.getLineTopPosition());
 }
 
 
