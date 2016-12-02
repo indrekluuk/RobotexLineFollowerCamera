@@ -99,7 +99,9 @@ void RowBitmapLineSegmentFinder::processLineSegment(int8_t segmentStart, int8_t 
           secondLineSegment = newLineSegment;
         }
       }
-      if (secondLineSegmentPreviousRow.isLineFound() && newLineSegment.touchesSegment(secondLineSegmentPreviousRow)) {
+      if (secondLineSegmentPreviousRow.isLineFound()
+          && !secondLineSegment.isLineFound()
+          && newLineSegment.touchesSegment(secondLineSegmentPreviousRow)) {
         secondLineSegment = newLineSegment;
       }
 
