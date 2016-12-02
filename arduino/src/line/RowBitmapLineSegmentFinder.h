@@ -93,7 +93,11 @@ void RowBitmapLineSegmentFinder::processLineSegment(int8_t segmentStart, int8_t 
     } else {
 
       if (newLineSegment.touchesSegment(firstLineSegmentPreviousRow)) {
-        if (!firstLineSegment.isLineFound()) {
+        if (!firstLineSegment.isLineFound() ||
+            // if second line is already detected then choose the one closest to the middle if another split occurs
+            (secondLineSegmentPreviousRow.isLineFound() && (abs(LineSegment::rowRangeMidPoint-newLineSegment.getCenter())
+             < abs(LineSegment::rowRangeMidPoint-firstLineSegment.getCenter())))
+            ) {
           firstLineSegment = newLineSegment;
         } else if (!secondLineSegmentPreviousRow.isLineFound() && !secondLineSegment.isLineFound()) {
           secondLineSegment = newLineSegment;
