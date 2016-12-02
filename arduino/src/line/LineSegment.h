@@ -23,9 +23,6 @@ public:
     LineSegment();
     LineSegment(int8_t start, int8_t end);
 
-    inline void evaluateLinePosition(LineSegment &previousRowLineSegment) ; // todo __attribute__((always_inline));
-
-
     inline int8_t getStart() __attribute__((always_inline));
     inline int8_t getEnd() __attribute__((always_inline));
     inline int8_t getCenter() __attribute__((always_inline));
@@ -39,27 +36,26 @@ public:
 
 private:
 
+    inline int8_t evaluateLinePosition() __attribute__((always_inline));
+
+
 
 };
 
 
 
-inline void LineSegment::evaluateLinePosition(LineSegment &previousRowLineSegment) {
+
+int8_t LineSegment::evaluateLinePosition() {
   if (start == 0 || end == rowRange) {
     if (start != 0) {
-      linePosition = end;
-      return;
+      return end;
     }
     if (end != rowRange) {
-      linePosition = start;
-      return;
+      return start;
     }
-
-    if (previousRowLineSegment.isLineFound()) {
-      linePosition = (previousRowLineSegment.getCenter()) > rowRangeMidPoint ? end : start;
-    } else {
-      linePosition = rowRangeMidPoint;
-    }
+    return rowRangeMidPoint;
+  } else {
+    return center;
   }
 }
 

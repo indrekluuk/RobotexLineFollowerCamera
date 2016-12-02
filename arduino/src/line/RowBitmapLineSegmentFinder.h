@@ -116,8 +116,10 @@ bool RowBitmapLineSegmentFinder::isIgnoreSegment(int8_t segmentStart, int8_t seg
     return false;
   }
 
-  // ignore segments that start and end in the corner
-  if (currentRowIndex < ignore2pixelsOnCornersRows) {
+  // ignore segments that start and end in the same corner
+  if (segmentStart < 15 && segmentEnd > 15) {
+    return false;
+  } else if (currentRowIndex < ignore2pixelsOnCornersRows) {
     return (segmentStart <= 2 || segmentStart >= LineSegment::rowRange - 2)
         && (segmentEnd <= 2 || segmentEnd >= LineSegment::rowRange - 2);
   } else if (currentRowIndex < ignore1pixelOnCornersRows) {

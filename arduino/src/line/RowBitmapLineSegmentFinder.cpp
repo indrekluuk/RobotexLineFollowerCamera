@@ -55,13 +55,6 @@ void RowBitmapLineSegmentFinder::nextRow(uint8_t rowIndex, uint8_t bitmapHigh, u
     if (segmentStart != LineSegment::lineNotFound) {
       processLineSegment(segmentStart, 30);
     }
-
-    if (firstLineSegment.isLineFound()) {
-      firstLineSegment.evaluateLinePosition(firstLineSegmentPreviousRow);
-    }
-    if (secondLineSegment.isLineFound()) {
-      firstLineSegment.evaluateLinePosition(secondLineSegmentPreviousRow);
-    }
   }
 };
 

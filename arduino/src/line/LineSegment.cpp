@@ -20,7 +20,7 @@ LineSegment::LineSegment(int8_t start, int8_t end) :
     start(start),
     end(end),
     center((start + end) >> 1),
-    linePosition(center)
+    linePosition(evaluateLinePosition())
 {
 }
 
