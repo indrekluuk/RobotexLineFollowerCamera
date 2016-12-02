@@ -97,7 +97,7 @@ void processLine(const uint8_t lineIndex) {
   int8_t altLine1 = -1;
   int8_t altLine2 = -1;
   if (line.isIdentifiedLine()) {
-    line.getIdentifiedLine();
+    linePosition = line.getIdentifiedLine();
   } else if (line.isLineTopFound() && (line.getLineTopRowIndex() + 5  > lineIndex)) {
     // make line top more visible;
     linePosition = line.getLineTopPosition();
