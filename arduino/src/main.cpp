@@ -123,6 +123,19 @@ void processLine(const uint8_t lineIndex) {
     dataBufferSender.sendMessage(COMMAND_LINE_SEGMENT, (uint8_t *)&message, sizeof(message));
     isLineMessageSent = true;
   }
+
+  // if no line found then send dummy line at the top of the screen
+  if (!isLineMessageSent && (lineIndex == (camera.getRowCount()-1))) {
+    LineSegmentMessageBuffer message;
+    message.lineBottomIndex = camera.getRowCount() - 2;
+    message.lineBottomPosition = LineSegment::rowRangeMidPoint;
+    message.lineTopIndex = camera.getRowCount() - 1;
+    message.lineTopPosition = LineSegment::rowRangeMidPoint;
+    message.isEndOfLine = true;
+    dataBufferSender.sendMessage(COMMAND_LINE_SEGMENT, (uint8_t *)&message, sizeof(message));
+    isLineMessageSent = true;
+  }
+
 }
 
 
