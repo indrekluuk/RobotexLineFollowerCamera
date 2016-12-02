@@ -22,6 +22,7 @@
 #include "screencapture/Capture14.h"
 #include "screencapture/Capture15.h"
 #include "screencapture/Capture16.h"
+#include "screencapture/Capture17.h"
 
 
 
@@ -218,6 +219,15 @@ TEST(CapturedScreenTest, testCapture16) {
   ASSERT_EQ(18, line.getLineTopPosition());
 }
 
+
+
+TEST(CapturedScreenTest, testCapture17) {
+  Line<120> line;
+  TestScreenProcessor<120> screenProcessor(line);
+  screenProcessor.process(capture_17);
+  ASSERT_TRUE(line.isLineTopFound());
+  ASSERT_EQ(14, line.getLineTopPosition());
+}
 
 
 

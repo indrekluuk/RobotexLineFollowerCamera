@@ -200,6 +200,13 @@ int8_t Line<totalRowCount>::updateLine(int8_t rowIndex, LineSegment &lineSegment
     startEdge.update(rowIndex, lineSegment.getStart());
     endEdge.update(rowIndex, lineSegment.getEnd());
 
+    /*
+    if (startEdge.isOppositeDirection(endEdge)) {
+      startEdge.setFailedWithOppositeDirection(rowIndex);
+      endEdge.setFailedWithOppositeDirection(rowIndex);
+    }
+     */
+
     if (startEdge.isContinues() && endEdge.isContinues()) {
       startEdge.calculateLinePositionToEdge(lineSegment.getLinePosition());
       endEdge.calculateLinePositionToEdge(lineSegment.getLinePosition());
@@ -213,7 +220,9 @@ int8_t Line<totalRowCount>::updateLine(int8_t rowIndex, LineSegment &lineSegment
     } else {
       int8_t pos = lineTurn;
       if (rowIndex < ignoreTurnDetectionToLine) {
-        if (startEdge.getFailedRowDirection() == endEdge.getFailedRowDirection()) {
+        if (startEdge.getFailedRowDirection() == endEdge.getFailedRowDirection()
+            && !startEdge.isPositionJump()
+            && !endEdge.isPositionJump()) {
           pos = lineSegment.getLinePosition();
         }
       }
