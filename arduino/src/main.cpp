@@ -93,9 +93,15 @@ void processLine(const uint8_t lineIndex) {
   screen.screenLineStart(lineIndex);
   processGrayscale();
   line.setRowBitmap(lineIndex, monochromeLineHigh, monochromeLineLow);
-  int8_t linePosition = line.isIdentifiedLine() ? line.getIdentifiedLine() : -1;
+  int8_t linePosition = -1;
   int8_t altLine1 = -1;
   int8_t altLine2 = -1;
+  if (line.isIdentifiedLine()) {
+    line.getIdentifiedLine();
+  } else if (line.isLineTopFound() && (line.getLineTopRowIndex() + 5  > lineIndex)) {
+    // make line top more visible;
+    linePosition = line.getLineTopPosition();
+  }
   if (line.isSplitDetectionLine()) {
     altLine1 = line.getFirstSplitDetectionLine();
     altLine2 = line.getSecondSplitDetectionLine();
